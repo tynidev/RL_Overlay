@@ -4,8 +4,8 @@
 ![screen shot](/screenshot.png?raw=true "Overlay Example")
 
 ## Pre-requisites
-https://gitlab.com/bakkesplugins/sos/sos-plugin/-/releases 
-https://gitlab.com/bakkesplugins/sos/sos-ws-relay
+- https://gitlab.com/bakkesplugins/sos/sos-plugin/-/releases 
+- https://gitlab.com/bakkesplugins/sos/sos-ws-relay
 
 ## HowTo
 Video showing how to get SOS running 

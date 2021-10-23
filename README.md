@@ -1,6 +1,8 @@
 # RL_Overlay
  Broadcasting overlay to use for streaming rocket league games.
 
+![Alt text](/screenshot.png?raw=true "Overlay Example")
+
 ## Pre-requisites
 https://gitlab.com/bakkesplugins/sos/sos-plugin/-/releases 
 https://gitlab.com/bakkesplugins/sos/sos-ws-relay

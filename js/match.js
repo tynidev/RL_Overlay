@@ -18,6 +18,8 @@ class Match {
     // Last right team recorded
     right = [];
 
+    localplayer_support = false;
+
     // All callback arrays
     matchCreatedCallbacks = [];
     initializedCallbacks = [];
@@ -253,8 +255,12 @@ class Match {
         });
 
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            var player = game.hasTarget ? param.players[game.target] : players.filter((p) => { return p.name == game.localplayer })[0];
-            callback(true, player);
+            if(localplayer_support){
+                var player = game.hasTarget ? param.players[game.target] : players.filter((p) => { return p.name == game.localplayer })[0];
+                callback(true, player);
+            }else{
+                callback(game.hasTarget, param.players[game.target]);
+            }
         });
 
         this.timeUpdateCallbacks.forEach(function (callback, index) {

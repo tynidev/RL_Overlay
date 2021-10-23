@@ -23,10 +23,6 @@ $(() => {
     $('.spectating').css({
       left:"-1000px"
     });
-    if(match.game.isSeries)
-       $('.series-tally').show();
-     else
-       $('.series-tally').hide();
   });
 
   // Game Initialized
@@ -48,10 +44,6 @@ $(() => {
     };
     update(teams[0], ".left");
     update(teams[1], ".right");
-    if(match.game.isSeries)
-       $('.series-tally').show();
-     else
-       $('.series-tally').hide();
   });
   
   // Player tags

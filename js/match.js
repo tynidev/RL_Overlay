@@ -254,8 +254,9 @@ class Match {
             callback(left, right);
         });
 
+        var localsupport = this.localplayer_support;
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(localplayer_support){
+            if(localsupport){
                 var player = game.hasTarget ? param.players[game.target] : players.filter((p) => { return p.name == game.localplayer })[0];
                 callback(true, player);
             }else{

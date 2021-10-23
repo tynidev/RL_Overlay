@@ -1,0 +1,21 @@
+{
+    "assister": {
+        "id": "Merlin_3",
+        "name": "Merlin"
+    },
+    "ball_last_touch": {
+        "player": "C-Block_2",
+        "speed": 116.86531829833984
+    },
+    "goalspeed": 114.98399353027344,
+    "goaltime": 42,
+    "impact_location": {
+        "X": 0.12062221765518188,
+        "Y": 0.8474531173706055
+    },
+    "scorer": {
+        "id": "C-Block_2",
+        "name": "C-Block",
+        "teamnum": 0
+    }
+  }

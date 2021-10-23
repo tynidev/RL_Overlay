@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <title>Ctrl</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/scoreboard.css">
+  <link rel="stylesheet" href="./css/teamboard.css">
+  <link rel="stylesheet" href="./css/specator.css">
+  <style>
+    textarea {
+      margin:10px 10px 10px 0;
+      display:none;
+      height: 800px;
+      width: 500px;
+    }
+  </style>
+</head>
+
+<body style="margin: 100px;">
+
+  <select name="event" id="event">
+    <option value="update_state">game:update_state</option>
+    <option value="match_created">game:match_created</option>
+    <option value="initialized">game:initialized</option>
+    <option value="pre_countdown_begin">game:pre_countdown_begin</option>
+    <option value="post_countdown_begin">game:post_countdown_begin</option>
+    <option value="goal_scored">game:goal_scored</option>
+    <option value="replay_start">game:replay_start</option>
+    <option value="replay_will_end">game:replay_will_end</option>
+    <option value="replay_end">game:replay_end</option>
+    <option value="match_destroyed">game:match_destroyed</option>
+  </select>
+
+  <textarea id="match_created">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="initialized">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="pre_countdown_begin">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="post_countdown_begin">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="replay_start">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="replay_will_end">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+<textarea id="replay_end">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="match_destroyed">
+{
+  "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
+}
+  </textarea>
+  <textarea id="goal_scored">
+{
+  "assister": {
+      "id": "Merlin_3",
+      "name": "Merlin"
+  },
+  "ball_last_touch": {
+      "player": "C-Block_2",
+      "speed": 116.86531829833984
+  },
+  "goalspeed": 114.98399353027344,
+  "goaltime": 42,
+  "impact_location": {
+      "X": 0.12062221765518188,
+      "Y": 0.8474531173706055
+  },
+  "scorer": {
+      "id": "C-Block_2",
+      "name": "C-Block",
+      "teamnum": 0
+  }
+}
+  </textarea>
+  <textarea id="update_state" style="display: block;">
+{
+  "event": "gamestate",
+  "game": {
+      "arena": "Stadium_P",
+      "ball": {
+          "location": {
+              "X": -3998.589111328125,
+              "Y": 3066.267333984375,
+              "Z": 611.462890625
+          },
+          "speed": 38,
+          "team": 1
+      },
+      "hasTarget": false,
+      "hasWinner": false,
+      "isOT": false,
+      "isReplay": false,
+      "isSeries": false,
+      "localplayer": "tyni",
+      "seriesLength": 1,
+      "target": "",
+      "teams": [
+          {
+              "color_primary": "1873FF",
+              "color_secondary": "E5E5E5",
+              "name": "OFFENSE 365",
+              "score": 0
+          },
+          {
+              "color_primary": "C26418",
+              "color_secondary": "E5E5E5",
+              "name": "OVERCOMMIT",
+              "score": 0
+          }
+      ],
+      "time_milliseconds": 297.4757080078125,
+      "time_seconds": 298,
+      "winner": ""
+  },
+  "hasGame": true,
+  "match_guid": "1270E85E11EC336F04E50489C70BA343",
+  "players": {
+      "Khan_6": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 0,
+          "cartouches": 2,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Khan_6",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -399.9725646972656,
+              "Y": 364.75634765625,
+              "Z": 17.040603637695312,
+              "pitch": -174,
+              "roll": -1,
+              "yaw": 15904
+          },
+          "name": "Khan",
+          "onGround": true,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 2,
+          "shortcut": 6,
+          "shots": 0,
+          "speed": 36,
+          "team": 1,
+          "touches": 1
+      },
+      "Merlin_2": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 0,
+          "cartouches": 2,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Merlin_2",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -550.1307373046875,
+              "Y": 42.79950714111328,
+              "Z": 18.635330200195312,
+              "pitch": -63,
+              "roll": 0,
+              "yaw": 30478
+          },
+          "name": "Merlin",
+          "onGround": true,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 0,
+          "shortcut": 2,
+          "shots": 0,
+          "speed": 1,
+          "team": 0,
+          "touches": 1
+      },
+      "Myrtle_5": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 4,
+          "cartouches": 0,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Myrtle_5",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -1566.201416015625,
+              "Y": 4787.5634765625,
+              "Z": 135.54122924804688,
+              "pitch": 3841,
+              "roll": 21900,
+              "yaw": -20975
+          },
+          "name": "Myrtle",
+          "onGround": false,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 0,
+          "shortcut": 5,
+          "shots": 0,
+          "speed": 41,
+          "team": 1,
+          "touches": 0
+      },
+      "Sundown_3": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 0,
+          "cartouches": 0,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Sundown_3",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -3010.944580078125,
+              "Y": 1473.138427734375,
+              "Z": 18.320018768310547,
+              "pitch": -178,
+              "roll": 0,
+              "yaw": 19099
+          },
+          "name": "Sundown",
+          "onGround": true,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 0,
+          "shortcut": 3,
+          "shots": 0,
+          "speed": 70,
+          "team": 0,
+          "touches": 0
+      },
+      "Tusk_7": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 0,
+          "cartouches": 0,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Tusk_7",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -1997.9296875,
+              "Y": 1773.0877685546875,
+              "Z": 18.779998779296875,
+              "pitch": 50,
+              "roll": 0,
+              "yaw": 13298
+          },
+          "name": "Tusk",
+          "onGround": true,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 0,
+          "shortcut": 7,
+          "shots": 0,
+          "speed": 53,
+          "team": 1,
+          "touches": 0
+      },
+      "Viper_1": {
+          "assists": 0,
+          "attacker": "",
+          "boost": 24,
+          "cartouches": 0,
+          "demos": 0,
+          "goals": 0,
+          "hasCar": true,
+          "id": "Viper_1",
+          "isDead": false,
+          "isPowersliding": false,
+          "isSonic": false,
+          "location": {
+              "X": -1606.4078369140625,
+              "Y": -3906.886962890625,
+              "Z": 17,
+              "pitch": -99,
+              "roll": 0,
+              "yaw": -31263
+          },
+          "name": "Viper",
+          "onGround": true,
+          "onWall": false,
+          "primaryID": "0",
+          "saves": 0,
+          "score": 0,
+          "shortcut": 1,
+          "shots": 0,
+          "speed": 56,
+          "team": 0,
+          "touches": 0
+      }
+  }
+}
+  </textarea>
+  <button id="send">SEND</button>
+  <script src="./js/ws_subscribers.js"></script>
+  <script src="./js/control.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+
+</body>
+
+</html>

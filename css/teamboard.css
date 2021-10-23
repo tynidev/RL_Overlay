@@ -1,0 +1,71 @@
+.teamboard{
+  position: absolute;
+  width: 380px;
+  top: 15px; /* 1440/2 - 400/2 = 520*/  
+  text-shadow: 2px 2px black;
+  padding: 0 10px 15px 10px;
+  opacity: 1;
+}
+.teamboard.left {
+  left: 15px;
+  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.9), rgba(0, 0, 0, 1));
+  border-radius: 0 0 10px 10px;
+}
+
+.teamboard.right {
+  left: 2145px; /* 2560 - 400 */ 
+  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.9), rgba(0, 0, 0, 1));
+  border-radius: 0 0 10px 10px;
+}
+
+.teamboard .player {
+  margin:10px;
+  font-size: 30px;
+  display: block;
+  padding-bottom: 5px;
+}
+
+.teamboard .player .boost{
+  height: 15px;
+  border-style:solid;
+}
+
+.teamboard.left .player .boost{
+  border-color:  rgb(0, 150, 255, 0.6);
+}
+
+.teamboard.right .player .boost{
+  border-color:  rgba(255, 255, 0, 0.6);
+}
+
+.teamboard .player .fill{
+  width: 70%;
+  height:100%;
+}
+
+.teamboard.left .player .fill{
+  background-image: linear-gradient(to right, rgb(0, 0, 255), rgb(0, 150, 255));
+}
+
+.teamboard.right .player .fill{
+  background-image: linear-gradient(to right, rgb(255, 119, 0), rgb(255, 255, 0));
+}
+
+.teamboard .player .stats .stat {
+  display:inline;
+  padding:0 10px 0 0;
+}
+
+.teamboard .player .stats .stat img {
+  display:inline;
+  position: relative;
+  left: 0;
+  height: 25px;
+  filter: invert(90%);
+}
+
+.teamboard .player .stats .stat div {
+  display:inline;
+  height: 30px;
+  padding-right:3px;
+}

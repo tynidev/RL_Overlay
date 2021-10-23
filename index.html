@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <title>Overlay</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/scoreboard.css">
+  <link rel="stylesheet" href="./css/teamboard.css">
+  <link rel="stylesheet" href="./css/specator.css">
+
+</head>
+
+<body>
+  <div id="all" style="display: none;">
+    
+    <div class="scoreboard">
+      <div class="left">
+        <div class="box">
+          <div class="name">Orange</div>
+          <div class="score">5</div>
+        </div>
+      </div>
+      <div class="center">
+        <div class="box">
+          <div class="time">4:49</div>
+          <div class="series">
+            RANKED
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="box">
+          <div class="name">Blue</div>
+          <div class="score">2</div>
+        </div>
+      </div>
+      <div class="series-tally">
+        <div class="left">
+          <div class="one mark"></div>
+          <div class="two mark"></div>
+          <div class="three mark"></div>
+        </div>
+        <div class="series-text">SERIES</div>
+        <div class="right">
+          <div class="three mark"></div>
+          <div class="two mark"></div>
+          <div class="one mark"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="teamboard left 0">
+    </div>
+
+    <div class="teamboard right 1">
+    </div>
+
+    <div class="spectating">
+      <div class="name"></div>
+      <div class="boost"><div class="fill"></div></div>
+      <div class="stats">
+        <div class="goal">6</div><img src="assets/stat-icons/goal.svg"/>
+        <div class="assist">7</div><img src="assets/stat-icons/assist.svg"/>
+        <div class="save">2</div><img src="assets/stat-icons/save.svg"/>
+        <div class="shots">4</div><img src="assets/stat-icons/shot-on-goal.svg"/>
+        <div class="demo">4</div><img src="assets/stat-icons/demolition.svg"/>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="./js/ws_subscribers.js"></script>
+  <script src="./js/match.js"></script>
+  <script src="./js/index.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+
+</body>
+
+</html>

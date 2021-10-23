@@ -1,0 +1,42 @@
+.spectating{
+  position: absolute;
+  top:1140px;
+  height:100px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
+  font-size: 80px;
+  text-align: right;
+  padding: 0 70px 0px 70px;
+}
+.spectating .name{
+  margin:0px;
+  padding:0px;
+}
+.spectating .boost{
+  display: none;
+  position: relative;
+  left: -70px;
+  top:-4px;
+  width: 100%;
+}
+.spectating .boost .fill{
+  width: 70%;
+  height:25px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.25));
+}
+.spectating .stats{
+ position: relative;
+ top:-50px;
+}
+.spectating .stats img{
+  display:inline;
+  position: relative;
+  left: 0;
+  height: 30px;
+  filter: invert(90%);
+}
+.spectating .stats div{
+  font-size: 30px;
+  display:inline;
+  height: 30px;
+  padding-right:3px;
+}

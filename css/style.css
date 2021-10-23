@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'ScoreBoardFont';
+  src:  url("../assets/Lustra\ Text\ SemiBold.ttf");
+}
+
+body{
+  width: 2560px;
+  height: 1440px;
+  font-family: "ScoreBoardFont";
+  color: white;
+  background-color: rgba(0, 0, 0, 1); 
+  margin: 0px auto; 
+  overflow: hidden;
+}

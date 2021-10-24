@@ -194,5 +194,11 @@ $(() => {
   // Game Ended
   match.OnGameEnded(() => {
     $('#all').hide();
+    PreGamePosition();
+  });
+
+  WsSubscribers.subscribe("game", "match_destroyed", (p) => { 
+    $('#all').hide();
+    PreGamePosition();
   });
 });

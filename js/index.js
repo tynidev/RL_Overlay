@@ -69,12 +69,12 @@ $(() => {
   match.OnTimeUpdated((time) => {
     
     // If were not showing main elements then animate them in
-    if(!$('#all').is(":visible")){
+    if(match.timeStarted && !$('#all').is(":visible")) {
       PreGamePosition();
       $('#all').show();
       CountdownAnimation();
     }
-    
+
     // Update time
     $('.scoreboard .center .time').text(time);
   });

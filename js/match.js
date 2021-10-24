@@ -20,6 +20,8 @@ class Match {
 
     localplayer_support = false;
 
+    timeStarted = false;
+
     // All callback arrays
     matchCreatedCallbacks = [];
     initializedCallbacks = [];
@@ -47,6 +49,7 @@ class Match {
             this.game = {};
             this.left = [];
             this.right = [];
+            this.timeStarted = false;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -63,6 +66,7 @@ class Match {
 
         // Kick off countdown
         ws.subscribe("game", "pre_countdown_begin", (p) => { 
+            this.timeStarted = true;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "post_countdown_begin", (p) => { this.post_countdown_begin(p) }); // duplicate of pre_countdown_begin
@@ -78,7 +82,9 @@ class Match {
         // Fired when the clock ends NOTE: this fires many times in a row so you will receive duplicates
         //ws.subscribe("game", "clock_stopped", (p) => { });
         // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
-        //ws.subscribe("game", "clock_updated_seconds", (p) => { });
+        ws.subscribe("game", "clock_updated_seconds", (p) => { 
+            this.timeStarted = true;
+        });
 
         // When a goal is scored
         ws.subscribe("game", "goal_scored", (p) => { 
@@ -115,6 +121,10 @@ class Match {
 
         // When match OR replay is destroyed
         ws.subscribe("game", "match_destroyed", (p) => { 
+            this.game = {};
+            this.left = [];
+            this.right = [];
+            this.timeStarted = false;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
         });
     }

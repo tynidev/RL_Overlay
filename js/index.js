@@ -199,6 +199,8 @@ $(() => {
 
   WsSubscribers.subscribe("game", "match_destroyed", (p) => { 
     $('#all').hide();
+    $('.teamboard .left').empty();
+    $('.teamboard .right').empty();
     PreGamePosition();
   });
 });

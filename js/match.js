@@ -66,7 +66,6 @@ class Match {
 
         // Kick off countdown
         ws.subscribe("game", "pre_countdown_begin", (p) => { 
-            this.timeStarted = true;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "post_countdown_begin", (p) => { this.post_countdown_begin(p) }); // duplicate of pre_countdown_begin

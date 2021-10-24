@@ -246,14 +246,12 @@ class Match {
         let left = players.filter((p) => { return p.team == 0 });
         let right = players.filter((p) => { return p.team == 1 });
         
-        this.teamUpdateCallbacks.forEach(function (callback, index) {
-            callback(game.teams);
-        });
-
+        // Call on every update
         this.playerUpdateCallbacks.forEach(function (callback, index) {
             callback(left, right);
         });
 
+        // Call on every update
         var localsupport = this.localplayer_support;
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
             if(localsupport){
@@ -264,17 +262,26 @@ class Match {
             }
         });
 
-        this.timeUpdateCallbacks.forEach(function (callback, index) {
-            
-            let seconds = game.time_seconds % 60;
-            let min = Math.floor(game.time_seconds / 60);
+        // Has team state changed?
+        if(this.game === undefined || this.HasTeamStateChanged(this.game.teams, game.teams)){
+            this.teamUpdateCallbacks.forEach(function (callback, index) {
+                callback(game.teams);
+            });
+        }
 
-            callback((game.isOT ? "+" : "") + min + ":" + pad(seconds, 2));
-        });
+        // Has time changed?
+        if(this.game === undefined || this.game.time_seconds != game.time_seconds){
+            this.timeUpdateCallbacks.forEach(function (callback, index) {
+                
+                let seconds = game.time_seconds % 60;
+                let min = Math.floor(game.time_seconds / 60);
+
+                callback((game.isOT ? "+" : "") + min + ":" + pad(seconds, 2));
+            });
+        }
 
         // Compare teams
-        var diff = this.CompareTeams(this.left, this.right, left, right);
-
+        var diff = this.ComputeTeamMemberChanges(this.left, this.right, left, right);
         if(!diff.equal){ // Fire team members changed if teams have changed
             this.teamsChangedCallbacks.forEach(function(callback, index) {
                 callback(left, right);
@@ -287,7 +294,22 @@ class Match {
         this.right = right;
     }
 
-    CompareTeams(prevLeft, prevRight, currentLeft, currentRight)
+    HasTeamStateChanged(prevTeams, currTeams)
+    {
+        if(prevTeams === undefined && currTeams !== undefined)
+            return true;
+        var t1 = currTeams[0];
+        var t2 = prevTeams[0];
+        if(t1.color_primary != t2.color_primary || t1.color_secondary != t2.color_secondary && t1.score != t2.score)
+            return true;
+        t1 = currTeams[1];
+        t2 = prevTeams[1];
+        if(t1.color_primary != t2.color_primary || t1.color_secondary != t2.color_secondary && t1.score != t2.score)
+            return true;
+        return false;
+    }
+
+    ComputeTeamMemberChanges(prevLeft, prevRight, currentLeft, currentRight)
     {
         var newLeft = currentLeft.filter((p1) => {
             return prevLeft.filter((p2) => { return p2.id == p1.id; }).length === 0;

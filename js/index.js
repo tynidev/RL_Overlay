@@ -1,6 +1,52 @@
-$(() => {
+function PreGamePosition()
+{
+  $('.scoreboard').css({
+    top:"-180px"
+  });
+  $('.teamboard.left').css({
+    left:"-420px"
+  });
+  $('.teamboard.right').css({
+    left:"2565px"
+  });
+  $('.spectating').css({
+    left:"-1000px"
+  });
+}
 
-  $('#all').hide(); // hide initially on load
+function ReplayAnimation()
+{
+  $('.scoreboard').animate({
+    top:"-180px"
+  });
+  $('.teamboard.left').animate({
+    left:"-420px"
+  });
+  $('.teamboard.right').animate({
+    left:"2565px"
+  });
+  $('.spectating').animate({
+    left:"-1000px"
+  });
+}
+
+function CountdownAnimation()
+{
+  $('.scoreboard').animate({
+    top:"0px"
+  });
+  $('.teamboard.left').animate({
+    left:"15px"
+  });
+  $('.teamboard.right').animate({
+    left:"2145px"
+  });
+  $('.spectating').animate({
+    left:"0px"
+  });
+}
+
+$(() => {
 
   WsSubscribers.init(49322, false);
 
@@ -11,18 +57,7 @@ $(() => {
     $('#all').hide();
     $('.teamboard .left').empty();
     $('.teamboard .right').empty();
-    $('.scoreboard').css({
-      top:"-180px"
-    });
-    $('.teamboard.left').css({
-      left:"-420px"
-    });
-    $('.teamboard.right').css({
-      left:"2565px"
-    });
-    $('.spectating').css({
-      left:"-1000px"
-    });
+    PreGamePosition();
   });
 
   // Game Initialized
@@ -32,7 +67,15 @@ $(() => {
 
   // Time
   match.OnTimeUpdated((time) => {
-    $('body').show();
+    
+    // If were not showing main elements then animate them in
+    if(!$('#all').is(":visible")){
+      PreGamePosition();
+      $('#all').show();
+      CountdownAnimation();
+    }
+    
+    // Update time
     $('.scoreboard .center .time').text(time);
   });
 
@@ -143,36 +186,10 @@ $(() => {
   });
 
   // Goal replay started
-  match.OnInstantReplayStart(() => {
-    $('.scoreboard').animate({
-      top:"-180px"
-    });
-    $('.teamboard.left').animate({
-      left:"-420px"
-    });
-    $('.teamboard.right').animate({
-      left:"2565px"
-    });
-    $('.spectating').animate({
-      left:"-1000px"
-    });
-  });
+  match.OnInstantReplayStart(() => { ReplayAnimation(); });
   
   // Kick off countdown begin
-  match.OnCountdown(() => {
-    $('.scoreboard').animate({
-      top:"0px"
-    });
-    $('.teamboard.left').animate({
-      left:"15px"
-    });
-    $('.teamboard.right').animate({
-      left:"2145px"
-    });
-    $('.spectating').animate({
-      left:"0px"
-    });
-  });
+  match.OnCountdown(() => { CountdownAnimation() });
 
   // Game Ended
   match.OnGameEnded(() => {

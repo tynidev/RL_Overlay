@@ -304,19 +304,16 @@ class Match {
         this.right = right;
     }
 
+    TeamsEqual(t1, t2)
+    {
+        return t1.color_primary === t2.color_primary && t1.color_secondary === t2.color_secondary && t1.score === t2.score;
+    }
+
     HasTeamStateChanged(prevTeams, currTeams)
     {
         if(prevTeams === undefined && currTeams !== undefined)
             return true;
-        var t1 = currTeams[0];
-        var t2 = prevTeams[0];
-        if(t1.color_primary != t2.color_primary || t1.color_secondary != t2.color_secondary && t1.score != t2.score)
-            return true;
-        t1 = currTeams[1];
-        t2 = prevTeams[1];
-        if(t1.color_primary != t2.color_primary || t1.color_secondary != t2.color_secondary && t1.score != t2.score)
-            return true;
-        return false;
+        return !this.TeamsEqual(prevTeams[0], currTeams[0]) || !this.TeamsEqual(prevTeams[1], currTeams[1]);
     }
 
     ComputeTeamMemberChanges(prevLeft, prevRight, currentLeft, currentRight)

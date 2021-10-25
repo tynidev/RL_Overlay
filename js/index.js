@@ -28,6 +28,7 @@ function ReplayAnimation()
   $('.spectating').animate({
     left:"-1000px"
   });
+  $('.minimap').show();
 }
 
 function CountdownAnimation()
@@ -46,6 +47,10 @@ function CountdownAnimation()
   });
 }
 
+function GetLocation(point){
+  return {'X': point.X + 4096, 'Y': point.Y + 6000} 
+}
+
 $(() => {
 
   WsSubscribers.init(49322, false);
@@ -57,6 +62,8 @@ $(() => {
     $('#all').hide();
     $('.teamboard .left').empty();
     $('.teamboard .right').empty();
+    d3.selectAll('.blue-car').remove();
+    d3.selectAll('.orng-car').remove();
     PreGamePosition();
   });
 
@@ -102,13 +109,32 @@ $(() => {
       $(id + ' .stats .stat .demo').text(player.demos);
       $(id + ' .stats .stat .shots').text(player.shots);
     };
+    var i = 0;
     left.forEach(element => {
-      var id = element.primaryID == "0" ? element.id : element.primaryID;
-      update(element, '.teamboard.left #' + id);
+      var id = i++;
+      update(element, '.teamboard.left #l' + id);
+
+      var t = GetLocation(element.location);
+      var b = d3.selectAll('.blue-car#l'+ id);
+      b.transition()
+      .duration(100)
+      .ease(d3.easeLinear)
+      .attr("cx", t.X)
+      .attr("cy", t.Y);
+
     });  
+    i = 0;
     right.forEach(element => {
-      var id = element.primaryID == "0" ? element.id : element.primaryID;
-      update(element, '.teamboard.right #' + id);
+      var id = i++;
+      update(element, '.teamboard.right #r' + id);
+
+      var t = GetLocation(element.location);
+      var b = d3.selectAll('.orng-car#r'+ id);
+      b.transition()
+      .duration(100)
+      .ease(d3.easeLinear)
+      .attr("cx", t.X)
+      .attr("cy", t.Y);
     });
   });
   
@@ -145,51 +171,85 @@ $(() => {
   match.OnTeamsChanged((left, right) => {
     $('.teamboard.left').empty();
     $('.teamboard.right').empty();
+    d3.selectAll('.blue-car').remove();
+    d3.selectAll('.orng-car').remove();
 
+    var minimap = d3.selectAll('#minimap');
+
+    var i = 0;
     left.forEach(element => {
-      var id = element.primaryID == "0" ? element.id : element.primaryID;
-      $('.teamboard.left').append(`<div id="` + id + `"class="player">
-      <div class="name">
-      ` + element.name + `
-      </div>
-      <div class="boost">
-        <div class="fill"></div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
-        <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
-        <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
-        <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
-        <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
-      </div>
-    </div>`);
-    });
+      var id = i++;
+      $('.teamboard.left').append(`<div id="l` + id + `"class="player">
+        <div class="name">
+        ` + element.name + `
+        </div>
+        <div class="boost">
+          <div class="fill"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
+          <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
+          <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
+          <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
+          <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+        </div>
+      </div>`);
 
+      var t = GetLocation(element.location);
+      minimap.append('svg:circle')
+        .attr("cx", t.X)
+        .attr("cy", t.Y)
+        .attr("r", "192")
+        .attr("class", "blue-car") 
+        .attr("id", "l" + id); 
+    });     
+
+    i = 0;
     right.forEach(element => {
-      var id = element.primaryID == "0" ? element.id : element.primaryID;
-      $('.teamboard.right').append(`<div id="` + id + `"class="player">
-      <div class="name">
-      ` + element.name + `
-      </div>
-      <div class="boost">
-        <div class="fill"></div>
-      </div>
-      <div class="stats">
-        <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
-        <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
-        <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
-        <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
-        <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
-      </div>
-    </div>`);
+      var id = i++;
+      $('.teamboard.right').append(`<div id="r` + id + `"class="player">
+        <div class="name">
+        ` + element.name + `
+        </div>
+        <div class="boost">
+          <div class="fill"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
+          <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
+          <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
+          <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
+          <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+        </div>
+      </div>`);
+
+      var t = GetLocation(element.location);
+      minimap.append('svg:circle')
+        .attr("cx", t.X)
+        .attr("cy", t.Y)
+        .attr("r", "192")
+        .attr("class", "orng-car")
+        .attr("id", "r" + id); 
     });        
   });
 
   // Goal replay started
   match.OnInstantReplayStart(() => { ReplayAnimation(); });
   
+  match.OnInstantReplayEnd(() => { $('.minimap').hide(); });
+
   // Kick off countdown begin
   match.OnCountdown(() => { CountdownAnimation() });
+
+  match.OnBallMove((ball) => {
+      var t = GetLocation(ball.location);
+      var b = d3.selectAll('#ball');
+      b.transition()
+      .duration(100)
+      .ease(d3.easeLinear)
+      .attr("cx", t.X)
+      .attr("cy", t.Y);
+  });
 
   // Game Ended
   match.OnGameEnded(() => {
@@ -201,6 +261,8 @@ $(() => {
     $('#all').hide();
     $('.teamboard .left').empty();
     $('.teamboard .right').empty();
+    d3.selectAll('.blue-car').remove();
+    d3.selectAll('.orng-car').remove();
     PreGamePosition();
   });
 });

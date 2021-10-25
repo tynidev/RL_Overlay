@@ -22,6 +22,8 @@ class Match {
 
     timeStarted = false;
 
+    stats = new Stats();
+
     // All callback arrays
     matchCreatedCallbacks = [];
     initializedCallbacks = [];
@@ -38,6 +40,7 @@ class Match {
     teamsChangedCallbacks = [];
     gameEndCallbacks = [];
     podiumCallbacks = [];
+    ballUpdateCallbacks = [];
 
     /**
      * Constructor
@@ -49,6 +52,7 @@ class Match {
             this.game = {};
             this.left = [];
             this.right = [];
+            this.stats = new Stats();
             this.timeStarted = false;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
         });
@@ -123,6 +127,7 @@ class Match {
             this.game = {};
             this.left = [];
             this.right = [];
+            this.stats = new Stats();
             this.timeStarted = false;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
         });
@@ -245,6 +250,14 @@ class Match {
         this.podiumCallbacks.push(callback);
     }
 
+    /**
+     * When the ball moves this callback is called
+     * @param {Callback to call when event fires} callback 
+     */
+    OnBallMove(callback){
+        this.ballUpdateCallbacks.push(callback);
+    }
+
     /***************************/
     /**** INTERNAL METHODS  ****/
     /***************************/
@@ -255,6 +268,11 @@ class Match {
         let left = players.filter((p) => { return p.team == 0 });
         let right = players.filter((p) => { return p.team == 1 });
         
+        // Call on every update
+        this.ballUpdateCallbacks.forEach(function(callback, index) {
+            callback(game.ball);
+        });
+
         // Call on every update
         this.playerUpdateCallbacks.forEach(function (callback, index) {
             callback(left, right);
@@ -296,6 +314,19 @@ class Match {
                 callback(left, right);
             });
         }
+
+        this.stats.Record({
+            'prev' : {
+                'game': this.game,
+                'left' : this.left,
+                'right' : this.right
+            },
+            'curr' : {
+                'game': game,
+                'left' : left,
+                'right' : right
+            }
+        });
 
         // Replace old state with new state
         this.game = game;

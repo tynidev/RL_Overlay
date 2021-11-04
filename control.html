@@ -25,6 +25,7 @@
 <body style="margin: 100px;">
 
   <select name="event" id="event">
+    <option value="series_update">game:series_udpate</option>
     <option value="update_state">game:update_state</option>
     <option value="match_created">game:match_created</option>
     <option value="initialized">game:initialized</option>
@@ -37,6 +38,22 @@
     <option value="match_destroyed">game:match_destroyed</option>
   </select>
 
+  <button id="send">SEND</button>
+  <textarea id="series_update">
+{
+  "title" : "Week 8", 
+  "teams": [
+    {
+      "team" : 0,
+      "matches_won" : 0
+    },
+    {
+      "team" : 1,
+      "matches_won" : 0
+    }
+  ]
+}
+  </textarea>
   <textarea id="match_created">
 {
   "match_guid": "80B8C97011EC336BD951A490BDA20AF6"
@@ -338,7 +355,6 @@
   }
 }
   </textarea>
-  <button id="send">SEND</button>
   <script src="./js/ws_subscribers.js"></script>
   <script src="./js/control.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>

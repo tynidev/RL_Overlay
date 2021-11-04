@@ -40,7 +40,7 @@ function CountdownAnimation()
     left:"15px"
   });
   $('.teamboard.right').animate({
-    left:"2145px"
+    left:"2225px"
   });
   $('.spectating').animate({
     left:"0px"
@@ -56,6 +56,31 @@ $(() => {
   WsSubscribers.init(49322, false);
 
   const match = new Match(WsSubscribers);
+  match.localplayer_support = true;
+
+    WsSubscribers.subscribe("game", "series_update", (p) => { 
+      $('.scoreboard .series-tally').css({display:"block"});
+      $('.scoreboard .center .box .series').text(p.title);
+
+      $('.scoreboard .series-tally .mark').each((i, el) => {
+        $(el).removeClass('w');
+      });
+
+      for(var i = 1; i <= p.teams[0].matches_won; i++)
+      {
+        var el = $('.scoreboard .series-tally .left .mark.w' + i);
+        if(!el.hasClass('w')){
+          el.addClass('w');
+        }
+      }
+      for(var i = 1; i <= p.teams[1].matches_won; i++)
+      {
+        var el = $('.scoreboard .series-tally .right .mark.w' + i);
+        if(!el.hasClass('w')){
+          el.addClass('w');
+        }
+      }
+    });
 
   // Match created
   match.OnGameCreated(() => {
@@ -111,30 +136,28 @@ $(() => {
     };
     var i = 0;
     left.forEach(element => {
-      var id = i++;
-      update(element, '.teamboard.left #l' + id);
+      update(element, '.teamboard.left .player#t' + element.team + `-p` + i + `-board`);
 
       var t = GetLocation(element.location);
-      var b = d3.selectAll('.blue-car#l'+ id);
+      var b = d3.selectAll('.car#t' + element.team + '-p' + i + '-circle');
       b.transition()
       .duration(100)
       .ease(d3.easeLinear)
       .attr("cx", t.X)
       .attr("cy", t.Y);
-
+      i++;
     });  
-    i = 0;
     right.forEach(element => {
-      var id = i++;
-      update(element, '.teamboard.right #r' + id);
+      update(element, '.teamboard.right .player#t' + element.team + `-p` + i + `-board`);
 
       var t = GetLocation(element.location);
-      var b = d3.selectAll('.orng-car#r'+ id);
+      var b = d3.selectAll('.car#t' + element.team + '-p' + i + '-circle');
       b.transition()
       .duration(100)
       .ease(d3.easeLinear)
       .attr("cx", t.X)
       .attr("cy", t.Y);
+      i++;
     });
   });
   
@@ -178,8 +201,7 @@ $(() => {
 
     var i = 0;
     left.forEach(element => {
-      var id = i++;
-      $('.teamboard.left').append(`<div id="l` + id + `"class="player">
+      $('.teamboard.left').append(`<div id="t` + element.team + `-p` + i + `-board" class="player">
         <div class="name">
         ` + element.name + `
         </div>
@@ -200,14 +222,13 @@ $(() => {
         .attr("cx", t.X)
         .attr("cy", t.Y)
         .attr("r", "192")
-        .attr("class", "blue-car") 
-        .attr("id", "l" + id); 
+        .attr("class", "blue-car car") 
+        .attr("id", `t` + element.team + `-p` + i + `-circle`); 
+        i++;
     });     
 
-    i = 0;
     right.forEach(element => {
-      var id = i++;
-      $('.teamboard.right').append(`<div id="r` + id + `"class="player">
+      $('.teamboard.right').append(`<div id="t` + element.team + `-p` + i + `-board" class="player">
         <div class="name">
         ` + element.name + `
         </div>
@@ -228,8 +249,9 @@ $(() => {
         .attr("cx", t.X)
         .attr("cy", t.Y)
         .attr("r", "192")
-        .attr("class", "orng-car")
-        .attr("id", "r" + id); 
+        .attr("class", "orng-car car")
+        .attr("id", `t` + element.team + `-p` + i + `-circle`); 
+        i++;
     });        
   });
 

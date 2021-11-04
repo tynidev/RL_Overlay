@@ -3,9 +3,9 @@
   top: 0px;
   left: 780px; /* 2560/2 - 1000/2 */
   width: 1000px;
-  height: 150px;
-  font-size: 45px;
-  background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.999), rgba(0, 0, 0, 0.999), rgba(0, 0, 0, 0.999), rgba(0, 0, 0, 0.8),rgba(255, 94, 0, 1));
+  height: 110px;
+  font-size: 35px;
+  background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8),rgba(255, 94, 0, 1));
   text-shadow: 2px 2px black;
   border-radius: 0px 0px 10px 10px;
 }
@@ -14,8 +14,8 @@
   top: 0px;
   left: 0px;
   width: 400px;
-  padding: 20px 0px 0px 0px;
-  height: 130px;
+  height: 110px;
+  padding: 0px 0px 0px 0px;
   text-align: left;
   transform: skew(15deg,0deg);
   background-image: linear-gradient(to right, rgb(0, 9, 61),rgba(0, 0, 0, 0.6));
@@ -30,11 +30,11 @@
   top: 0px;
   left: 400px;
   width: 200px;
-  height: 130px;
-  line-height: 60px;
+  height: 110px;
+  line-height: 55px;
   text-align: center;
-  font-size: 60px;
-  padding: 20px 0px 0px 0px;
+  font-size: 55px;
+  padding: 8px 0px 0px 0px;
   color: rgb(255, 230, 118)
 }
 .scoreboard .center .time div{
@@ -42,9 +42,8 @@
   font-size: 60px;
 }
 .scoreboard .center .series{
-  height:20px;
-  font-size: 28px;
-  padding: 5px 0px 5px 0px;
+  font-size: 24px;
+  padding: 0px 0px 5px 0px;
   text-align: center;
 }
 .scoreboard .right .box {
@@ -52,8 +51,8 @@
   top: 0px;
   left: 600px;
   width: 400px;
-  height: 130px;
-  padding: 20px 0px 0px 0px;
+  height: 110px;
+  padding: 0px 0px 0px 0px;
   text-align: right;
   transform: skew(-15deg,0deg);
   background-image: linear-gradient(to left, rgb(53, 19, 0),rgba(0, 0, 0, 0.6));
@@ -66,17 +65,17 @@
 
 .scoreboard .score {
   position: relative;
-  top: -15px;
-  font-size: 70px;
+  top: -10px;
+  font-size: 55px;
 }
 
 .scoreboard .series-tally{
   position: absolute;
-  top:150px;
-  left:250px;
+  top:110px;
+  left:215px;
   height:20px;
-  width: 500px;
-  background-color: black;
+  width: 570px;
+  background-color: rgba(0, 0, 0, 0.8);
   display: none;
 }
 .scoreboard .series-tally .left{
@@ -85,10 +84,10 @@
   transform: skew(15deg,0deg);
   width: 260px;
   height: 20px;
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 .scoreboard .series-tally .series-text{
-  left: 210px;
+  left: 245px;
   top:-3px;
   position: absolute;
   font-size: 20px;
@@ -102,7 +101,7 @@
   transform: skew(-15deg,0deg);
   width: 260px;
   height: 20px;
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 .scoreboard .series-tally .mark{
   position: relative;
@@ -116,12 +115,9 @@
 .scoreboard .series-tally .right .mark{
   left:79px;
 }
-.scoreboard .series-tally .left .mark.one {
+.scoreboard .series-tally .left .mark.w {
   background-color: rgb(0, 0, 255);
 }
-.scoreboard .series-tally .left .mark.two {
-  background-color: rgb(0, 0, 255);
-}
-.scoreboard .series-tally .right .mark.one {
+.scoreboard .series-tally .right .mark.w {
   background-color: rgb(255, 119, 0);
 }

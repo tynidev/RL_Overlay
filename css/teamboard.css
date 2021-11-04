@@ -1,33 +1,34 @@
 .teamboard{
   position: absolute;
-  width: 380px;
+  width: 300px;
   top: 15px; /* 1440/2 - 400/2 = 520*/  
   text-shadow: 2px 2px black;
-  padding: 0 10px 15px 10px;
+  padding: 5px 10px 5px 10px;
   opacity: 1;
 }
 .teamboard.left {
   left: 15px;
-  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.9), rgba(0, 0, 0, 1));
+  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.8), rgba(0, 0, 0, 9));
   border-radius: 0 0 10px 10px;
 }
 
 .teamboard.right {
-  left: 2145px; /* 2560 - 400 */ 
-  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.9), rgba(0, 0, 0, 1));
+  left: 2225px; /* 2560 - 400 */ 
+  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.8), rgba(0, 0, 0, 9));
   border-radius: 0 0 10px 10px;
 }
 
 .teamboard .player {
-  margin:10px;
+  margin:0px;
   font-size: 30px;
   display: block;
-  padding-bottom: 5px;
+  padding-bottom: 0px;
 }
 
 .teamboard .player .boost{
-  height: 15px;
-  border-style:solid;
+  height: 8px;
+  border-style:none;
+  /* display: none; */
 }
 
 .teamboard.left .player .boost{
@@ -60,7 +61,7 @@
   display:inline;
   position: relative;
   left: 0;
-  height: 25px;
+  height: 20px;
   filter: invert(90%);
 }
 
@@ -68,4 +69,5 @@
   display:inline;
   height: 30px;
   padding-right:3px;
+  font-size:25px;
 }

@@ -28,6 +28,9 @@ function ReplayAnimation()
   $('.spectating').animate({
     left:"-1000px"
   });
+  $('.spectating-boost').animate({
+    opacity:"0"
+  });
   $('.minimap').show();
 }
 
@@ -43,7 +46,10 @@ function CountdownAnimation()
     left:"2260px"
   });
   $('.spectating').animate({
-    left:"-9px"
+    left:"-10px"
+  });
+  $('.spectating-boost').animate({
+    opacity:"100"
   });
 }
 
@@ -92,7 +98,7 @@ function SetSpectatingBoost(player)
 
   center();
 
-  var color = 'rgba(0, 50, 255, 0.85)';
+  var color = 'rgba(0, 0, 210, 0.85)';
   if(player.team != 0)
   {
     color = 'rgba(255, 119, 0, 0.85)';
@@ -130,7 +136,15 @@ $(() => {
       $('.scoreboard .series-tally .left').empty();
       $('.scoreboard .series-tally .right').empty();
 
+      $('.scoreboard .center .box .series').text(p.title);
+      $('.scoreboard .series-tally .series-text').text(p.series_txt);
+
       var games = Math.ceil(p.length / 2);
+      if(games <= 1)
+      {
+        $('.scoreboard .series-tally').hide();
+        return;
+      }
       for(var i = 1; i <= games; i++)
       {
         $('.scoreboard .series-tally .left').append(`<div class="mark w${i}"></div>`);
@@ -139,7 +153,6 @@ $(() => {
 
       var w = (games * 62 * 2) + 90;
       $('.scoreboard .series-tally').css({display:"block", "--w":`${w}px`});
-      $('.scoreboard .center .box .series').text(p.title);
 
       $('.scoreboard .series-tally .mark').each((i, el) => {
         $(el).removeClass('w');
@@ -192,17 +205,24 @@ $(() => {
 
   // Scoreboard
   match.OnTeamsUpdated((teams) => {
-    var update = (team, id) => {
-      $('.scoreboard ' + id + ' .name').text(team.name);
+    var update = (team, id, name) => {
+      $('.scoreboard ' + id + ' .name').text(name);
       $('.scoreboard ' + id + ' .score').text(team.score);
     };
-    update(teams[0], ".left");
-    update(teams[1], ".right");
+    update(teams[0], ".left", teams[0].name);
+    update(teams[1], ".right", teams[1].name);
   });
   
   // Player tags
   match.OnPlayersUpdated((left, right) => {
     center();
+    if(match.spectating){
+      $('.teamboard .player .boost').show();
+    }
+    else{
+      
+      $('.teamboard .player .boost').hide();
+    }
     var update = (player, id) => {
       $(id + ' .name').text(player.name);
       $(id + ' .boost .fill').animate({

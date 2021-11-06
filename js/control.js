@@ -15,6 +15,12 @@ $(() => {
         WsSubscribers.send("game", "pre_countdown_begin", JSON.parse($('#pre_countdown_begin').val()));
     });
 
+
+    // function update_state() {
+    //     WsSubscribers.send("game", "update_state", JSON.parse($('#update_state').val()));
+    // }
+    // setInterval(update_state, 1000);
+
     var event = "update_state";
 
     $('#event').change(() => {

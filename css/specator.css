@@ -1,6 +1,6 @@
 .spectating {
 	position: absolute;
-	top: 1240px;
+	top: 1200px;
 	left:-9px;
 	background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
 	padding: 0 70px 0px 70px;
@@ -8,10 +8,14 @@
 	text-align: right;
 	font-size: 80px;
 	transform: skew(calc(var(--skew) * -1),0deg);
+	border-width: 2px;
+	border-color: rgb(50 50 50);
+	border-style:solid;
 }
 .spectating .name {
 	margin: 0px;
 	padding: 0px;
+	text-shadow: 2px 2px black;
 	transform: skew(var(--skew),0deg);
 }
 .spectating .boost {
@@ -28,6 +32,7 @@
 }
 .spectating .stats {
 	position: relative;
+	text-shadow: 2px 2px black;
 	top: -50px;
 }
 .spectating .stats img {
@@ -94,7 +99,7 @@
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
 	stroke-width:var(--stroke-w);
-	stroke:rgba(0, 0, 0, 0.6);
+	stroke:rgba(0, 0, 0, 0.2);
 	fill:transparent;
 }
 

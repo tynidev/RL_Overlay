@@ -51,7 +51,6 @@
 .teamboard .player .boost{
   height: 8px;
   border-style:none;
-  /* display: none; */
 }
 
 .teamboard.left .player .boost{

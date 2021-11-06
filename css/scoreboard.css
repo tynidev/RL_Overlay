@@ -3,7 +3,7 @@
 	top: 0px;
 	left: calc(50% - var( --half-w));
 	border-radius: 0px 0px 10px 10px;
-	background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8),rgba(255, 94, 0, 1));
+	background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97),rgba(255, 94, 0, 1));
 	height: var(--h);
 	text-shadow: 2px 2px black;
 	font-size: 35px;
@@ -11,9 +11,9 @@
 	--w: 980px;
 	--half-w: calc(var(--w) / 2);
   	width: var(--w);
-	  border-width: 0px 1px 1px 1px;
-	  border-color: rgb(50 50 50);
-	  border-style:solid;
+	border-width: 0px 1px 1px 1px;
+	border-color: rgb(50 50 50);
+	border-style:solid;
 }
 .scoreboard .left .box {
 	position: absolute;
@@ -33,11 +33,11 @@
 	position: absolute;
 	top: 0px;
 	left: calc(var(--w) * 0.4);
-	padding: 8px 0px 0px 0px;
+	padding: 16px 0px 0px 0px;
 	width: calc(960px * 0.2);
 	height: var(--h);
 	text-align: center;
-	line-height: 55px;
+	line-height: 45px;
 	font-size: 55px;
 }
 .scoreboard .center .time div {
@@ -45,9 +45,14 @@
 	font-size: 60px;
 }
 .scoreboard .center .series {
+	margin: 5px 0px 0px 0px;
 	padding: 0px 0px 5px 0px;
 	text-align: center;
 	font-size: 24px;
+	border-width: 1px 0px 0px 0px;
+	border-style: solid;
+	border-color: rgba(255, 255, 255, 0.7);
+	text-transform: uppercase;
 }
 .scoreboard .right .box {
 	position: absolute;
@@ -109,6 +114,7 @@
 	border-width: 0px 0px 1px 0px;
 	border-color: rgb(50 50 50);
 	border-style:solid;
+	text-transform: uppercase;
 }
 .scoreboard .series-tally .right {
   	z-index: 1;

@@ -24,6 +24,8 @@ class Match {
 
     stats = new Stats();
 
+    spectating = true;
+
     // All callback arrays
     matchCreatedCallbacks = [];
     initializedCallbacks = [];
@@ -54,6 +56,7 @@ class Match {
             this.right = [];
             this.stats = new Stats();
             this.timeStarted = false;
+            this.spectating = true;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -129,6 +132,7 @@ class Match {
             this.right = [];
             this.stats = new Stats();
             this.timeStarted = false;
+            this.spectating = true;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
         });
     }
@@ -279,11 +283,17 @@ class Match {
         });
 
         // Call on every update
-        var localsupport = this.localplayer_support;
+        var localPlayer;
+        if(this.localplayer_support)
+        {
+            localPlayer = players.filter((p) => { return p.name == game.localplayer })[0];
+            this.spectating = !localPlayer;
+        }
+        var spectating = this.spectating;
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(localsupport){
-                var player = game.hasTarget ? param.players[game.target] : players.filter((p) => { return p.name == game.localplayer })[0];
-                callback(true, player);
+            if(!spectating){
+                
+                callback(true, localPlayer);
             }else{
                 callback(game.hasTarget, param.players[game.target]);
             }

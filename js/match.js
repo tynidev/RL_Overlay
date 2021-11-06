@@ -313,7 +313,7 @@ class Match {
                 let seconds = game.time_seconds % 60;
                 let min = Math.floor(game.time_seconds / 60);
 
-                callback((game.isOT ? "+" : "") + min + ":" + pad(seconds, 2));
+                callback((game.isOT ? "+" : "") + min + ":" + pad(seconds, 2), game.time_seconds);
             });
         }
 

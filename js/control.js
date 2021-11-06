@@ -1,3 +1,4 @@
+var i = 6;
 $(() => {
 
     WsSubscribers.init(49322, false);
@@ -15,11 +16,25 @@ $(() => {
         WsSubscribers.send("game", "pre_countdown_begin", JSON.parse($('#pre_countdown_begin').val()));
     });
 
-
-    // function update_state() {
-    //     WsSubscribers.send("game", "update_state", JSON.parse($('#update_state').val()));
-    // }
-    // setInterval(update_state, 1000);
+    function update_state() {
+        i = ++i % 40;
+        if(i == 0)
+        {
+            WsSubscribers.send("game", "goal_scored", JSON.parse($('#goal_scored').val()));
+            WsSubscribers.send("game", "replay_start", JSON.parse($('#replay_start').val()));
+        }
+        if(i == 3)
+        {
+            WsSubscribers.send("game", "replay_will_end", JSON.parse($('#replay_will_end').val()));
+        }
+        if(i == 5)
+        {
+            WsSubscribers.send("game", "replay_end", JSON.parse($('#replay_end').val()));
+            WsSubscribers.send("game", "pre_countdown_begin", JSON.parse($('#pre_countdown_begin').val()));
+        }
+        WsSubscribers.send("game", "update_state", JSON.parse($('#update_state').val()));
+    }
+    // setInterval(update_state, 300);
 
     var event = "update_state";
 

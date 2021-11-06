@@ -8,7 +8,7 @@
 	text-shadow: 2px 2px black;
 	font-size: 35px;
 	--h: 110px;
-	--w: 980px;
+	--w: 1150px;
 	--half-w: calc(var(--w) / 2);
   	width: var(--w);
 	border-width: 0px 1px 1px 1px;
@@ -21,7 +21,7 @@
 	left: 13px;
 	transform: skew(var(--skew),0deg);
 	background-image: linear-gradient(to right, rgb(0, 9, 61),rgba(0, 0, 0, 0.6));
-	width: calc(960px * 0.4);
+	width: calc(var(--w) * 0.4);
 	height: var(--h);
 }
 .scoreboard .left .box div {
@@ -34,7 +34,7 @@
 	top: 0px;
 	left: calc(var(--w) * 0.4);
 	padding: 16px 0px 0px 0px;
-	width: calc(960px * 0.2);
+	width: calc(var(--w) * 0.2);
 	height: var(--h);
 	text-align: center;
 	line-height: 45px;
@@ -61,7 +61,7 @@
 	transform: skew(calc(var(--skew) * -1),0deg);
 	background-image: linear-gradient(to left, rgb(53, 19, 0),rgba(0, 0, 0, 0.6));
 	padding: 0px 0px 0px 0px;
-	width: calc(950px * 0.4);
+	width: calc(calc(var(--w) * 0.4) - 13px);
 	height: var(--h);
 	text-align: right;
 }

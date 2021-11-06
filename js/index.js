@@ -190,7 +190,7 @@ $(() => {
   });
 
   // Time
-  match.OnTimeUpdated((time) => {
+  match.OnTimeUpdated((time, seconds) => {
     
     // If were not showing main elements then animate them in
     if(match.timeStarted && !$('#all').is(":visible")) {
@@ -201,6 +201,12 @@ $(() => {
 
     // Update time
     $('.scoreboard .center .time').text(time);
+
+    if(seconds <= 10){
+      $('.scoreboard .center .time').css({color: "rgb(252 43 28)"});
+    }else if(seconds){
+      $('.scoreboard .center .time').css({color: "#f1c83d"});
+    }
   });
 
   // Scoreboard

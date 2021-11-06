@@ -2,85 +2,71 @@
 /* Field:              */
 /*   w: 8192 uu        */
 /*   h: 10240 uu       */
-
-.minimap{
-    position: absolute;
-    top: 300px;
-    left: 1948px;
-    width: 512px;
-    height: 750px;
-    display: none;
+.minimap {
+	display: none;
+	position: absolute;
+	top: 300px;
+	left: 1948px;
+	width: 512px;
+	height: 750px;
 }
-
-.fieldbg{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 512px;
-    height: 750px;
+.fieldbg {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 512px;
+	height: 750px;
 }
-
-#minimap{
-    position: absolute;
-    width: 512px;
-    height: 750px;
+#minimap {
+	position: absolute;
+	width: 512px;
+	height: 750px;
 }
-
 #champions #grass #a {
-    fill:rgba(21, 68, 21, 0.95);
+	fill: rgba(21, 68, 21, 0.95);
 }
 #champions #grass #stripe-ellipse {
-    opacity: .2;
+	opacity: .2;
 }
-
-#field-inlines, #side-arcs, #blue-goal-arcs, #orng-goal-arcs{
-    opacity: 0.4;
+#field-inlines, #side-arcs, #blue-goal-arcs, #orng-goal-arcs {
+	opacity: 0.4;
 }
-
-#field-outline{
-    opacity: 0.0;
+#field-outline {
+	opacity: 0.0;
 }
-
-#blue-goalbox-base, #orng-goalbox-base, #sidewalls{
-    fill:rgba(31, 31, 31, 0.95);
+#blue-goalbox-base, #orng-goalbox-base, #sidewalls {
+	fill: rgba(31, 31, 31, 0.95);
 }
-#bounds{
-    stroke: rgb(255,255,255,0.7);
-    stroke-width:25px;
+#bounds {
+	stroke: rgb(255,255,255,0.7);
+	stroke-width: 25px;
 }
-
-#pads-large{
-    opacity: 0.5;
+#pads-large {
+	opacity: 0.5;
 }
-
-#pads-small{
-    opacity: 0.3;
-    fill:rgb(255,206,96);
-    stroke:rgb(255,172,1);
+#pads-small {
+	opacity: 0.3;
+	fill: rgb(255,206,96);
+	stroke: rgb(255,172,1);
 }
-
-.blue-car{
-    position: absolute;
-    /* fill: rgb(34, 75, 255); */
-    fill: url('#blue-grad');
-    z-index: 1000;
-    stroke:rgba(255,255,255,0.8);
-    stroke-width:25px;
+.blue-car {
+	position: absolute;
+	z-index: 1000;
+	fill: url('#blue-grad');
+	stroke: rgba(255,255,255,0.8);
+	stroke-width: 25px;
 }
-
-.orng-car{
-    position: absolute;
-    /* fill: rgb(255, 157, 11); */
-    fill: url('#orng-grad');
-    z-index: 1000;
-    stroke:rgba(255,255,255,0.8);
-    stroke-width:25px;
+.orng-car {
+	position: absolute;
+	z-index: 1000;
+	fill: url('#orng-grad');
+	stroke: rgba(255,255,255,0.8);
+	stroke-width: 25px;
 }
-
-#ball{
-    fill:url('#ball-grad');
-    stroke:rgba(0, 0, 0, 0.5);
-    stroke-width:25px;
-    stroke-linejoin:round;
-    stroke-miterlimit:1.5;
+#ball {
+	fill: url('#ball-grad');
+	stroke: rgba(0, 0, 0, 0.5);
+	stroke-width: 25px;
+	stroke-linejoin: round;
+	stroke-miterlimit: 1.5;
 }

@@ -1,15 +1,24 @@
 @font-face {
-  font-family: 'ScoreBoardFont';
-  src:  url("../assets/Lustra\ Text\ SemiBold.ttf");
+	font-family: 'ScoreBoardFont';
+	src: url("../assets/Lustra\ Text\ SemiBold.ttf");
+}
+body {
+	margin: 0px auto;
+	background-color: rgba(0, 0, 0, 1);
+	background-image: url("../assets/test-bg.jpg");
+	width: var(--sw);
+	height: var(--sh);
+	overflow: hidden;
+	color: white;
+	font-family: "ScoreBoardFont";
+	--sw: 2560px;
+	--sh: 1440px;
+}
+#all {
+	width: var(--sw);
+	height: var(--sh);
 }
 
-body{
-  width: 2560px;
-  height: 1440px;
-  /* background-image: url("../assets/test-bg.jpg"); */
-  font-family: "ScoreBoardFont";
-  color: white;
-  background-color: rgba(0, 0, 0, 1); 
-  margin: 0px auto; 
-  overflow: hidden;
+:root {
+	--skew: 10deg;
 }

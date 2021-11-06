@@ -1,42 +1,114 @@
-.spectating{
-  position: absolute;
-  top:1140px;
-  height:100px;
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
-  font-size: 80px;
-  text-align: right;
-  padding: 0 70px 0px 70px;
+.spectating {
+	position: absolute;
+	top: 1240px;
+	left:-9px;
+	background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
+	padding: 0 70px 0px 70px;
+	height: 100px;
+	text-align: right;
+	font-size: 80px;
+	transform: skew(calc(var(--skew) * -1),0deg);
 }
-.spectating .name{
-  margin:0px;
-  padding:0px;
+.spectating .name {
+	margin: 0px;
+	padding: 0px;
+	transform: skew(var(--skew),0deg);
 }
-.spectating .boost{
-  display: none;
-  position: relative;
-  left: -70px;
-  top:-4px;
-  width: 100%;
+.spectating .boost {
+	display: none;
+	position: relative;
+	top: -4px;
+	left: -70px;
+	width: 100%;
 }
-.spectating .boost .fill{
-  width: 70%;
-  height:25px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.25));
+.spectating .boost .fill {
+	background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.25));
+	width: 70%;
+	height: 25px;
 }
-.spectating .stats{
- position: relative;
- top:-50px;
+.spectating .stats {
+	position: relative;
+	top: -50px;
 }
-.spectating .stats img{
-  display:inline;
-  position: relative;
-  left: 0;
-  height: 30px;
-  filter: invert(90%);
+.spectating .stats img {
+	display: inline;
+	position: relative;
+	left: 0;
+	height: 30px;
+	filter: invert(90%);
 }
-.spectating .stats div{
-  font-size: 30px;
-  display:inline;
-  height: 30px;
-  padding-right:3px;
+.spectating .stats div {
+	display: inline;
+	padding-right: 3px;
+	height: 30px;
+	font-size: 30px;
+}
+
+.spectating-boost{
+	position: absolute;
+	--rh: 300px;
+	--rw: 300px;
+	--cr: 150;
+	height: var(--rh);
+	width: var(--rw);
+	top: calc(var(--sh) - calc(var(--rh) + 30px));
+	left: calc(var(--sw) - calc(var(--rw) + 30px));
+}
+
+.spectating-boost .boost-ring{
+	height: var(--rh);
+	width: var(--rw);
+}
+
+.spectating-boost .boost-ring .fill{
+	--stroke-w: 30;
+	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
+	cx:calc(var(--rw) / 2);
+	cy:calc(var(--rh) / 2);
+	stroke-width:var(--stroke-w);
+	transform: rotate(-270deg);
+	transform-origin: 50% 50%;
+	stroke:rgba(255, 255, 100, 0.6);
+}
+
+.spectating-boost .boost-ring .border-inner{
+	--stroke-w: 30;
+	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
+	cx:calc(var(--rw) / 2);
+	cy:calc(var(--rh) / 2);
+	stroke-width:var(--stroke-w);
+	stroke:rgba(0, 0, 0, 0.7);
+	fill:transparent;
+}
+
+.spectating-boost .boost-ring .inner{
+	r:121;
+	cx:calc(var(--rw) / 2);
+	cy:calc(var(--rh) / 2);
+	fill:rgba(0, 0, 0, 0.5);
+}
+
+.spectating-boost .boost-ring .border-outer{
+	--stroke-w: 2;
+	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
+	cx:calc(var(--rw) / 2);
+	cy:calc(var(--rh) / 2);
+	stroke-width:var(--stroke-w);
+	stroke:rgba(0, 0, 0, 0.6);
+	fill:transparent;
+}
+
+.spectating-boost .boost-ring .center{
+	--stroke-w: 1;
+	--cr: 5;
+	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
+	cx:calc(var(--rw) / 2);
+	cy:calc(var(--rh) / 2);
+	stroke-width:var(--stroke-w);
+	stroke:rgba(0, 0, 0, 0.5);
+	fill:red;
+}
+
+.spectating-boost .boost-ring .boost-num, .spectating-boost .boost-ring .speed-num{
+	filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
 }

@@ -7,7 +7,7 @@ function PreGamePosition()
     left:"-420px"
   });
   $('.teamboard.right').css({
-    left:"2565px"
+    left:"105%"
   });
   $('.spectating').css({
     left:"-1000px"
@@ -23,7 +23,7 @@ function ReplayAnimation()
     left:"-420px"
   });
   $('.teamboard.right').animate({
-    left:"2565px"
+    left:"105%"
   });
   $('.spectating').animate({
     left:"-1000px"
@@ -37,14 +37,82 @@ function CountdownAnimation()
     top:"0px"
   });
   $('.teamboard.left').animate({
-    left:"15px"
+    left:"-80px"
   });
   $('.teamboard.right').animate({
-    left:"2225px"
+    left:"2260px"
   });
   $('.spectating').animate({
-    left:"0px"
+    left:"-9px"
   });
+}
+
+function center() {
+  let boost = d3.select('.spectating-boost .boost-ring .boost-num');
+
+  // Get current x and y values.
+  let x = 150;
+  let y = 150;
+  
+  // Get bounding box and compute the center point.
+  let node = boost.node();
+  let bb = node.getBBox();
+  let centerX = bb.width / 2;
+  let centerY = bb.height / 4;
+  
+  // Adjust x and y.
+  boost.attr('x', x - centerX);
+  boost.attr('y', y + centerY - 27);
+
+  let speed = d3.select('.spectating-boost .boost-ring .speed-num');
+  
+  // Get bounding box and compute the center point.
+  node = speed.node();
+  bb = node.getBBox();
+  centerX = bb.width / 2;
+  centerY = bb.height / 4;
+  
+  // Adjust x and y.
+  speed.attr('x', x - centerX);
+  speed.attr('y', y + centerY + 20);
+}
+
+function SetSpectatingBoost(player)
+{
+  var el = d3.selectAll('.spectating-boost .boost-ring .fill');
+  var circumference = parseInt(el.style('r'), 10) * 2 * Math.PI;
+
+  const offset = circumference - player.boost / 100 * circumference;
+  
+  let boostTxt = d3.select('.spectating-boost .boost-ring .boost-num');
+  boostTxt.text(`${player.boost}`);
+  
+  let speedText = d3.select('.spectating-boost .boost-ring .speed-num');
+  speedText.text(`${player.speed} MPH`);
+
+  center();
+
+  var color = 'rgba(0, 50, 255, 0.85)';
+  if(player.team != 0)
+  {
+    color = 'rgba(255, 119, 0, 0.85)';
+  }
+  el.style('stroke', color);
+
+  if(player.isSonic)
+  {
+    speedText.attr('fill', 'rgba(255, 217, 0,1)');
+  }
+  else
+  {
+    speedText.attr('fill', 'white');
+  }
+
+  el.attr("stroke-dasharray", circumference);
+  el.transition()
+  .duration(100)
+  .ease(d3.easeLinear)
+  .attr("stroke-dashoffset", offset)
 }
 
 function GetLocation(point){
@@ -59,7 +127,18 @@ $(() => {
   match.localplayer_support = true;
 
     WsSubscribers.subscribe("game", "series_update", (p) => { 
-      $('.scoreboard .series-tally').css({display:"block"});
+      $('.scoreboard .series-tally .left').empty();
+      $('.scoreboard .series-tally .right').empty();
+
+      var games = Math.ceil(p.length / 2);
+      for(var i = 1; i <= games; i++)
+      {
+        $('.scoreboard .series-tally .left').append(`<div class="mark w${i}"></div>`);
+        $('.scoreboard .series-tally .right').append(`<div class="mark w${i}"></div>`);
+      }
+
+      var w = (games * 62 * 2) + 90;
+      $('.scoreboard .series-tally').css({display:"block", "--w":`${w}px`});
       $('.scoreboard .center .box .series').text(p.title);
 
       $('.scoreboard .series-tally .mark').each((i, el) => {
@@ -123,6 +202,7 @@ $(() => {
   
   // Player tags
   match.OnPlayersUpdated((left, right) => {
+    center();
     var update = (player, id) => {
       $(id + ' .name').text(player.name);
       $(id + ' .boost .fill').animate({
@@ -166,6 +246,7 @@ $(() => {
     if(player === undefined || !isSpectating)
     {
       $('.spectating').css('visibility', 'hidden');
+      $('.spectating-boost').hide();
       return;
     }
 
@@ -188,6 +269,9 @@ $(() => {
     $('.spectating .stats .assist').text(player.assists);
     $('.spectating .stats .demo').text(player.demos);
     $('.spectating .stats .shots').text(player.shots);
+
+    SetSpectatingBoost(player);
+    $('.spectating-boost').show();
   });
 
   // Active Players changed
@@ -202,18 +286,20 @@ $(() => {
     var i = 0;
     left.forEach(element => {
       $('.teamboard.left').append(`<div id="t` + element.team + `-p` + i + `-board" class="player">
-        <div class="name">
-        ` + element.name + `
-        </div>
-        <div class="boost">
-          <div class="fill"></div>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
-          <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
-          <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
-          <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
-          <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+        <div class="info">
+          <div class="name">
+          ` + element.name + `
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
+            <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
+            <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
+            <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
+            <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+          </div>
+          <div class="boost">
+            <div class="fill"></div>
+          </div>
         </div>
       </div>`);
 
@@ -229,18 +315,20 @@ $(() => {
 
     right.forEach(element => {
       $('.teamboard.right').append(`<div id="t` + element.team + `-p` + i + `-board" class="player">
-        <div class="name">
-        ` + element.name + `
-        </div>
-        <div class="boost">
-          <div class="fill"></div>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
-          <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
-          <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
-          <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
-          <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+        <div class="info">
+          <div class="name">
+          ` + element.name + `
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="goal">` + element.goals + `</div><img src="assets/stat-icons/goal.svg"/></div>
+            <div class="stat"><div class="assist">` + element.assists + `</div><img src="assets/stat-icons/assist.svg"/></div>
+            <div class="stat"><div class="save">` + element.saves + `</div><img src="assets/stat-icons/save.svg"/></div>
+            <div class="stat"><div class="shots">` + element.shots + `</div><img src="assets/stat-icons/shot-on-goal.svg"/></div>
+            <div class="stat"><div class="demo">` + element.demos + `</div><img src="assets/stat-icons/demolition.svg"/></div>
+          </div>
+          <div class="boost">
+            <div class="fill"></div>
+          </div>
         </div>
       </div>`);
 

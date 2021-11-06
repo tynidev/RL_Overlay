@@ -1,29 +1,52 @@
 .teamboard{
   position: absolute;
-  width: 300px;
-  top: 15px; /* 1440/2 - 400/2 = 520*/  
+  width: 380px; 
+  top: 0px; /* 1440/2 - 400/2 = 520*/  
   text-shadow: 2px 2px black;
-  padding: 5px 10px 5px 10px;
-  opacity: 1;
+  opacity: 0.95;
 }
 .teamboard.left {
-  left: 15px;
-  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.8), rgba(0, 0, 0, 9));
+  left: -80px;
   border-radius: 0 0 10px 10px;
 }
 
 .teamboard.right {
   left: 2225px; /* 2560 - 400 */ 
-  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.8), rgba(0, 0, 0, 9));
   border-radius: 0 0 10px 10px;
+  text-align: right;
+}
+
+.teamboard.left .player .info{
+  transform: skew(var(--skew),0deg);
+  padding: 5px 0px 0px 70px;  
+}
+
+.teamboard.right .player .info{
+  transform: skew(calc(var(--skew) * -1),0deg);
+  padding: 5px 90px 0px 00px;  
+}
+
+.teamboard.left .player {
+  transform: skew(calc(var(--skew) * -1),0deg);
+  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.8), rgba(0, 0, 0, 9));
+}
+
+.teamboard.right .player {
+  transform: skew(var(--skew),0deg);
+  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.8), rgba(0, 0, 0, 9));
 }
 
 .teamboard .player {
-  margin:0px;
-  font-size: 30px;
+  font-size: 25px;
+  line-height: 30px;
   display: block;
-  padding-bottom: 0px;
+  margin: 10px 0px 10px 0px;
+  padding: 0px 0px 10px 20px;
+  border-width: 1px;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-style: solid;
 }
+
 
 .teamboard .player .boost{
   height: 8px;
@@ -32,10 +55,12 @@
 }
 
 .teamboard.left .player .boost{
+  transform: skew(calc(var(--skew) * -1),0deg);
   border-color:  rgb(0, 150, 255, 0.6);
 }
 
 .teamboard.right .player .boost{
+  transform: skew(var(--skew),0deg);
   border-color:  rgba(255, 255, 0, 0.6);
 }
 
@@ -49,7 +74,9 @@
 }
 
 .teamboard.right .player .fill{
-  background-image: linear-gradient(to right, rgb(255, 119, 0), rgb(255, 255, 0));
+  background-image: linear-gradient(to left, rgb(255, 119, 0), rgb(255, 255, 0));
+  margin-left: auto; 
+  margin-right: 0;
 }
 
 .teamboard .player .stats .stat {
@@ -61,13 +88,22 @@
   display:inline;
   position: relative;
   left: 0;
-  height: 20px;
-  filter: invert(90%);
+  height: 18px;
+}
+.teamboard.left .player .stats .stat img{
+  filter: brightness(1) invert(.8) sepia(.75) hue-rotate(198deg) saturate(2000%);
+  opacity: 1;
+}
+
+.teamboard.right .player .stats .stat img{
+  filter: brightness(0.1) invert(.95) sepia(.7) hue-rotate(338deg) saturate(250%);
+  opacity: 1;
 }
 
 .teamboard .player .stats .stat div {
   display:inline;
   height: 30px;
   padding-right:3px;
-  font-size:25px;
+  font-size:22px;
+  opacity: .9;
 }

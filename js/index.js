@@ -203,9 +203,20 @@ $(() => {
     $('.scoreboard .center .time').text(time);
 
     if(seconds <= 10){
-      $('.scoreboard .center .time').css({color: "rgb(252 43 28)"});
+      $('.scoreboard .center .time').css({color: "rgb(255, 17, 0)", "font-size": "63px"});
+      $('.scoreboard .center .time').animate({
+        "font-size": "60px",
+        "color": "rgb(209, 35, 23)",
+      }, 500).animate({
+        "font-size": "63px",
+        "color": "rgb(255, 17, 0)",
+      }, 500);
+    }else if(seconds <= 30){
+      $('.scoreboard .center .time').css({color: "#ffa53d", "font-size": "60px"});
+    }else if(seconds <= 60){
+      $('.scoreboard .center .time').css({color: "#ffe880", "font-size": "60px"});
     }else if(seconds){
-      $('.scoreboard .center .time').css({color: "#f1c83d"});
+      $('.scoreboard .center .time').css({color: "#fffbb3", "font-size": "60px"});
     }
   });
 
@@ -299,6 +310,24 @@ $(() => {
     SetSpectatingBoost(player);
     $('.spectating-boost').show();
   });
+
+//   element.style {
+//     width: 480px;
+//     background-image: linear-gradient(to right, rgba(0, 9, 61, 0.86), rgba(0, 0, 0, 98) 370px, rgb(9, 32, 128));
+// }
+
+/* <div class="event" style="
+    position: absolute;
+    left: 428px;
+    top: 0px;
+    height: 62px;
+    padding: 8px 0px 8px 0px;
+">
+            <img src="assets/stat-icons/save.svg" style="
+    height: 62px;
+    filter: invert(1);
+">
+        </div> */
 
   // Active Players changed
   match.OnTeamsChanged((left, right) => {

@@ -28,12 +28,14 @@
 
 .teamboard.left .player {
   transform: skew(calc(var(--skew) * -1),0deg);
-  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.8), rgba(0, 0, 0, 9));
+  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.86), rgba(0, 0, 0, 98));
+  padding: 0px 20px 10px 20px;
 }
 
 .teamboard.right .player {
   transform: skew(var(--skew),0deg);
-  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.8), rgba(0, 0, 0, 9));
+  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.86), rgba(0, 0, 0, 98));
+  padding: 0px 0px 10px 20px;
 }
 
 .teamboard .player {
@@ -41,7 +43,6 @@
   line-height: 30px;
   display: block;
   margin: 10px 0px 10px 0px;
-  padding: 0px 0px 10px 20px;
   border-width: 1px;
   border-color: rgba(255, 255, 255, 0.3);
   border-style: solid;
@@ -49,7 +50,7 @@
 
 
 .teamboard .player .boost{
-  height: 8px;
+  height: 10px;
   border-style:none;
 }
 

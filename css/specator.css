@@ -8,7 +8,7 @@
 	text-align: right;
 	font-size: 80px;
 	transform: skew(calc(var(--skew) * -1),0deg);
-	border-width: 2px;
+	border-width: 1px;
 	border-color: rgb(50 50 50);
 	border-style:solid;
 }

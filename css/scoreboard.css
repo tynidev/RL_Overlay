@@ -7,6 +7,7 @@
 	height: var(--h);
 	text-shadow: 2px 2px black;
 	font-size: 35px;
+	text-transform: uppercase;
 	--h: 110px;
 	--w: 1150px;
 	--half-w: calc(var(--w) / 2);

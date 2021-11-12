@@ -12,26 +12,31 @@ function PreGamePosition()
   $('.spectating').css({
     left:"-1000px"
   });
+  $('.replay').animate({
+    opacity:"0"
+  });
 }
 
 function ReplayAnimation()
 {
-  $('.scoreboard').animate({
-    top:"-180px"
-  });
-  $('.teamboard.left').animate({
-    left:"-420px"
-  });
-  $('.teamboard.right').animate({
-    left:"105%"
-  });
+  // $('.scoreboard').animate({
+  //   top:"-180px"
+  // });
+  // $('.teamboard.left').animate({
+  //   left:"-420px"
+  // });
+  // $('.teamboard.right').animate({
+  //   left:"105%"
+  // });
   $('.spectating').animate({
     left:"-1000px"
   });
   $('.spectating-boost').animate({
     opacity:"0"
   });
-  $('.minimap').show();
+  $('.replay').animate({
+    opacity:"1"
+  });
 }
 
 function CountdownAnimation()
@@ -49,7 +54,7 @@ function CountdownAnimation()
     left:"-10px"
   });
   $('.spectating-boost').animate({
-    opacity:"100"
+    opacity:"1"
   });
 }
 
@@ -98,7 +103,7 @@ function SetSpectatingBoost(player)
 
   center();
 
-  var color = 'rgba(0, 0, 210, 0.85)';
+  var color = 'rgba(0, 38, 255, 0.85)';
   if(player.team != 0)
   {
     color = 'rgba(255, 119, 0, 0.85)';
@@ -203,12 +208,12 @@ $(() => {
     $('.scoreboard .center .time').text(time);
 
     if(seconds <= 10){
-      $('.scoreboard .center .time').css({color: "rgb(255, 17, 0)", "font-size": "63px"});
+      $('.scoreboard .center .time').css({color: "rgb(255, 17, 0)", "font-size": "65px"});
       $('.scoreboard .center .time').animate({
         "font-size": "60px",
         "color": "rgb(209, 35, 23)",
       }, 500).animate({
-        "font-size": "63px",
+        "font-size": "65px",
         "color": "rgb(255, 17, 0)",
       }, 500);
     }else if(seconds <= 30){
@@ -289,7 +294,7 @@ $(() => {
 
     if(player.team == 0)
     {
-      $('.spectating').css('background-image', 'linear-gradient(to right, rgba(0, 0, 255, 1), rgba(0, 0, 255, 0.3))');
+      $('.spectating').css('background-image', 'linear-gradient(to right, rgba(0, 38, 255, 1), rgba(0, 38, 255, 0.3))');
     }
     else
     {
@@ -401,7 +406,11 @@ $(() => {
   // Goal replay started
   match.OnInstantReplayStart(() => { ReplayAnimation(); });
   
-  match.OnInstantReplayEnd(() => { $('.minimap').hide(); });
+  match.OnInstantReplayEnd(() => { 
+    $('.replay').animate({
+      opacity:"0"
+    });
+  });
 
   // Kick off countdown begin
   match.OnCountdown(() => { CountdownAnimation() });
@@ -420,6 +429,28 @@ $(() => {
   match.OnGameEnded(() => {
     $('#all').hide();
     PreGamePosition();
+  });
+
+  match.OnGoalScored((data) => {
+    var addColorClass = data.scorer.teamnum == 0 ? 'blue' : 'orange';
+    var removeColorClass = data.scorer.teamnum == 1 ? 'blue' : 'orange';
+
+    var goalStats = $('.replay .bottom-overlay .goal-stats');
+    goalStats.addClass(addColorClass);
+    goalStats.removeClass(removeColorClass);
+
+    if(data.assister.id != "")
+    {
+      $('.replay .bottom-overlay .goal-stats .assist img').show();
+      $('.replay .bottom-overlay .goal-stats .assist div').text(data.assister.name);
+    }
+    else
+    {
+      $('.replay .bottom-overlay .goal-stats .assist img').hide();
+      $('.replay .bottom-overlay .goal-stats .assist div').text("");
+    }
+    $('.replay .bottom-overlay .goal-stats .goal-speed div').text((Math.ceil(data.goalspeed/1.609)) + "MPH");
+    $('.replay .bottom-overlay .goal-stats .scored-by div').text(data.scorer.name);
   });
 
   WsSubscribers.subscribe("game", "match_destroyed", (p) => { 

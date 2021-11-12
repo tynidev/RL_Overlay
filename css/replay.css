@@ -1,0 +1,96 @@
+.replay{
+	opacity: 0;
+}
+
+#top-replay-overlay-group{
+    display: none;
+}
+
+#replay-bottom-overlay, #replay-top-overlay{
+    fill:rgba(0,0,0, 0.75);
+    stroke:rgba(0,0,0, 0.78);
+    stroke-width:1;
+}
+
+
+.replay .st1 {
+    fill: #FF3314;
+    filter: drop-shadow(1px 1px 6px #FF3314);
+}
+.replay .st2{font-family:'ReplayFont';}
+.replay .st3{font-size:48px;}
+
+.replay .bottom-overlay .goal-stats{
+    --stat-height:70px;
+    height: var(--stat-height);
+    width: var(--sw);
+    position: absolute;
+    top: calc(var(--sh) - var(--stat-height));
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    transform: skewX(-5deg);
+}
+
+.replay .bottom-overlay .goal-stats div div{
+    display: inline;
+    position: relative;
+    top:6px;
+}
+.replay .bottom-overlay .goal-stats img{
+    display:inline;
+    position: relative;
+    top:12px;
+    height: calc(var(--stat-height) * 0.6);
+    opacity: 1;
+}
+
+.replay .bottom-overlay .goal-stats.blue div div{
+	color: rgb(0, 38, 255);
+    filter: 
+        drop-shadow(2px 2px 8px rgba(0, 38, 255, 0.8));
+    -webkit-text-stroke: 0.6px rgba(0, 0, 0, 1);
+}
+.replay .bottom-overlay .goal-stats.blue img{
+    filter: 
+        invert(1) 
+        sepia(0.3) 
+        hue-rotate(79deg) 
+        saturate(1000%)
+        drop-shadow(2px 2px 8px rgba(0, 38, 255, 0.8))
+}
+
+.replay .bottom-overlay .goal-stats.orange div div{
+	color: rgb(255, 119, 0);
+    filter: 
+        drop-shadow(2px 2px 8px rgba(255, 119, 0, 0.8));
+    -webkit-text-stroke: 0.6px rgba(0, 0, 0, 1);
+}
+.replay .bottom-overlay .goal-stats.orange img{
+    filter: 
+        invert(1) 
+        sepia(.3) 
+        hue-rotate(318deg) 
+        saturate(2000%)
+        drop-shadow(2px 2px 8px rgba(255, 119, 0, 0.8));
+}
+
+.replay .bottom-overlay .goal-stats .scored-by{
+    position: absolute;
+    width:calc(var(--sw) * 0.4);
+    text-align: right;
+}
+
+.replay .bottom-overlay .goal-stats .goal-speed{
+    --w: calc(var(--sw) * 0.2);
+    position: absolute;
+    width:var(--w);
+    left:calc(var(--sw) * 0.4);
+    text-align: center;
+}
+
+.replay .bottom-overlay .goal-stats .assist{
+    position: absolute;
+    width:calc(var(--sw) * 0.4);
+    left:calc(var(--sw) * 0.6);
+    text-align: left;
+}

@@ -2,6 +2,10 @@
 	font-family: 'ScoreBoardFont';
 	src: url("../assets/Lustra\ Text\ SemiBold.ttf");
 }
+@font-face {
+	font-family: 'ReplayFont';
+	src: url("../assets/Myriad\ Pro\ SemiCondensed.otf");
+}
 body {
 	margin: 0px auto;
 	background-color: rgba(0, 0, 0, 1);

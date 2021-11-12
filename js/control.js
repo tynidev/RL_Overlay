@@ -23,18 +23,18 @@ $(() => {
             WsSubscribers.send("game", "goal_scored", JSON.parse($('#goal_scored').val()));
             WsSubscribers.send("game", "replay_start", JSON.parse($('#replay_start').val()));
         }
-        if(i == 3)
+        if(i == 7)
         {
             WsSubscribers.send("game", "replay_will_end", JSON.parse($('#replay_will_end').val()));
         }
-        if(i == 5)
+        if(i == 14)
         {
             WsSubscribers.send("game", "replay_end", JSON.parse($('#replay_end').val()));
             WsSubscribers.send("game", "pre_countdown_begin", JSON.parse($('#pre_countdown_begin').val()));
         }
         WsSubscribers.send("game", "update_state", JSON.parse($('#update_state').val()));
     }
-    // setInterval(update_state, 300);
+    //setInterval(update_state, 100);
 
     var event = "update_state";
 

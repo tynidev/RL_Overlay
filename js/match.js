@@ -94,7 +94,7 @@ class Match {
 
         // When a goal is scored
         ws.subscribe("game", "goal_scored", (p) => { 
-            this.onGoalScoredCallbacks.forEach((callback) => { callback(); });
+            this.onGoalScoredCallbacks.forEach((callback) => { callback(p); });
         });
 
         // When an in game replay from a goal is started

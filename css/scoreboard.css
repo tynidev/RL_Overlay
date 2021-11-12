@@ -3,7 +3,7 @@
 	top: 0px;
 	left: calc(50% - var( --half-w));
 	border-radius: 0px 0px 10px 10px;
-	background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97),rgba(255, 94, 0, 1));
+	background-image: linear-gradient(to right, rgba(0, 38, 255, 1),rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0.97), rgba(0, 0, 0, 0.97),rgba(255, 119, 0, 1));
 	height: var(--h);
 	text-shadow: 2px 2px black;
 	font-size: 35px;
@@ -139,7 +139,7 @@
 	float: right;
 }
 .scoreboard .series-tally .left .mark.w {
-	background-color: rgb(0, 0, 255);
+	background-color: rgb(0, 38, 255);
 }
 .scoreboard .series-tally .right .mark.w {
 	background-color: rgb(255, 119, 0);

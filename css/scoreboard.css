@@ -5,7 +5,7 @@
 	background-color: var(--base-color);
 	height: var(--h);
 	font-size: 34px;
-	--h: 100px;
+	--h: 80px;
 	--w: 1150px;
 	--half-w: calc(var(--w) / 2);
   	width: var(--w);
@@ -43,6 +43,7 @@
 .scoreboard .left .score {
   position: absolute;
   height: calc(var(--h) * 0.9);
+  line-height: calc(var(--h) * 0.9);
   width:20%;
   left:80%;
   top: 10%;
@@ -64,6 +65,7 @@
 .scoreboard .right .score {
   position: absolute;
   height: calc(var(--h) * 0.9);
+  line-height: calc(var(--h) * 0.9);
   width:20%;
   top: 10%;
   font-size: 65px;

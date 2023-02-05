@@ -192,7 +192,7 @@ $(() => {
   });
 
   // Time
-  match.OnTimeUpdated((time, seconds) => {
+  match.OnTimeUpdated((time, seconds, isOT) => {
     
     // If were not showing main elements then animate them in
     if(match.timeStarted && !$('#all').is(":visible")) {
@@ -203,6 +203,12 @@ $(() => {
 
     // Update time
     $('.scoreboard .center .time').text(time);
+
+    if(isOT)
+    {
+      $('.scoreboard .center .time').css({color: "#fffbb3", "font-size": "60px"});
+      return;
+    }
 
     if(seconds <= 10){
       $('.scoreboard .center .time').css({color: "rgb(255, 17, 0)", "font-size": "65px"});

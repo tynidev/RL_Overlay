@@ -3,117 +3,77 @@
   width: 380px; 
   top: 0px; /* 1440/2 - 400/2 = 520*/  
   text-shadow: 2px 2px black;
-  opacity: 0.95;
+  opacity: 0.96;
 }
 .teamboard.left {
   left: -80px;
-  border-radius: 0 0 10px 10px;
 }
 
 .teamboard.right {
   left: 2225px; /* 2560 - 400 */ 
-  border-radius: 0 0 10px 10px;
   text-align: right;
 }
 
 .teamboard.left .player .info{
-  transform: skew(var(--skew),0deg);
   padding: 5px 0px 0px 70px;  
 }
 
 .teamboard.right .player .info{
-  transform: skew(calc(var(--skew) * -1),0deg);
   padding: 5px 90px 0px 00px;  
 }
 
 .teamboard.left .player {
-  transform: skew(calc(var(--skew) * -1),0deg);
-  background-image: linear-gradient(to right, rgba(0, 9, 61, 0.86), rgba(0, 0, 0, 98));
-  padding: 0px 20px 10px 20px;
+  padding: 0px 10px 10px 20px;
+  border-radius: 0 var(--box-radius) var(--box-radius) 0;
 }
 
 .teamboard.right .player {
-  transform: skew(var(--skew),0deg);
-  background-image: linear-gradient(to left, rgba(53, 19, 0, 0.86), rgba(0, 0, 0, 98));
-  padding: 0px 0px 10px 20px;
+  padding: 0px 0px 10px 10px;
+  border-radius: var(--box-radius) 0 0 var(--box-radius);
 }
 
 .teamboard .player {
-  font-size: 25px;
+  font-size: 22px;
   line-height: 30px;
   display: block;
-  margin: 10px 0px 10px 0px;
-  border-width: 1px;
-  border-color: rgba(255, 255, 255, 0.3);
-  border-style: solid;
+  margin: 5px 0px 5px 0px;
+  background-color: var(--base-color);
 }
 
-
 .teamboard .player .boost{
-  height: 10px;
+  height: 6px;
   border-style:none;
 }
 
-.teamboard.left .player .boost{
-  transform: skew(calc(var(--skew) * -1),0deg);
-  border-color:  rgb(0, 150, 255, 0.6);
-}
-
-.teamboard.right .player .boost{
-  transform: skew(var(--skew),0deg);
-  border-color:  rgba(255, 255, 0, 0.6);
-}
-
-.teamboard .player .fill{
+.teamboard .player .boost .fill{
   width: 33%;
   height:100%;
 }
 
-.teamboard.left .player .fill{
-  background-image: linear-gradient(to right, rgb(0, 0, 255), rgb(0, 150, 255));
+.teamboard .player .boost .num{
+  position: relative;
+}
+.teamboard.left .player .boost .num{
+  text-align: right;
+  left: 0px; 
+  top:-36px;
+}
+.teamboard.right .player .boost .num{
+  text-align: left;
+  left: 0px; 
+  top:-36px;
 }
 
-.teamboard.right .player .fill{
-  background-image: linear-gradient(to left, rgb(255, 119, 0), rgb(255, 255, 0));
+.teamboard.left .player .boost .fill{
+  background-color: var(--blue);
+}
+
+.teamboard.right .player .boost .fill{
+  background-color: var(--orange);
   margin-left: auto; 
   margin-right: 0;
 }
 
 .teamboard .player .stats .stat {
-  display:inline;
-  padding:0 10px 0 0;
-}
-
-.teamboard .player .stats .stat img {
-  display:inline;
-  position: relative;
-  left: 0;
-  height: 18px;
-}
-.teamboard.left .player .stats .stat img{
-  filter: 
-        invert(1) 
-        sepia(0.3) 
-        hue-rotate(79deg) 
-        saturate(1000%)
-        drop-shadow(2px 2px 8px rgba(0, 38, 255, 0.8));
-  opacity: 1;
-}
-
-.teamboard.right .player .stats .stat img{
-  filter: 
-        invert(1) 
-        sepia(.3) 
-        hue-rotate(318deg) 
-        saturate(2000%)
-        drop-shadow(1px 1px 2px rgba(255, 119, 0, 0.8));
-  opacity: 1;
-}
-
-.teamboard .player .stats .stat div {
-  display:inline;
-  height: 30px;
-  padding-right:3px;
-  font-size:22px;
-  opacity: .9;
+  display:none;
 }

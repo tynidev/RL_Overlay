@@ -1,22 +1,17 @@
 .spectating {
 	position: absolute;
-	top: 1200px;
+	top: 1150px;
 	left:-9px;
 	background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
 	padding: 0 70px 0px 70px;
 	height: 100px;
 	text-align: right;
 	font-size: 80px;
-	transform: skew(calc(var(--skew) * -1),0deg);
-	border-width: 1px;
-	border-color: rgb(50 50 50);
-	border-style:solid;
 }
 .spectating .name {
 	margin: 0px;
 	padding: 0px;
 	text-shadow: 2px 2px black;
-	transform: skew(var(--skew),0deg);
 }
 .spectating .boost {
 	display: none;
@@ -51,12 +46,12 @@
 
 .spectating-boost{
 	position: absolute;
-	--rh: 300px;
-	--rw: 300px;
+	--rh: 310px;
+	--rw: 310px;
 	--cr: 150;
 	height: var(--rh);
 	width: var(--rw);
-	top: calc(var(--sh) - calc(var(--rh) + 30px));
+	top: calc(var(--sh) - calc(var(--rh) + 40px));
 	left: calc(var(--sw) - calc(var(--rw) + 30px));
 }
 
@@ -90,7 +85,7 @@
 	r:121;
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
-	fill:rgba(0, 0, 0, 0.5);
+	fill:rgba(0, 0, 0, 0.8);
 }
 
 .spectating-boost .boost-ring .border-outer{
@@ -110,7 +105,7 @@
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
 	stroke-width:var(--stroke-w);
-	stroke:rgba(0, 0, 0, 0.5);
+	stroke:rgba(0, 0, 0, 0.8);
 	fill:red;
 }
 

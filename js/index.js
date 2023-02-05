@@ -62,8 +62,8 @@ function center() {
   let boost = d3.select('.spectating-boost .boost-ring .boost-num');
 
   // Get current x and y values.
-  let x = 150;
-  let y = 150;
+  let x = 155;
+  let y = 155;
   
   // Get bounding box and compute the center point.
   let node = boost.node();
@@ -103,10 +103,10 @@ function SetSpectatingBoost(player)
 
   center();
 
-  var color = 'rgba(0, 38, 255, 0.85)';
+  var color = 'var(--blue)';
   if(player.team != 0)
   {
-    color = 'rgba(255, 119, 0, 0.85)';
+    color = 'var(--orange)';
   }
   el.style('stroke', color);
 
@@ -140,14 +140,12 @@ $(() => {
     WsSubscribers.subscribe("game", "series_update", (p) => { 
       $('.scoreboard .series-tally .left').empty();
       $('.scoreboard .series-tally .right').empty();
-
-      $('.scoreboard .center .box .series').text(p.title);
       $('.scoreboard .series-tally .series-text').text(p.series_txt);
 
       var games = Math.ceil(p.length / 2);
       if(games <= 1)
       {
-        $('.scoreboard .series-tally').hide();
+        $('.scoreboard .series-tally .mark').hide();
         return;
       }
       for(var i = 1; i <= games; i++)
@@ -156,8 +154,7 @@ $(() => {
         $('.scoreboard .series-tally .right').append(`<div class="mark w${i}"></div>`);
       }
 
-      var w = (games * 62 * 2) + 90;
-      $('.scoreboard .series-tally').css({display:"block", "--w":`${w}px`});
+      $('.scoreboard .series-tally .mark').show();
 
       $('.scoreboard .series-tally .mark').each((i, el) => {
         $(el).removeClass('w');
@@ -250,6 +247,7 @@ $(() => {
       $(id + ' .boost .fill').animate({
         width: player.boost + "%",
       }, 80);
+      $(id + ' .boost .num').text(player.boost);
       $(id + ' .stats .stat .save').text(player.saves);
       $(id + ' .stats .stat .goal').text(player.goals);
       $(id + ' .stats .stat .assist').text(player.assists);
@@ -294,11 +292,11 @@ $(() => {
 
     if(player.team == 0)
     {
-      $('.spectating').css('background-image', 'linear-gradient(to right, rgba(0, 38, 255, 1), rgba(0, 38, 255, 0.3))');
+      $('.spectating').css('background-image', 'linear-gradient(to right, var(--blue), rgba(0, 38, 255, 0.3))');
     }
     else
     {
-      $('.spectating').css('background-image', 'linear-gradient(to right, rgba(255, 119, 0, 1), rgba(255, 119, 0, 0.3))');
+      $('.spectating').css('background-image', 'linear-gradient(to right, var(--orange), rgba(255, 119, 0, 0.3))');
     }
     $('.spectating').css('visibility', 'visible');
     $('.spectating .name').text(player.name);
@@ -359,6 +357,7 @@ $(() => {
           </div>
           <div class="boost">
             <div class="fill"></div>
+            <div class="num"></div>
           </div>
         </div>
       </div>`);
@@ -388,6 +387,7 @@ $(() => {
           </div>
           <div class="boost">
             <div class="fill"></div>
+            <div class="num"></div>
           </div>
         </div>
       </div>`);

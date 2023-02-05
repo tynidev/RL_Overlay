@@ -133,13 +133,15 @@
 	height: 10px;
 	display: none;
 }
+
+.scoreboard .series-tally .mark{
+	margin: 4px 0px 0px 6px;
+}
 .scoreboard .series-tally .right .mark {
 	float: left;
-	margin: 4px 6px 0px 0px;
 }
 .scoreboard .series-tally .left .mark.w {
 	background-color: var(--blue);
-	margin: 4px 0px 0px 6px;
 }
 .scoreboard .series-tally .right .mark.w {
 	background-color: var(--orange);

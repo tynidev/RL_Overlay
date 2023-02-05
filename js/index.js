@@ -142,6 +142,9 @@ $(() => {
       $('.scoreboard .series-tally .right').empty();
       $('.scoreboard .series-tally .series-text').text(p.series_txt);
 
+      $('.scoreboard .left .name').text(p.teams[0].name);
+      $('.scoreboard .right .name').text(p.teams[1].name);
+
       var games = Math.ceil(p.length / 2);
       if(games <= 1)
       {
@@ -230,12 +233,12 @@ $(() => {
 
   // Scoreboard
   match.OnTeamsUpdated((teams) => {
-    var update = (team, id, name) => {
-      $('.scoreboard ' + id + ' .name').text(name);
+    var update = (team, id) => {
       $('.scoreboard ' + id + ' .score').text(team.score);
     };
-    update(teams[0], ".left", teams[0].name);
-    update(teams[1], ".right", teams[1].name);
+
+    update(teams[0], ".left");
+    update(teams[1], ".right");
   });
   
   // Player tags

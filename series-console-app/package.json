@@ -1,0 +1,16 @@
+{
+  "name": "series-console-appp",
+  "version": "1.0.0",
+  "description": "Rocket League Overlay Series App",
+  "main": "series.js",
+  "scripts": {
+    "relay": "node series.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "prompt": "^1.1.0",
+    "websocket": "^1.0.34",
+    "ws": "^7.4.3"
+  }
+}

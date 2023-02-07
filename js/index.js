@@ -244,11 +244,13 @@ $(() => {
   // Player tags
   match.OnPlayersUpdated((left, right) => {
     center();
+    let speed = d3.select('.spectating-boost .boost-ring .speed-num');
     if(match.spectating){
       $('.teamboard .player .boost').show();
+      speed.style("opacity", 1);
     }
     else{
-      
+      speed.style("opacity", 0);
       $('.teamboard .player .boost').hide();
     }
     var update = (player, id) => {

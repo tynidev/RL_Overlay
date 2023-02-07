@@ -4,9 +4,9 @@
 ![screen shot](/screenshot.png?raw=true "Overlay Example")
 
 ## Pre-requisites
-Node.js
-npm install websocket
 
+- Node.js
+- npm install websocket
 - https://gitlab.com/bakkesplugins/sos/sos-plugin/-/releases 
 - https://gitlab.com/bakkesplugins/sos/sos-ws-relay
 

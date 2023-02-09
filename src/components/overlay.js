@@ -58,7 +58,7 @@ class Overlay extends React.Component {
     // OnTimeUpdated - When a time update is recieved
     this.unsubscribers.push(
       this.match.OnTimeUpdated(() => {
-        // If were not showing main elements then animate them in
+        // If we join in the middle of the match show the overlay
         if(this.match.timeStarted && this.state.display === false) {
           this.setState({
             display: true

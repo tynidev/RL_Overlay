@@ -373,6 +373,9 @@ class Match {
     /***************************/
 
     HandleStateChange(param){
+        if(param.game.hasWinner) // if game is over don't handle any updates
+            return;
+
         var game = param.game;
         var players = Object.values(param.players);
         let left = players.filter((p) => { return p.team === 0 });
@@ -389,19 +392,27 @@ class Match {
         });
 
         // Call spectatorUpdateCallbacks on every update
-        var localPlayer;
+        var localPlayer = undefined;
         if(this.localplayer_support)
         {
             localPlayer = players.filter((p) => { return p.name === game.localplayer })[0];
-            this.spectating = !localPlayer;
+            if(localPlayer)
+            {
+                // local player is playing.....
+                this.spectating = false;
+            }
+            else
+            {
+                // local player is not playing so just see if game hasTarget
+                this.spectating = game.hasTarget;
+            }
         }
-        var spectating = this.spectating;
+
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(!spectating){
-                
-                callback(true, localPlayer);
+            if(localPlayer){
+                callback(true, localPlayer, true);
             }else{
-                callback(game.hasTarget, param.players[game.target]);
+                callback(game.hasTarget, param.players[game.target], false);
             }
         });
 
@@ -412,7 +423,8 @@ class Match {
 
         // Has time changed?
         if(this.game.time_seconds !== game.time_seconds){
-            this.timeStarted = true;
+            if(this.game.time_seconds)
+                this.timeStarted = true;
             this.timeUpdateCallbacks.forEach(function (callback, index) {
                 
                 let seconds = game.time_seconds % 60;

@@ -30,7 +30,7 @@ class Spectating extends React.Component {
         demos: 0,
         shots: 0
       },
-      spectating: this.match.spectating,
+      hasLocalPlayer: true,
     };
   }
 
@@ -38,10 +38,13 @@ class Spectating extends React.Component {
 
     // OnSpecatorUpdated - When the spectated player or stats/properties of player have changed
     this.unsubscribers.push(
-      this.match.OnSpecatorUpdated((isSpectating, player) => {
-        if(player === undefined || !isSpectating)
+      this.match.OnSpecatorUpdated((hasTargetPlayer, player, hasLocalPlayer) => {
+        if(player === undefined || !hasTargetPlayer)
         {
-          this.setState({display: false});
+          this.setState({
+            display: false, 
+            hasLocalPlayer: hasLocalPlayer
+          });
           return;
         }
 
@@ -52,17 +55,9 @@ class Spectating extends React.Component {
         this.setState({
           display: true,
           bg_color: bg_color,
-          player: player
+          player: player, 
+          hasLocalPlayer: hasLocalPlayer
         });
-      })
-    );
-
-    // OnPlayersUpdated - When players stats/properties have changed
-    //       We hook here because if a player changes from spectating 
-    //       to playing this is the best place to catch it
-    this.unsubscribers.push(
-      this.match.OnPlayersUpdated((left, right) => {
-        this.setState({spectating: this.match.spectating});
       })
     );
 
@@ -126,7 +121,7 @@ class Spectating extends React.Component {
               let centerX = el.getBoundingClientRect().width / 2;
               let centerY = el.getBoundingClientRect().height / 4;
               el.setAttribute('x', x - centerX - 5);
-              el.setAttribute('y', y + centerY - (this.state.spectating ? 35 : 0));
+              el.setAttribute('y', y + centerY - (this.state.hasLocalPlayer ? 0 : 35));
             }}>
               {this.state.player.boost}
           </text>
@@ -135,7 +130,7 @@ class Spectating extends React.Component {
             x="85" 
             y="178.33984375" 
             fontSize="30"
-            style={{visibility:this.state.spectating ? 'visible' : 'hidden'}}
+            style={{visibility:this.state.hasLocalPlayer ? 'hidden' : 'visible'}}
             ref={el => {
               if (!el) return;
       
@@ -148,7 +143,7 @@ class Spectating extends React.Component {
             }}>
               {this.state.player.speed} MPH
           </text>
-          <line x1="80" y1="150" x2="220" y2="150" stroke="white" style={{visibility:this.state.spectating ? 'visible' : 'hidden'}}/>
+          <line x1="80" y1="150" x2="220" y2="150" stroke="white" style={{visibility:this.state.hasLocalPlayer ? 'hidden' : 'visible'}}/>
         </svg>
       </div>);
     }

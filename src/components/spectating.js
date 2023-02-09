@@ -17,6 +17,8 @@ class Spectating extends React.Component {
     this.match = props.match;
     this.state = {
       display: false,
+      display_boost_ring: true,
+      spectating_left: 0,
       bg_color: 'linear-gradient(to right, rgb(var(--base-color)), rgba(var(--base-color), 0.4))',
       player: {
         team: 0,
@@ -33,6 +35,8 @@ class Spectating extends React.Component {
   }
 
   componentDidMount() {
+
+    // OnSpecatorUpdated - When the spectated player or stats/properties of player have changed
     this.unsubscribers.push(
       this.match.OnSpecatorUpdated((isSpectating, player) => {
         if(player === undefined || !isSpectating)
@@ -53,36 +57,52 @@ class Spectating extends React.Component {
       })
     );
 
+    // OnPlayersUpdated - When players stats/properties have changed
+    //       We hook here because if a player changes from spectating 
+    //       to playing this is the best place to catch it
     this.unsubscribers.push(
       this.match.OnPlayersUpdated((left, right) => {
         this.setState({spectating: this.match.spectating});
       })
     );
+
+    // OnInstantReplayStart - When an in game instant replay is started after a goal
+    this.unsubscribers.push(
+      this.match.OnInstantReplayStart(() => { 
+        this.setState({
+          spectating_left: -1000,
+          display_boost_ring: false,
+        });
+      })
+    );
+
+    // OnCountdown - When a kickoff countdown occurs
+    this.unsubscribers.push(
+     this.match.OnCountdown(() => { 
+      this.setState({
+        spectating_left: 0,
+        display_boost_ring: true,
+      });
+     })
+    );
   }
 
   componentWillUnmount(){
     this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
+    this.unsubscribers = [];
   }
 
   render() {
-    let circumference = 135 * 2 * Math.PI;
-    let offset = circumference - this.state.player.boost / 100 * circumference;
+    
     if(!this.state.display)
       return <div><div className="spectating" /><div className='spectating-boost' /></div>;
-    return (
-    <div>
-      <div className="spectating" style={{backgroundImage:this.state.bg_color}}>
-        <div className="name">{this.truncate(this.state.player.name, 14)}</div>
-        <div className="boost"><div className="fill" style={{width: this.state.player.boost, transition: "0.25s"}}></div></div>
-        <div className="stats">
-          <div className="goal">{this.state.player.goals}</div><img src={goal_svg} alt=''/>
-          <div className="assist">{this.state.player.assists}</div><img src={assist_svg} alt=''/>
-          <div className="save">{this.state.player.saves}</div><img src={save_svg} alt=''/>
-          <div className="shots">{this.state.player.shots}</div><img src={shot_svg} alt=''/>
-          <div className="demo">{this.state.player.demos}</div><img src={demo_svg} alt=''/>
-        </div>
-      </div>
-      <div className="spectating-boost">
+    
+    let circumference = 135 * 2 * Math.PI;
+    let offset = circumference - this.state.player.boost / 100 * circumference;
+    let boost_ring = (<div className="specatating-boost"></div>);
+    if(this.state.display_boost_ring)
+    {
+      boost_ring = (<div className="spectating-boost">
         <svg className="boost-ring">
           <circle className="border-inner"/>
           <circle className="inner"/>
@@ -130,7 +150,22 @@ class Spectating extends React.Component {
           </text>
           <line x1="80" y1="150" x2="220" y2="150" stroke="white" style={{visibility:this.state.spectating ? 'visible' : 'hidden'}}/>
         </svg>
+      </div>);
+    }
+    return (
+    <div>
+      <div className="spectating" style={{backgroundImage:this.state.bg_color, left:this.state.spectating_left, transition: "400ms"}}>
+        <div className="name">{this.truncate(this.state.player.name, 14)}</div>
+        <div className="boost"><div className="fill" style={{width: this.state.player.boost, transition: "0.25s"}}></div></div>
+        <div className="stats">
+          <div className="goal">{this.state.player.goals}</div><img src={goal_svg} alt=''/>
+          <div className="assist">{this.state.player.assists}</div><img src={assist_svg} alt=''/>
+          <div className="save">{this.state.player.saves}</div><img src={save_svg} alt=''/>
+          <div className="shots">{this.state.player.shots}</div><img src={shot_svg} alt=''/>
+          <div className="demo">{this.state.player.demos}</div><img src={demo_svg} alt=''/>
+        </div>
       </div>
+      {boost_ring}
     </div>
     );
   }

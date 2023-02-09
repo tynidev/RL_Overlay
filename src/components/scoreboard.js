@@ -28,6 +28,7 @@ class Scoreboard extends React.Component {
   }
 
   componentDidMount() {
+    // OnTimeUpdated - When a time update is recieved
     this.unsubscribers.push(
       this.match.OnTimeUpdated((time, seconds, isOT) => {
         // Update time
@@ -39,6 +40,7 @@ class Scoreboard extends React.Component {
       })
     );
 
+    // OnTeamsUpdated - When Team scores/names/colors are updated
     this.unsubscribers.push(
       this.match.OnTeamsUpdated((teams) => {
         this.setState({teams: teams});
@@ -48,6 +50,7 @@ class Scoreboard extends React.Component {
 
   componentWillUnmount(){
     this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
+    this.unsubscribers = [];
   }
 
   render() {

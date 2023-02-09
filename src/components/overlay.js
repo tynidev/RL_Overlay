@@ -18,7 +18,7 @@ class Overlay extends React.Component {
   }
 
   componentDidMount() {
-    // Match Created
+    // Match Created - When game is created before everyone has picked sides or specator roles
     this.unsubscribers.push(
       this.match.OnMatchCreated(() => {
         this.setState({
@@ -28,7 +28,7 @@ class Overlay extends React.Component {
       })
     );
 
-    // Match Ended
+    // OnMatchEnded - When match is destroyed
     this.unsubscribers.push(
       this.match.OnMatchEnded(() => {
         this.setState({
@@ -37,7 +37,7 @@ class Overlay extends React.Component {
       })
     );
 
-    // Game Ended
+    // OnGameEnded - When name of team winner is displayed on screen after game is over
     this.unsubscribers.push(
       this.match.OnGameEnded(() => {
         this.setState({
@@ -46,7 +46,7 @@ class Overlay extends React.Component {
       })
     );
 
-    // First count down at 0-0
+    // OnFirstCountdown - When the first kick off of the game occurs
     this.unsubscribers.push(
       this.match.OnFirstCountdown(() => {
         this.setState({
@@ -55,16 +55,14 @@ class Overlay extends React.Component {
       })
     );
 
-    // Time changed
+    // OnTimeUpdated - When a time update is recieved
     this.unsubscribers.push(
       this.match.OnTimeUpdated(() => {
         // If were not showing main elements then animate them in
         if(this.match.timeStarted && this.state.display === false) {
-          //PreGamePosition();
           this.setState({
             display: true
           });
-          //CountdownAnimation();
         }
       })
     );
@@ -72,6 +70,7 @@ class Overlay extends React.Component {
 
   componentWillUnmount(){
     this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
+    this.unsubscribers = [];
   }
 
   render(){

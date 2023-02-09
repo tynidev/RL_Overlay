@@ -24,6 +24,7 @@ class Teamboard extends React.Component {
   }
 
   componentDidMount() {
+    // OnPlayersUpdated - When players stats/properties have changed
     this.unsubscribers.push(
       this.match.OnPlayersUpdated((left, right) => {
         this.setState({teams: [left, right], spectating: this.match.spectating});
@@ -33,6 +34,7 @@ class Teamboard extends React.Component {
 
   componentWillUnmount(){
     this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
+    this.unsubscribers = [];
   }
 
   render() {

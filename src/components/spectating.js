@@ -88,7 +88,7 @@ class Spectating extends React.Component {
           <circle className="inner"/>
           <circle className="fill" 
                   fill="transparent" 
-                  style={{stroke:this.state.player.team != 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))', transition:'100ms'}}
+                  style={{stroke:this.state.player.team !== 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))', transition:'100ms'}}
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
                   />

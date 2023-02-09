@@ -2,11 +2,10 @@
 	position: absolute;
 	top: 1150px;
 	left:-9px;
-	background-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
 	padding: 0 70px 0px 70px;
-	height: 100px;
+	height: 80px;
 	text-align: right;
-	font-size: 80px;
+	font-size: 60px;
 }
 .spectating .name {
 	margin: 0px;
@@ -28,20 +27,22 @@
 .spectating .stats {
 	position: relative;
 	text-shadow: 2px 2px black;
-	top: -50px;
+	top: -20px;
+	left: 30px
 }
 .spectating .stats img {
 	display: inline;
 	position: relative;
 	left: 0;
 	height: 30px;
+	padding-right: 30px;
 	filter: invert(90%);
 }
 .spectating .stats div {
 	display: inline;
 	padding-right: 3px;
 	height: 30px;
-	font-size: 30px;
+	font-size: 40px;
 }
 
 .spectating-boost{

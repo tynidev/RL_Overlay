@@ -7,3 +7,5 @@ class Stats {
         var curr = state.curr;
     }
 }
+
+export default Stats;

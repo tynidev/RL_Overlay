@@ -26,9 +26,9 @@ body {
 :root {
 	--skew: 0deg;
 	--box-radius: 4px;
-	--orange: #f2601d;
-	--blue: #0783d3;
-	--base-color: #0e1216;
+	--orange: 242, 96, 29;
+	--blue: 7, 121, 211;
+	--base-color: 14, 18, 22;
 	text-transform: uppercase;
 	text-shadow: 2px 2px black;
 }

@@ -1,34 +1,28 @@
-.teamboard{
+.teamboard .left {
   position: absolute;
-  width: 380px; 
+  width: 380px;
   top: 0px; /* 1440/2 - 400/2 = 520*/  
   text-shadow: 2px 2px black;
   opacity: 0.96;
 }
-.teamboard.left {
-  left: -80px;
-}
 
-.teamboard.right {
-  left: 2225px; /* 2560 - 400 */ 
+.teamboard .right {
+  left: 2180px; /* 2560 - 400 */ 
   text-align: right;
+  position: absolute;
+  width: 380px;
+  top: 0px; /* 1440/2 - 400/2 = 520*/  
+  text-shadow: 2px 2px black;
+  opacity: 0.96;
 }
 
-.teamboard.left .player .info{
-  padding: 5px 0px 0px 70px;  
-}
-
-.teamboard.right .player .info{
-  padding: 5px 90px 0px 00px;  
-}
-
-.teamboard.left .player {
-  padding: 0px 10px 10px 20px;
+.teamboard .left .player {
+  padding: 0px 10px 10px 10px;
   border-radius: 0 var(--box-radius) var(--box-radius) 0;
 }
 
-.teamboard.right .player {
-  padding: 0px 0px 10px 10px;
+.teamboard .right .player {
+  padding: 0px 10px 10px 10px;
   border-radius: var(--box-radius) 0 0 var(--box-radius);
 }
 
@@ -37,7 +31,7 @@
   line-height: 30px;
   display: block;
   margin: 5px 0px 5px 0px;
-  background-color: var(--base-color);
+  background-color: rgb(var(--base-color));
 }
 
 .teamboard .player .boost{
@@ -48,28 +42,29 @@
 .teamboard .player .boost .fill{
   width: 33%;
   height:100%;
+  transition: 0.25s;
 }
 
 .teamboard .player .boost .num{
   position: relative;
 }
-.teamboard.left .player .boost .num{
+.teamboard .left .player .boost .num{
   text-align: right;
   left: 0px; 
   top:-36px;
 }
-.teamboard.right .player .boost .num{
+.teamboard .right .player .boost .num{
   text-align: left;
   left: 0px; 
   top:-36px;
 }
 
-.teamboard.left .player .boost .fill{
-  background-color: var(--blue);
+.teamboard .left .player .boost .fill{
+  background-color: rgb(var(--blue));
 }
 
-.teamboard.right .player .boost .fill{
-  background-color: var(--orange);
+.teamboard .right .player .boost .fill{
+  background-color: rgb(var(--orange));
   margin-left: auto; 
   margin-right: 0;
 }

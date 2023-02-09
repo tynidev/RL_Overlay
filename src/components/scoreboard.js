@@ -12,6 +12,8 @@ class Scoreboard extends React.Component {
     this.match = props.match;
     this.state = {
       time: "5:00",
+      seconds: 5 * 60,
+      isOT: false,
       teams: [
         {
           name: "Blue",
@@ -30,7 +32,9 @@ class Scoreboard extends React.Component {
       this.match.OnTimeUpdated((time, seconds, isOT) => {
         // Update time
         this.setState({
-          time: time
+          time: time,
+          seconds: seconds,
+          isOT: isOT
         });
       })
     );
@@ -47,6 +51,16 @@ class Scoreboard extends React.Component {
   }
 
   render() {
+    let timeStyle = {color:"#fffbb3", fontSize: "60px"};
+    if(!this.state.isOT)
+    {
+      if(this.state.seconds <= 10)
+        timeStyle = {color:"rgb(209, 35, 23)", fontSize: "60px"};
+      else if(this.state.seconds <= 30)
+        timeStyle = {color:"#ffa53d", fontSize: "60px"};
+      else if(this.state.seconds <= 60)
+        timeStyle = {color:"#ffe880", fontSize: "60px"};
+    }
 
     return <div className="scoreboard">
       
@@ -57,7 +71,7 @@ class Scoreboard extends React.Component {
 
       <div className="center">
         <div className="box">
-          <div className="time">{this.state.time}</div>
+          <div className="time" style={timeStyle}>{this.state.time}</div>
         </div>
       </div>
 

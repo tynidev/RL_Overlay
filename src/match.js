@@ -405,15 +405,13 @@ class Match {
             }
         });
 
-        // Has team state changed?
-        if(this.game === undefined || this.HasTeamStateChanged(this.game.teams, game.teams)){
-            this.teamUpdateCallbacks.forEach(function (callback, index) {
-                callback(game.teams);
-            });
-        }
+        // Call teamUpdateCallbacks on every update
+        this.teamUpdateCallbacks.forEach(function (callback, index) {
+            callback(game.teams);
+        });
 
         // Has time changed?
-        if(this.game === undefined || this.game.time_seconds !== game.time_seconds){
+        if(this.game.time_seconds !== game.time_seconds){
             this.timeStarted = true;
             this.timeUpdateCallbacks.forEach(function (callback, index) {
                 

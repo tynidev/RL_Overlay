@@ -180,12 +180,20 @@ prompt.get([
 
     left_score = 0;
     right_score = 0;
+    left_team = r.left_team;
+    right_team = r.right_team;
 
     while(true)
     {
         recieved_prompt = false;
 
-        prompt.get([
+        prompt.get([        
+            {
+                description: 'Left team',
+                name: 'left_team',
+                required: true,
+                default: left_team,
+            },
             {
                 description: 'Left score',
                 pattern: /^\d+$/,
@@ -193,6 +201,12 @@ prompt.get([
                 name: 'left_score',
                 required: true,
                 default: left_score,
+            },
+            {
+                description: 'Right team',
+                name: 'right_team',
+                required: true,
+                default: right_team,
             },
             {
                 description: 'Right score',
@@ -207,18 +221,20 @@ prompt.get([
             recieved_prompt = true;
             left_score = b.left_score;
             right_score = b.right_score;
+            left_team = b.left_team;
+            right_team = b.right_team;
             WsSubscribers.send("game", "series_update", {
                 "series_txt" : r.series_text,
                 "length" : r.series_length, 
                 "teams": [
                     {
                     "team" : 0,
-                    "name" : r.left_team,
+                    "name" : left_team,
                     "matches_won" : left_score
                     },
                     {
                     "team" : 1,
-                    "name" : r.right_team,
+                    "name" : right_team,
                     "matches_won" : right_score
                     }
                 ]

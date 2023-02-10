@@ -1,15 +1,15 @@
 .scoreboard {
 	position: absolute;
 	top: 0px;
+	transition: 1s;
 	left: calc(50% - var( --half-w));
-	background-color: var(--base-color);
 	height: var(--h);
 	font-size: 34px;
 	--h: 80px;
 	--w: 1150px;
 	--half-w: calc(var(--w) / 2);
   	width: var(--w);
-	opacity: 0.98;
+	opacity: 0.99;
 }
 .scoreboard .left{
 	position: absolute;
@@ -17,7 +17,7 @@
 	left: 0px;
 	width: calc(var(--w) * 0.4);
 	height: var(--h);
-	background-color: var(--blue);
+	background-color: rgb(var(--blue));
 }
 .scoreboard .right {
 	position: absolute;
@@ -27,14 +27,14 @@
 	width: calc(calc(var(--w) * 0.4));
 	height: var(--h);
 	text-align: right;
-	background-color: var(--orange);
+	background-color: rgb(var(--orange));
 }
 .scoreboard .left .name {
   position: absolute;
   height: calc(var(--h) * 0.9);
   width: calc(var(--w) * 0.4 * 0.8 - 20px);
   top: calc(var(--h) * 0.1);
-  background: linear-gradient(45deg, #185777a6,var(--base-color));
+  background: linear-gradient(45deg, #185777a6,rgb(var(--base-color)));
   text-align: right;
   line-height: calc(var(--h) * 0.9);
   padding-right: 20px;
@@ -56,7 +56,7 @@
   width: calc(var(--w) * 0.4 * 0.8 - 20px);
   top: calc(var(--h) * 0.1);
   left:20%;
-  background: linear-gradient(-45deg, #9d4621a6,var(--base-color));
+  background: linear-gradient(-45deg, #9d4621a6,rgb(var(--base-color)));
   text-align: left;
   line-height: calc(var(--h) * 0.9);
   padding-left: 20px;
@@ -80,6 +80,7 @@
 	text-align: center;
 	line-height: var(--h);
 	font-size: 55px;
+	background-color: rgb(var(--base-color));
 }
 .scoreboard .center .time div {
 	height: 20px;
@@ -100,7 +101,7 @@
 	position: absolute;
 	width: calc(var(--w) * 0.4);
 	height: var(--tally-h);
-	background: linear-gradient(0deg, #000000d1,var(--base-color));
+	background: linear-gradient(0deg, #000000fd,rgb(var(--base-color)));
 	border-radius: 0 0 0 var(--box-radius);
 }
 .scoreboard .series-tally .right {
@@ -109,7 +110,7 @@
 	left: calc(var(--w) * 0.6);
 	width: calc(var(--w) * 0.4);
 	height: var(--tally-h);
-	background: linear-gradient(0deg, #000000d1,var(--base-color));
+	background: linear-gradient(0deg, #000000fd,rgb(var(--base-color)));
 	border-radius: 0 0 var(--box-radius) 0;
 }
 .scoreboard .series-tally .series-text {
@@ -120,10 +121,16 @@
 	height: calc(var(--tally-h) * 1.3);
 	border-radius: 0 0 6px 6px;
 	text-align: center;
-	color: rgba(255, 255, 255, 0.8);
+	color: rgba(255, 255, 255, 0.95);
 	font-size: calc(0.825 * var(--tally-h));
-	background: linear-gradient(0deg, #0e1216e1,var(--base-color));
+	background: linear-gradient(0deg, #0e1216fd,rgb(var(--base-color)));
 }
+
+.scoreboard .series-tally .series-text.ot {
+  background: rgb(184, 12, 12);
+  background: linear-gradient(0deg, rgb(184, 12, 12),#000000fd);
+}
+
 .scoreboard .series-tally .mark {
 	position: relative;
 	top: 1px;
@@ -131,18 +138,21 @@
 	background-color: rgba(73, 73, 73, 0.6);
 	width: 50px;
 	height: 10px;
-	display: none;
 }
 
-.scoreboard .series-tally .mark{
+.scoreboard .series-tally .left .mark{
 	margin: 4px 0px 0px 6px;
 }
+.scoreboard .series-tally .right .mark{
+	margin: 4px 6px 0px 0px;
+}
+
 .scoreboard .series-tally .right .mark {
 	float: left;
 }
 .scoreboard .series-tally .left .mark.w {
-	background-color: var(--blue);
+	background-color: rgb(var(--blue));
 }
 .scoreboard .series-tally .right .mark.w {
-	background-color: var(--orange);
+	background-color: rgb(var(--orange));
 }

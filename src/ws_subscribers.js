@@ -118,3 +118,5 @@ const WsSubscribers = {
       }
   }
 };
+
+export default WsSubscribers;

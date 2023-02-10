@@ -1,3 +1,5 @@
+import Stats from "./stats"
+
 function pad(num, size) {
     num = num.toString();
     while (num.length < size) num = "0" + num;
@@ -43,6 +45,7 @@ class Match {
     gameEndCallbacks = [];
     podiumCallbacks = [];
     ballUpdateCallbacks = [];
+    seriesUpdateCallbacks = [];
 
     /**
      * Constructor
@@ -100,7 +103,7 @@ class Match {
         // When an in game replay from a goal is started
         ws.subscribe("game", "replay_start", (p) => { 
              // replay_start is sent twice one with json and one with plain text
-            if(p == "game_replay_start") // skip plain text
+            if(p === "game_replay_start") // skip plain text
                 return;
             this.replayStartCallbacks.forEach((callback) => { callback(); });
         });
@@ -135,6 +138,28 @@ class Match {
             this.spectating = true;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
         });
+
+        // When we get a series update
+        // Example:
+        // {
+        //     "series_txt" : "CEA | Week 1",
+        //     "length" : 5, 
+        //     "teams": [
+        //         {
+        //         "team" : 0,
+        //         "name" : "Blue",
+        //         "matches_won" : 0
+        //         },
+        //         {
+        //         "team" : 1,
+        //         "name" : "Orange",
+        //         "matches_won" : 0
+        //         }
+        //     ]
+        // }
+        ws.subscribe("game", "series_update", (p) => { 
+            this.seriesUpdateCallbacks.forEach((callback) => { callback(p); });
+        });
     }
     
     /***************************/
@@ -145,8 +170,14 @@ class Match {
      * When game is created before everyone has picked sides or specator roles
      * @param {Callback to call when event fires} callback 
      */
-    OnGameCreated(callback){
+    OnMatchCreated(callback){
         this.matchCreatedCallbacks.push(callback);
+        return function(match) {
+            const index = match.matchCreatedCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.matchCreatedCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -155,6 +186,12 @@ class Match {
      */
     OnFirstCountdown(callback){
         this.initializedCallbacks.push(callback);
+        return function(match) {
+            const index = match.initializedCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.initializedCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -163,6 +200,12 @@ class Match {
      */
     OnCountdown(callback){
         this.preCountDownBeginCallbacks.push(callback);
+        return function(match) {
+            const index = match.preCountDownBeginCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.preCountDownBeginCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -171,6 +214,12 @@ class Match {
      */
     OnTeamsUpdated(callback){
         this.teamUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.teamUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.teamUpdateCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -179,6 +228,12 @@ class Match {
      */
     OnPlayersUpdated(callback){
         this.playerUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.playerUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.playerUpdateCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -187,6 +242,12 @@ class Match {
      */
     OnSpecatorUpdated(callback){
         this.spectatorUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.spectatorUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.spectatorUpdateCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -195,6 +256,12 @@ class Match {
      */
     OnTimeUpdated(callback){
         this.timeUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.timeUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.timeUpdateCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -203,6 +270,12 @@ class Match {
      */
     OnTeamsChanged(callback){
         this.teamsChangedCallbacks.push(callback);
+        return function(match) {
+            const index = match.teamsChangedCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.teamsChangedCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -211,6 +284,12 @@ class Match {
      */
     OnGoalScored(callback){
         this.onGoalScoredCallbacks.push(callback);
+        return function(match) {
+            const index = match.onGoalScoredCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.onGoalScoredCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -219,6 +298,12 @@ class Match {
      */
     OnInstantReplayStart(callback){
         this.replayStartCallbacks.push(callback);
+        return function(match) {
+            const index = match.replayStartCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.replayStartCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -227,6 +312,12 @@ class Match {
      */
     OnInstantReplayEnding(callback){
         this.replayWillEndCallbacks.push(callback);
+        return function(match) {
+            const index = match.replayWillEndCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.replayWillEndCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -236,6 +327,12 @@ class Match {
 
     OnInstantReplayEnd(callback){
         this.replayEndCallbacks.push(callback);
+        return function(match) {
+            const index = match.replayEndCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.replayEndCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -244,6 +341,12 @@ class Match {
      */
     OnGameEnded(callback){
         this.gameEndCallbacks.push(callback);
+        return function(match) {
+            const index = match.gameEndCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.gameEndCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -252,6 +355,12 @@ class Match {
      */
     OnPodiumStart(callback){
         this.podiumCallbacks.push(callback);
+        return function(match) {
+            const index = match.podiumCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.podiumCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /**
@@ -260,6 +369,40 @@ class Match {
      */
     OnBallMove(callback){
         this.ballUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.ballUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.ballUpdateCallbacks.splice(index, 1);
+            }
+         };
+    }
+    
+    /**
+     * When match is destroyed
+     * @param {Callback to call when event fires} callback 
+     */
+    OnMatchEnded(callback){
+        this.matchEndedCallbacks.push(callback);
+        return function(match) {
+            const index = match.matchEndedCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.matchEndedCallbacks.splice(index, 1);
+            }
+         };
+    }
+    
+    /**
+     * When a series update is received
+     * @param {Callback to call when event fires} callback 
+     */
+    OnSeriesUpdate(callback){
+        this.seriesUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.seriesUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.seriesUpdateCallbacks.splice(index, 1);
+            }
+         };
     }
 
     /***************************/
@@ -267,47 +410,58 @@ class Match {
     /***************************/
 
     HandleStateChange(param){
+        if(param.game.hasWinner) // if game is over don't handle any updates
+            return;
+
         var game = param.game;
         var players = Object.values(param.players);
-        let left = players.filter((p) => { return p.team == 0 });
-        let right = players.filter((p) => { return p.team == 1 });
+        let left = players.filter((p) => { return p.team === 0 });
+        let right = players.filter((p) => { return p.team === 1 });
         
-        // Call on every update
+        // Call ballUpdateCallbacks on every update
         this.ballUpdateCallbacks.forEach(function(callback, index) {
             callback(game.ball);
         });
 
-        // Call on every update
+        // Call playerUpdateCallbacks on every update
         this.playerUpdateCallbacks.forEach(function (callback, index) {
             callback(left, right);
         });
 
-        // Call on every update
-        var localPlayer;
+        // Call spectatorUpdateCallbacks on every update
+        var localPlayer = undefined;
         if(this.localplayer_support)
         {
-            localPlayer = players.filter((p) => { return p.name == game.localplayer })[0];
-            this.spectating = !localPlayer;
+            localPlayer = players.filter((p) => { return p.name === game.localplayer })[0];
+            if(localPlayer)
+            {
+                // local player is playing.....
+                this.spectating = false;
+            }
+            else
+            {
+                // local player is not playing so just see if game hasTarget
+                this.spectating = game.hasTarget;
+            }
         }
-        var spectating = this.spectating;
+
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(!spectating){
-                
-                callback(true, localPlayer);
+            if(localPlayer){
+                callback(true, localPlayer, true);
             }else{
-                callback(game.hasTarget, param.players[game.target]);
+                callback(game.hasTarget, param.players[game.target], false);
             }
         });
 
-        // Has team state changed?
-        if(this.game === undefined || this.HasTeamStateChanged(this.game.teams, game.teams)){
-            this.teamUpdateCallbacks.forEach(function (callback, index) {
-                callback(game.teams);
-            });
-        }
+        // Call teamUpdateCallbacks on every update
+        this.teamUpdateCallbacks.forEach(function (callback, index) {
+            callback(game.teams);
+        });
 
         // Has time changed?
-        if(this.game === undefined || this.game.time_seconds != game.time_seconds){
+        if(this.game.time_seconds !== game.time_seconds){
+            if(this.game.time_seconds)
+                this.timeStarted = true;
             this.timeUpdateCallbacks.forEach(function (callback, index) {
                 
                 let seconds = game.time_seconds % 60;
@@ -346,7 +500,10 @@ class Match {
 
     TeamsEqual(t1, t2)
     {
-        return t1.color_primary === t2.color_primary && t1.color_secondary === t2.color_secondary && t1.score === t2.score;
+        return t1.color_primary === t2.color_primary && 
+               t1.color_secondary === t2.color_secondary && 
+               t1.name === t2.name && 
+               t1.score === t2.score;
     }
 
     HasTeamStateChanged(prevTeams, currTeams)
@@ -359,20 +516,20 @@ class Match {
     ComputeTeamMemberChanges(prevLeft, prevRight, currentLeft, currentRight)
     {
         var newLeft = currentLeft.filter((p1) => {
-            return prevLeft.filter((p2) => { return p2.id == p1.id; }).length === 0;
+            return prevLeft.filter((p2) => { return p2.id === p1.id; }).length === 0;
         });
         var newRight = currentRight.filter((p1) => {
-            return prevRight.filter((p2) => { return p2.id == p1.id; }).length === 0;
+            return prevRight.filter((p2) => { return p2.id === p1.id; }).length === 0;
         });
         var removeLeft = prevLeft.filter((p1) => {
-            return currentLeft.filter((p2) => { return p2.id == p1.id; }).length === 0;
+            return currentLeft.filter((p2) => { return p2.id === p1.id; }).length === 0;
         });
         var removeRight = prevRight.filter((p1) => {
-            return currentRight.filter((p2) => { return p2.id == p1.id; }).length === 0;
+            return currentRight.filter((p2) => { return p2.id === p1.id; }).length === 0;
         });
 
         return { 
-            'equal' : newLeft.length == 0 && newRight.length == 0 && removeLeft.length == 0 && removeRight.length == 0,
+            'equal' : newLeft.length === 0 && newRight.length === 0 && removeLeft.length === 0 && removeRight.length === 0,
             'add' : { 
                 'left' : newLeft, 
                 'right' : newRight
@@ -384,3 +541,5 @@ class Match {
         };
     }
   }
+
+  export default Match;

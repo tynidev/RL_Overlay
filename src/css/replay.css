@@ -14,8 +14,9 @@
 
 
 .replay .st1 {
-    fill: #FF3314;
-    filter: drop-shadow(1px 1px 6px #FF3314);
+    fill: #ff583e;
+    filter: drop-shadow(1px 1px 6px #ff583e);
+    text-shadow: none;
 }
 .replay .st2{font-family:'ReplayFont';}
 .replay .st3{font-size:48px;}
@@ -45,10 +46,12 @@
 }
 
 .replay .bottom-overlay .goal-stats.blue div div{
-	color: rgb(0, 38, 255);
+    text-shadow: none;
     filter: 
-        drop-shadow(2px 2px 8px rgba(0, 38, 255, 0.8));
-    -webkit-text-stroke: 0.6px rgba(0, 0, 0, 1);
+        drop-shadow(2px 2px 8px rgba(var(--blue), 1));
+    -webkit-text-stroke: 0.1.5px rgba(0, 0, 0, 1);
+    border:20px;
+    border-color: rgba(var(--blue), 1);
 }
 .replay .bottom-overlay .goal-stats.blue img{
     filter: 
@@ -56,14 +59,16 @@
         sepia(0.3) 
         hue-rotate(79deg) 
         saturate(1000%)
-        drop-shadow(2px 2px 8px rgba(0, 38, 255, 0.8))
+        drop-shadow(2px 2px 8px rgba(var(--blue), 0.8))
 }
 
 .replay .bottom-overlay .goal-stats.orange div div{
-	color: rgb(255, 119, 0);
+    text-shadow: none;
     filter: 
-        drop-shadow(2px 2px 8px rgba(255, 119, 0, 0.8));
-    -webkit-text-stroke: 0.6px rgba(0, 0, 0, 1);
+        drop-shadow(2px 2px 8px rgba(var(--orange), 1));
+    -webkit-text-stroke: 0.1.5px rgba(0, 0, 0, 1);
+    border:1px;
+    border-color: rgba(var(--orange), 1);
 }
 .replay .bottom-overlay .goal-stats.orange img{
     filter: 
@@ -71,7 +76,7 @@
         sepia(.3) 
         hue-rotate(318deg) 
         saturate(2000%)
-        drop-shadow(2px 2px 8px rgba(255, 119, 0, 0.8));
+        drop-shadow(2px 2px 8px rgba(var(--orange), 0.8));
 }
 
 .replay .bottom-overlay .goal-stats .scored-by{

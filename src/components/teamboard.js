@@ -20,6 +20,7 @@ class Teamboard extends React.Component {
         [], []
       ],
       spectating: this.match.spectating,
+      playerTarget: undefined,
     };
   }
 
@@ -28,6 +29,14 @@ class Teamboard extends React.Component {
     this.unsubscribers.push(
       this.match.OnPlayersUpdated((left, right) => {
         this.setState({teams: [left, right], spectating: this.match.spectating});
+      })
+    );
+
+    this.unsubscribers.push(
+      this.match.OnSpecatorUpdated((hasTargetPlayer, player, hasLocalPlayer) => {
+        this.setState({
+          playerTarget: player
+        });
       })
     );
   }
@@ -42,7 +51,7 @@ class Teamboard extends React.Component {
       <div className='teamboard'>
         <div className='left'>
         {this.state.teams[0].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className='player'>
+          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (this.state.playerTarget && this.state.playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
             <div className='name'>{this.truncate(player.name)}</div>
             <div className="stats">
               <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>
@@ -61,7 +70,7 @@ class Teamboard extends React.Component {
 
         <div className='right'>
         {this.state.teams[1].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className='player'>
+          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (this.state.playerTarget && this.state.playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
             <div className='name'>{this.truncate(player.name)}</div>
             <div className="stats">
               <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>

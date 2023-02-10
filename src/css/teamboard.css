@@ -2,7 +2,6 @@
   position: absolute;
   width: 380px;
   top: 0px; /* 1440/2 - 400/2 = 520*/  
-  text-shadow: 2px 2px black;
   opacity: 0.96;
 }
 
@@ -12,7 +11,6 @@
   position: absolute;
   width: 380px;
   top: 0px; /* 1440/2 - 400/2 = 520*/  
-  text-shadow: 2px 2px black;
   opacity: 0.96;
 }
 
@@ -59,14 +57,30 @@
   top:-36px;
 }
 
+.teamboard .left .player.spectatingTeamBoard{
+  background-color: rgb(var(--blue));
+  color:white;
+}
+
+.teamboard .right .player.spectatingTeamBoard{
+  background-color: rgb(var(--orange));
+  color:white;
+}
+
 .teamboard .left .player .boost .fill{
   background-color: rgb(var(--blue));
+}
+.teamboard .left .player.spectatingTeamBoard .boost .fill{
+  background-color: white;
 }
 
 .teamboard .right .player .boost .fill{
   background-color: rgb(var(--orange));
   margin-left: auto; 
   margin-right: 0;
+}
+.teamboard .right .player.spectatingTeamBoard .boost .fill{
+  background-color: white;
 }
 
 .teamboard .player .stats .stat {

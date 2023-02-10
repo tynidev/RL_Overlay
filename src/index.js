@@ -5,7 +5,7 @@ import reportWebVitals from './reportWebVitals';
 
 import WsSubscribers from './ws_subscribers'
 import Match from './match'
-import Overlay from './components/overlay';
+import Overlay from './components/Overlay';
 
 WsSubscribers.init(49322, false);
 

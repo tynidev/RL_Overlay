@@ -1,4 +1,4 @@
-import '../css/spectating.css';
+import '../css/Spectating.css';
 import assist_svg from '../assets/stat-icons/assist.svg'
 import save_svg from '../assets/stat-icons/save.svg'
 import goal_svg from '../assets/stat-icons/goal.svg'

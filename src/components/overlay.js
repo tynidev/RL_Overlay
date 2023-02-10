@@ -1,8 +1,9 @@
 import React from 'react';
-import Replay from './replay';
-import Scoreboard from './scoreboard';
-import Spectating from './spectating';
-import Teamboard from './teamboard';
+import PostGameStats from './PostGameStats';
+import Replay from './Replay';
+import Scoreboard from './Scoreboard';
+import Spectating from './Spectating';
+import Teamboard from './Teamboard';
 
 class Overlay extends React.Component {
   
@@ -75,14 +76,15 @@ class Overlay extends React.Component {
   }
 
   render(){
-    if(!this.state.display)
-      return (<div className='overlay'></div>);
+    // if(!this.state.display)
+    //   return (<div className='overlay'></div>);
     return (
       <div className="overlay">
-        <Scoreboard match={this.match} />
+        {/* <Scoreboard match={this.match} />
         <Teamboard match={this.match} />
         <Spectating match={this.match} />
-        <Replay match={this.match} />
+        <Replay match={this.match} /> */}
+        <PostGameStats match={this.match} />
       </div>
     );
   }

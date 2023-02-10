@@ -99,8 +99,8 @@ class Spectating extends React.Component {
     {
       boost_ring = (<div className="spectating-boost">
         <svg className="boost-ring">
-          <circle className="border-inner"/>
-          <circle className="inner"/>
+          <circle className="border-inner" style={{stroke:this.state.hasLocalPlayer ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.7)'}}/>
+          <circle className="inner" style={{fill:this.state.hasLocalPlayer ? 'rgba(15, 15, 15, 1)' : 'rgba(0, 0, 0, 0.8)'}}/>
           <circle className="fill" 
                   fill="transparent" 
                   style={{stroke:this.state.player.team !== 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))', transition:'100ms'}}

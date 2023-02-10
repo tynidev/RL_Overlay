@@ -1,4 +1,5 @@
 import React from 'react';
+import Replay from './replay';
 import Scoreboard from './scoreboard';
 import Spectating from './spectating';
 import Teamboard from './teamboard';
@@ -81,6 +82,7 @@ class Overlay extends React.Component {
         <Scoreboard match={this.match} />
         <Teamboard match={this.match} />
         <Spectating match={this.match} />
+        <Replay match={this.match} />
       </div>
     );
   }

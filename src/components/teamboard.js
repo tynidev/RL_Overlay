@@ -61,6 +61,7 @@ class Teamboard extends React.Component {
               <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
             </div>
             <div className="boost" style={{visibility:this.state.spectating ? 'visible' : 'hidden'}}>
+              <div className="fill-bg"></div>
               <div className="fill" style={{width:player.boost + "%"}}></div>
               <div className="num">{player.boost}</div>
             </div>
@@ -80,6 +81,7 @@ class Teamboard extends React.Component {
               <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
             </div>
             <div className="boost" style={{visibility:this.state.spectating ? 'visible' : 'hidden'}}>
+              <div className="fill-bg"></div>
               <div className="fill" style={{width:player.boost + "%"}}></div>
               <div className="num">{player.boost}</div>
             </div>

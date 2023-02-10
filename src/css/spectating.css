@@ -2,7 +2,7 @@
 	position: absolute;
 	top: 1150px;
 	left:-9px;
-	padding: 0 70px 0px 70px;
+	padding: 0 70px 0px 0px;
 	height: 80px;
 	text-align: right;
 	font-size: 60px;
@@ -28,14 +28,13 @@
 	position: relative;
 	text-shadow: 2px 2px black;
 	top: -20px;
-	left: 30px
 }
 .spectating .stats img {
 	display: inline;
 	position: relative;
 	left: 0;
 	height: 30px;
-	padding-right: 30px;
+	padding: 0px 10px 0px 40px;
 	filter: invert(90%);
 }
 .spectating .stats div {
@@ -69,7 +68,6 @@
 	stroke-width:var(--stroke-w);
 	transform: rotate(-270deg);
 	transform-origin: 50% 50%;
-	stroke:rgba(255, 255, 100, 0.6);
 }
 
 .spectating-boost .boost-ring .border-inner{

@@ -25,10 +25,10 @@ body {
 
 :root {
 	--skew: 0deg;
-	--box-radius: 4px;
+	--box-radius: 3px;
 	--orange: 242, 96, 29;
 	--blue: 7, 121, 211;
 	--base-color: 14, 18, 22;
 	text-transform: uppercase;
-	text-shadow: 2px 2px black;
+	text-shadow: 1px 1px rgba(14, 18, 22, 0.9);
 }

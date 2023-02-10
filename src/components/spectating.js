@@ -99,7 +99,7 @@ class Spectating extends React.Component {
     {
       boost_ring = (<div className="spectating-boost">
         <svg className="boost-ring">
-          <circle className="border-inner" style={{stroke:this.state.hasLocalPlayer ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.7)'}}/>
+          <circle className="border-inner" style={{stroke:this.state.hasLocalPlayer ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.4)'}}/>
           <circle className="inner" style={{fill:this.state.hasLocalPlayer ? 'rgba(15, 15, 15, 1)' : 'rgba(0, 0, 0, 0.8)'}}/>
           <circle className="fill" 
                   fill="transparent" 
@@ -153,11 +153,11 @@ class Spectating extends React.Component {
         <div className="name">{this.truncate(this.state.player.name, 14)}</div>
         <div className="boost"><div className="fill" style={{width: this.state.player.boost, transition: "0.25s"}}></div></div>
         <div className="stats">
-          <div className="goal">{this.state.player.goals}</div><img src={goal_svg} alt=''/>
-          <div className="assist">{this.state.player.assists}</div><img src={assist_svg} alt=''/>
-          <div className="save">{this.state.player.saves}</div><img src={save_svg} alt=''/>
-          <div className="shots">{this.state.player.shots}</div><img src={shot_svg} alt=''/>
-          <div className="demo">{this.state.player.demos}</div><img src={demo_svg} alt=''/>
+          <img src={goal_svg} alt=''/><div className="goal">{this.state.player.goals}</div>
+          <img src={assist_svg} alt=''/><div className="assist">{this.state.player.assists}</div>
+          <img src={save_svg} alt=''/><div className="save">{this.state.player.saves}</div>
+          <img src={shot_svg} alt=''/><div className="shots">{this.state.player.shots}</div>
+          <img src={demo_svg} alt=''/><div className="demo">{this.state.player.demos}</div>
         </div>
       </div>
       {boost_ring}

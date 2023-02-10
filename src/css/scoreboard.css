@@ -3,7 +3,6 @@
 	top: 0px;
 	transition: 1s;
 	left: calc(50% - var( --half-w));
-	background-color: rgb(var(--base-color));
 	height: var(--h);
 	font-size: 34px;
 	--h: 80px;
@@ -81,6 +80,7 @@
 	text-align: center;
 	line-height: var(--h);
 	font-size: 55px;
+	background-color: rgb(var(--base-color));
 }
 .scoreboard .center .time div {
 	height: 20px;
@@ -125,6 +125,12 @@
 	font-size: calc(0.825 * var(--tally-h));
 	background: linear-gradient(0deg, #0e1216fd,rgb(var(--base-color)));
 }
+
+.scoreboard .series-tally .series-text.ot {
+  background: rgb(184, 12, 12);
+  background: linear-gradient(0deg, rgb(184, 12, 12),#000000fd);
+}
+
 .scoreboard .series-tally .mark {
 	position: relative;
 	top: 1px;

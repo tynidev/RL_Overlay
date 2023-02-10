@@ -24,6 +24,7 @@ class Scoreboard extends React.Component {
           score: 0,
         }
       ],
+      series: undefined,
     };
   }
 
@@ -46,6 +47,15 @@ class Scoreboard extends React.Component {
         this.setState({teams: teams});
       })
     );
+
+    // OnSeriesUpdate
+    this.unsubscribers.push(
+      this.match.OnSeriesUpdate((series) => {
+        this.setState({
+          series: series
+        })
+      })
+    );
   }
 
   componentWillUnmount(){
@@ -65,10 +75,52 @@ class Scoreboard extends React.Component {
         timeStyle = {color:"#ffe880", fontSize: "60px"};
     }
 
+    let leftTeamName = this.state.teams[0].name;
+    let rightTeamName = this.state.teams[1].name;
+    let series_txt = '';
+    
+    let leftMarks = (<div className="left" />);
+    let rightMarks = (<div className="right" />);
+    
+    if(this.state.series)
+    {
+      leftTeamName = this.state.series.teams[0].name;
+      rightTeamName = this.state.series.teams[1].name;
+      series_txt = this.state.series.series_txt;
+
+      let games = Math.ceil(this.state.series.length / 2);
+      let leftWon = this.state.series.teams[0].matches_won;
+      let rightWon = this.state.series.teams[1].matches_won;
+      if(games > 1)
+      {
+        let leftRows = [];
+        let rightRows = [];
+        for(var i = 1; i <= games; i++)
+        {
+
+          leftRows.push((<div className={"mark" + (leftWon > 0 ? " w" : "")} key={i}></div>));
+          rightRows.push((<div className={"mark" + (rightWon > 0 ? " w" : "")} key={i}></div>));
+
+          leftWon--;
+          rightWon--;
+        }
+
+        leftMarks = 
+          (<div className="left">
+            {leftRows}
+          </div>);
+
+        rightMarks = 
+          (<div className="right">
+            {rightRows}
+          </div>);
+      }
+    }
+
     return <div className="scoreboard">
       
       <div className="left">
-        <div className="name">{this.truncate(this.state.teams[0].name, 12)}</div>
+        <div className="name">{this.truncate(leftTeamName, 12)}</div>
         <div className="score">{this.state.teams[0].score}</div>
       </div>
 
@@ -79,24 +131,14 @@ class Scoreboard extends React.Component {
       </div>
 
       <div className="right">
-        <div className="name">{this.truncate(this.state.teams[1].name, 12)}</div>
+        <div className="name">{this.truncate(rightTeamName, 12)}</div>
         <div className="score">{this.state.teams[1].score}</div>
       </div>
 
       <div className="series-tally">
-        <div className="left">
-          <div className="mark w1"></div>
-          <div className="mark w2"></div>
-          <div className="mark w3"></div>
-          <div className="mark w4"></div>
-        </div>
-        <div className="series-text">SERIES</div>
-        <div className="right">
-          <div className="mark w1"></div>
-          <div className="mark w2"></div>
-          <div className="mark w3"></div>
-          <div className="mark w4"></div>
-        </div>
+        {leftMarks}
+        <div className="series-text">{series_txt}</div>
+        {rightMarks}
       </div>
 
   </div>;

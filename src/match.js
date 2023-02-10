@@ -45,6 +45,7 @@ class Match {
     gameEndCallbacks = [];
     podiumCallbacks = [];
     ballUpdateCallbacks = [];
+    seriesUpdateCallbacks = [];
 
     /**
      * Constructor
@@ -136,6 +137,28 @@ class Match {
             this.timeStarted = false;
             this.spectating = true;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
+        });
+
+        // When we get a series update
+        // Example:
+        // {
+        //     "series_txt" : "CEA | Week 1",
+        //     "length" : 5, 
+        //     "teams": [
+        //         {
+        //         "team" : 0,
+        //         "name" : "Blue",
+        //         "matches_won" : 0
+        //         },
+        //         {
+        //         "team" : 1,
+        //         "name" : "Orange",
+        //         "matches_won" : 0
+        //         }
+        //     ]
+        // }
+        ws.subscribe("game", "series_update", (p) => { 
+            this.seriesUpdateCallbacks.forEach((callback) => { callback(p); });
         });
     }
     
@@ -364,6 +387,20 @@ class Match {
             const index = match.matchEndedCallbacks.indexOf(callback);
             if (index > -1) {
                 match.matchEndedCallbacks.splice(index, 1);
+            }
+         };
+    }
+    
+    /**
+     * When a series update is received
+     * @param {Callback to call when event fires} callback 
+     */
+    OnSeriesUpdate(callback){
+        this.seriesUpdateCallbacks.push(callback);
+        return function(match) {
+            const index = match.seriesUpdateCallbacks.indexOf(callback);
+            if (index > -1) {
+                match.seriesUpdateCallbacks.splice(index, 1);
             }
          };
     }

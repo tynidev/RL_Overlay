@@ -132,12 +132,15 @@
 	background-color: rgba(73, 73, 73, 0.6);
 	width: 50px;
 	height: 10px;
-	display: none;
 }
 
-.scoreboard .series-tally .mark{
+.scoreboard .series-tally .left .mark{
 	margin: 4px 0px 0px 6px;
 }
+.scoreboard .series-tally .right .mark{
+	margin: 4px 6px 0px 0px;
+}
+
 .scoreboard .series-tally .right .mark {
 	float: left;
 }

@@ -21,6 +21,7 @@ class Match {
     right = [];
 
     localplayer_support = false;
+    localPlayer;
 
     timeStarted = false;
 
@@ -429,11 +430,10 @@ class Match {
         });
 
         // Call spectatorUpdateCallbacks on every update
-        var localPlayer = undefined;
         if(this.localplayer_support)
         {
-            localPlayer = players.filter((p) => { return p.name === game.localplayer })[0];
-            if(localPlayer)
+            this.localPlayer = players.filter((p) => { return p.name === game.localplayer })[0];
+            if(this.localPlayer)
             {
                 // local player is playing.....
                 this.spectating = false;
@@ -445,9 +445,10 @@ class Match {
             }
         }
 
+        let hasLocalPlayer = this.localPlayer;
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(localPlayer){
-                callback(true, localPlayer, true);
+            if(hasLocalPlayer){
+                callback(true, hasLocalPlayer, true);
             }else{
                 callback(game.hasTarget, param.players[game.target], false);
             }

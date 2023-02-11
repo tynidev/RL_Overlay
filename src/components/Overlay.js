@@ -46,7 +46,7 @@ class Overlay extends React.Component {
           this.setState({
           display: 'post-game'
           });
-        }, 8000);
+        }, 7900);
       })
     );
 

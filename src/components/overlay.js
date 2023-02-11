@@ -15,7 +15,7 @@ class Overlay extends React.Component {
     super(props);
     this.match = props.match;
     this.state = {
-      display: false
+      display: undefined
     };
   }
 
@@ -24,7 +24,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnMatchCreated(() => {
         this.setState({
-          display: false
+          display: undefined
         });
 
       })
@@ -34,7 +34,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnMatchEnded(() => {
         this.setState({
-          display: false
+          display: undefined
         });
       })
     );
@@ -42,9 +42,11 @@ class Overlay extends React.Component {
     // OnGameEnded - When name of team winner is displayed on screen after game is over
     this.unsubscribers.push(
       this.match.OnGameEnded(() => {
-        this.setState({
-          display: false
-        });
+        setTimeout(() => {
+          this.setState({
+          display: 'post-game'
+          });
+        }, 8000);
       })
     );
 
@@ -52,7 +54,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnFirstCountdown(() => {
         this.setState({
-          display: true
+          display: 'in-game'
         });
       })
     );
@@ -61,9 +63,9 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnTimeUpdated(() => {
         // If we join in the middle of the match show the overlay
-        if(this.match.timeStarted && this.state.display === false) {
+        if(this.match.timeStarted && !this.state.display) {
           this.setState({
-            display: true
+            display: 'in-game'
           });
         }
       })
@@ -76,17 +78,28 @@ class Overlay extends React.Component {
   }
 
   render(){
-    // if(!this.state.display)
-    //   return (<div className='overlay'></div>);
-    return (
-      <div className="overlay">
-        {/* <Scoreboard match={this.match} />
-        <Teamboard match={this.match} />
-        <Spectating match={this.match} />
-        <Replay match={this.match} /> */}
-        <PostGameStats match={this.match} />
-      </div>
-    );
+     if(!this.state.display)
+       return (<div className='overlay'></div>);
+    
+    switch("post-game")
+    {
+      case "in-game":
+        return (
+        <div className="overlay">
+          <PostGameStats match={this.match} displayPostGame={false}/>
+          <Scoreboard match={this.match} />
+          <Teamboard match={this.match} />
+          <Spectating match={this.match} />
+          <Replay match={this.match} />
+        </div>);
+      case "post-game":
+        return (
+          <div className="overlay">
+            <PostGameStats match={this.match} displayPostGame={true}/>
+          </div>);
+      default:
+        return (<div className='overlay'>Display State not recognized: {this.state.display}</div>);
+    }
   }
 }
 

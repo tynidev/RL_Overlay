@@ -48,8 +48,6 @@ class PostGameStats extends React.Component {
   }
 
   render(){
-    if(!this.props.displayPostGame)
-        return (<div style={{display:"none"}}/>);
     let stats = {
         score: { left: 0, right: 0},
         goals: { left: 0, right: 0},
@@ -58,54 +56,10 @@ class PostGameStats extends React.Component {
         saves: { left: 0, right: 0},
         demos: { left: 0, right: 0},
     };
-    let left = [];
-    for(let i = 0; i < 3; i++){
-        if(i < this.state.left.length){
-            let p = this.state.left[i];
-            left.push(this.state.left[i]);
-            stats.score.left += p.score;
-            stats.goals.left += p.goals;
-            stats.assists.left += p.assists;
-            stats.shots.left += p.shots;
-            stats.saves.left += p.saves;
-            stats.demos.left += p.demos;
-        }
-        else{
-            left.push({
-                name: '',
-                score: '',
-                goals: '',
-                assists: '',
-                shots: '',
-                saves: '',
-                demos: '',
-            });
-        }
-    }
-    let right = [];
-    for(let i = 0; i < 3; i++){
-        if(i < this.state.right.length){
-            let p = this.state.right[i];
-            right.push(this.state.right[i]);
-            stats.score.right += p.score;
-            stats.goals.right += p.goals;
-            stats.assists.right += p.assists;
-            stats.shots.right += p.shots;
-            stats.saves.right += p.saves;
-            stats.demos.right += p.demos;
-        }
-        else{
-            right.push({
-                name: '',
-                score: '',
-                goals: '',
-                assists: '',
-                shots: '',
-                saves: '',
-                demos: '',
-            });
-        }
-    }
+
+    let left = []; let right = [];
+    [left, stats] = this.FillTeam(stats, this.state.left, true);
+    [right, stats] = this.FillTeam(stats, this.state.right, false);
 
     let leftStatSliderWidth = {
         score: (360 - 10) * (stats.score.left / (stats.score.left + stats.score.right)),
@@ -117,17 +71,17 @@ class PostGameStats extends React.Component {
     };
     
     return (
-    <div className="postgame-stats">
+    <div className="postgame-stats" style={{opacity:this.props.displayPostGame ? "1" : "0", transition:"400ms"}}>
         <div className="left-team-score-overline"></div>
         <div className="left-team-score">{this.state.teams[0].score}</div>
         <div className="left-team-name">{this.state.teams[0].name}</div>
 
-        {/*<div className='seriesBox'> 
-            <div className='game_txt'>Game 2</div>
-            <div className='best_of'>BO7</div>
+        <div className='seriesBox'> 
+            <div className='game_txt'>post Game</div>
+            <div className='best_of'>Stats</div>
         </div>
 
-        <div className='series-score'>gengmobile leads 2-0</div> */}
+        {/*<div className='series-score'>gengmobile leads 2-0</div> */}
 
         <div className="right-team-score-overline"></div>
         <div className="right-team-score">{this.state.teams[1].score}</div>
@@ -160,8 +114,8 @@ class PostGameStats extends React.Component {
         </table>
 
         <div className='stat-sliders'>
-            <div className='stat-slider'>
-                <div className='stat-slider-name'>score</div>
+            <div className='stat-slider' style={{height:"80px"}}>
+                <div className='stat-slider-name' style={{lineHeight:"70px"}}>score</div>
                 <div className='stat-slider-box'>
                     <div className='stat-slider-left' style={{width:leftStatSliderWidth.score}}/> <div className='stat-slider-right' style={{width:(360 - 10 - leftStatSliderWidth.score), left:leftStatSliderWidth.score+5}}/>
                 </div>
@@ -225,6 +179,39 @@ class PostGameStats extends React.Component {
         <div className="right-player-names-underline"></div>
     </div>);
   }
+
+  FillTeam(stats, team, left){
+    let filledTeam = [];
+    for(let i = 0; i < 3; i++){
+        if(i < team.length){
+            let p = team[i];
+            filledTeam.push(team[i]);
+            left ? stats.score.left += p.score : stats.score.right += p.score;
+            left ? stats.goals.left += p.goals : stats.goals.right += p.goals;
+            left ? stats.assists.left += p.assists : stats.assists.right += p.assists;
+            left ? stats.shots.left += p.shots : stats.shots.right += p.shots;
+            left ? stats.saves.left += p.saves : stats.saves.right += p.saves;
+            left ? stats.demos.left += p.demos : stats.demos.right += p.demos;
+            stats.goals.right += p.goals;
+            stats.assists.right += p.assists;
+            stats.shots.right += p.shots;
+            stats.saves.right += p.saves;
+            stats.demos.right += p.demos;
+        }
+        else{
+            filledTeam.push({
+                name: '',
+                score: '',
+                goals: '',
+                assists: '',
+                shots: '',
+                saves: '',
+                demos: '',
+            });
+        }
+    }
+    return [filledTeam, stats];
+  } 
 }
 
 export default PostGameStats;

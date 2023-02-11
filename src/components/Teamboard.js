@@ -33,7 +33,7 @@ class Teamboard extends React.Component {
     );
 
     this.unsubscribers.push(
-      this.match.OnSpecatorUpdated((hasTargetPlayer, player, hasLocalPlayer) => {
+      this.match.OnSpecatorUpdated((_, player) => {
         this.setState({
           playerTarget: player
         });

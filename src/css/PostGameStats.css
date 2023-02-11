@@ -186,7 +186,7 @@
 
 .postgame-stats .stat-sliders{
     position: absolute;
-    top: 540px;
+    top: 522px;
     left:1100px;
     width: 360px;
     height:700px;
@@ -200,6 +200,7 @@
 
 .postgame-stats .stat-sliders .stat-slider .stat-slider-name{
     font-size:40px;
+    line-height: 110px;
     color:rgb(190, 190, 190);
     width:100%;
     text-align: center;
@@ -215,6 +216,7 @@
     position: absolute;
     border-right:6px solid white;
     background-color: rgba(var(--blue));
+    z-index: 1000;
 }
 .postgame-stats .stat-sliders .stat-slider .stat-slider-box .stat-slider-right{
     height:10px;
@@ -223,4 +225,5 @@
     position: absolute;
     border-left:6px solid white;
     background-color: rgba(var(--orange));
+    z-index: 1000;
 }

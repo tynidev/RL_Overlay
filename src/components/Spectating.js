@@ -38,12 +38,12 @@ class Spectating extends React.Component {
 
     // OnSpecatorUpdated - When the spectated player or stats/properties of player have changed
     this.unsubscribers.push(
-      this.match.OnSpecatorUpdated((hasTargetPlayer, player, hasLocalPlayer) => {
+      this.match.OnSpecatorUpdated((hasTargetPlayer, player) => {
         if(player === undefined || !hasTargetPlayer)
         {
           this.setState({
             display: false, 
-            hasLocalPlayer: hasLocalPlayer
+            hasLocalPlayer: this.match.localplayer
           });
           return;
         }
@@ -56,7 +56,7 @@ class Spectating extends React.Component {
           display: true,
           bg_color: bg_color,
           player: player, 
-          hasLocalPlayer: hasLocalPlayer
+          hasLocalPlayer: this.match.localplayer
         });
       })
     );

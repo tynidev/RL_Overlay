@@ -1,4 +1,5 @@
 import Stats from "./stats"
+import GameState from "./GameState";
 
 function pad(num, size) {
     num = num.toString();
@@ -20,10 +21,10 @@ class Match {
     // Last right team recorded
     right = [];
 
+    state = GameState.None;
+
     localplayer_support = false;
     localPlayer;
-
-    timeStarted = false;
 
     stats = new Stats();
 
@@ -59,8 +60,8 @@ class Match {
             this.left = [];
             this.right = [];
             this.stats = new Stats();
-            this.timeStarted = false;
             this.spectating = true;
+            this.state = GameState.PreGameLobby;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -72,17 +73,19 @@ class Match {
 
         // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
         ws.subscribe("game", "initialized", (p) => { 
+            this.state = GameState.InGame;
             this.initializedCallbacks.forEach((callback) => { callback(); });
         });
 
         // Kick off countdown
         ws.subscribe("game", "pre_countdown_begin", (p) => { 
+            this.state = GameState.InGame;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
         //ws.subscribe("game", "post_countdown_begin", (p) => { this.post_countdown_begin(p) }); // duplicate of pre_countdown_begin
 
         // Kick off countdown finished and cars are free to GO!!!!
-        ws.subscribe("game", "round_started_go", (p) => {  });
+        ws.subscribe("game", "round_started_go", (p) => { this.state = GameState.InGame; });
 
         // Occurs when ball is hit
         //ws.subscribe("game", "ball_hit", (p) => { });
@@ -93,7 +96,7 @@ class Match {
         //ws.subscribe("game", "clock_stopped", (p) => { });
         // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
         ws.subscribe("game", "clock_updated_seconds", (p) => { 
-            this.timeStarted = true;
+            this.state = GameState.InGame;
         });
 
         // When a goal is scored
@@ -121,11 +124,13 @@ class Match {
 
         // When name of team winner is displayed on screen after game is over
         ws.subscribe("game", "match_ended", (p) => { 
+            this.state = GameState.PostGame;
             this.gameEndCallbacks.forEach((callback) => { callback(); });
         });
 
         // Celebration screen for winners podium after game ends
         ws.subscribe("game", "podium_start", (p) => { 
+            this.state = GameState.PostGame;
             this.podiumCallbacks.forEach((callback) => { callback(); });
         });
 
@@ -135,8 +140,8 @@ class Match {
             this.left = [];
             this.right = [];
             this.stats = new Stats();
-            this.timeStarted = false;
             this.spectating = true;
+            this.state = GameState.None;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
         });
 
@@ -444,13 +449,17 @@ class Match {
                 this.spectating = game.hasTarget;
             }
         }
+        else
+        {
+            this.localPlayer = undefined;
+        }
 
-        let hasLocalPlayer = this.localPlayer;
+        let localPlayer = this.localPlayer; // we set local variable since we can't access this inside foreach
         this.spectatorUpdateCallbacks.forEach(function (callback, index) {
-            if(hasLocalPlayer){
-                callback(true, hasLocalPlayer, true);
+            if(localPlayer){
+                callback(true, localPlayer);
             }else{
-                callback(game.hasTarget, param.players[game.target], false);
+                callback(game.hasTarget, param.players[game.target]);
             }
         });
 
@@ -462,7 +471,7 @@ class Match {
         // Has time changed?
         if(this.game.time_seconds !== game.time_seconds){
             if(this.game.time_seconds)
-                this.timeStarted = true;
+                this.state = GameState.InGame;
             this.timeUpdateCallbacks.forEach(function (callback, index) {
                 
                 let seconds = game.time_seconds % 60;

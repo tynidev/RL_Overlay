@@ -1,4 +1,5 @@
 import React from 'react';
+import GameState from '../GameState';
 import PostGameStats from './PostGameStats';
 import Replay from './Replay';
 import Scoreboard from './Scoreboard';
@@ -15,7 +16,7 @@ class Overlay extends React.Component {
     super(props);
     this.match = props.match;
     this.state = {
-      display: undefined
+      gamestate: this.match.state
     };
   }
 
@@ -24,7 +25,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnMatchCreated(() => {
         this.setState({
-          display: undefined
+          gamestate: this.match.state
         });
 
       })
@@ -34,7 +35,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnMatchEnded(() => {
         this.setState({
-          display: undefined
+          gamestate: this.match.state
         });
       })
     );
@@ -44,9 +45,9 @@ class Overlay extends React.Component {
       this.match.OnGameEnded(() => {
         setTimeout(() => {
           this.setState({
-          display: 'post-game'
+            gamestate: this.match.state
           });
-        }, 7900);
+        }, 7600);
       })
     );
 
@@ -54,7 +55,7 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnFirstCountdown(() => {
         this.setState({
-          display: 'in-game'
+          gamestate: this.match.state
         });
       })
     );
@@ -63,9 +64,9 @@ class Overlay extends React.Component {
     this.unsubscribers.push(
       this.match.OnTimeUpdated(() => {
         // If we join in the middle of the match show the overlay
-        if(this.match.timeStarted && !this.state.display) {
+        if(this.match.state === GameState.InGame && !this.state.display) {
           this.setState({
-            display: 'in-game'
+            gamestate: this.match.state
           });
         }
       })
@@ -78,12 +79,13 @@ class Overlay extends React.Component {
   }
 
   render(){
-     if(!this.state.display)
-       return (<div className='overlay'></div>);
-    
-    switch(this.state.display)
+    switch(this.state.gamestate)
     {
-      case "in-game":
+      case GameState.None:
+      case GameState.PreGameLobby:
+        return (<div className='overlay'></div>);
+
+      case GameState.InGame:
         return (
         <div className="overlay">
           <PostGameStats match={this.match} displayPostGame={false}/>
@@ -92,11 +94,13 @@ class Overlay extends React.Component {
           <Spectating match={this.match} />
           <Replay match={this.match} />
         </div>);
-      case "post-game":
+
+      case GameState.PostGame:
         return (
           <div className="overlay">
             <PostGameStats match={this.match} displayPostGame={true}/>
           </div>);
+          
       default:
         return (<div className='overlay'>Display State not recognized: {this.state.display}</div>);
     }

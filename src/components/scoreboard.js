@@ -1,4 +1,4 @@
-import '../css/scoreboard.css';
+import '../css/Scoreboard.css';
 import React from 'react';
 
 class Scoreboard extends React.Component {

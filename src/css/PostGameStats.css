@@ -1,0 +1,226 @@
+.postgame-stats{
+	width: var(--sw);
+	height: var(--sh);
+    position: absolute;
+    top:0px;
+    left:0px;
+    background: linear-gradient(to right, rgba(var(--blue)), rgba(var(--base-color)) 1200px, rgba(var(--base-color)) 1360px, rgba(var(--orange)));
+}
+
+.postgame-stats table tr{
+    border-bottom: 6px solid rgba(var(--base-color));
+}
+.postgame-stats table th{
+    text-align: center;
+    font-size: 35px;
+    padding:0px;
+    min-width: 250px;
+    height:50px;
+}
+.postgame-stats table td{
+    text-align: center;
+    font-size:60px;
+    padding:0px;
+    height:115px;
+}
+
+.postgame-stats table tr.score td{
+    height:140px;
+    vertical-align: bottom;
+}
+
+.postgame-stats table.left-team-stats{
+    position:absolute;
+    top:400px;
+    left:100px;
+    width:1000px;
+    border-collapse: collapse;
+}
+
+.postgame-stats table.right-team-stats{
+    position:absolute;
+    top:400px;
+    left:1460px;
+    width:1000px;
+    border-collapse: collapse;
+}
+
+.postgame-stats .bottom-postgame-darken{
+    position: absolute;
+    top:450px;
+    width:100%;
+    height:1000px;
+    background-color: rgba(var(--base-color), 0.9);
+}
+
+.postgame-stats .left-player-names-underline{
+    width: 1100px;
+    height: 8px;
+    background-color: rgba(var(--blue));
+    position: absolute;
+    top:448px;
+}
+
+.postgame-stats .right-player-names-underline{
+    width: 1100px;
+    height: 8px;
+    background-color: rgba(var(--orange));
+    position: absolute;
+    top:448px;
+    left:1460px;
+}
+
+.postgame-stats .left-team-score-overline{
+    width: 1100px;
+    height: 12px;
+    background-color: rgba(var(--blue));
+    position: absolute;
+    top:80px;
+}
+
+.postgame-stats .right-team-score-overline{
+    width: 1100px;
+    height: 12px;
+    background-color: rgba(var(--orange));
+    position: absolute;
+    top:80px;
+    left:1460px;
+}
+
+.postgame-stats .left-team-score{
+    width: 120px;
+    height: 150px;
+    background-color: rgba(var(--blue));
+    position: absolute;
+    top:80px;
+    left:1040px;
+    font-size: 110px;
+    line-height: 150px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.postgame-stats .right-team-score{
+    width: 120px;
+    height: 150px;
+    background-color: rgba(var(--orange));
+    position: absolute;
+    top:80px;
+    left:1400px;
+    font-size: 110px;
+    line-height: 150px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.postgame-stats .left-team-name{
+    width: 1000px;
+    height: 138px;
+    background: linear-gradient(to bottom, black, rgba(var(--base-color), 0.4));
+    position: absolute;
+    top:92px;
+    font-size: 80px;
+    line-height: 150px;
+    vertical-align: middle;
+    text-align: right;
+    padding-right: 40px;
+}
+
+.postgame-stats .right-team-name{
+    width: 1000px;
+    height: 138px;
+    background: linear-gradient(to bottom, black, rgba(var(--base-color), 0.4));
+    position: absolute;
+    top:92px;
+    left:1520px;
+    font-size: 80px;
+    line-height: 150px;
+    vertical-align: middle;
+    text-align: left;
+    padding-left: 40px;
+}
+
+.postgame-stats .seriesBox{
+    top:80px;
+    left:1160px;
+    position: absolute;
+    width: 240px;
+    height: 150px;
+    background-color: rgb(5, 7, 8);
+}
+
+.postgame-stats .seriesBox .game_txt{
+    top:35px;
+    position: relative;
+    margin: auto;
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+}
+.postgame-stats .seriesBox .best_of{
+    top:35px;
+    position: relative;
+    margin: auto;
+    width: 100%;
+    text-align: center;
+    font-size: 25px;
+    color:rgb(165, 165, 165);
+}
+
+
+.postgame-stats .series-score{
+    top:220px;
+    left:1020px;
+    position: absolute;
+    width: 520px;
+    height: 50px;
+    line-height: 50px;
+    vertical-align: middle;
+    background-color: rgba(var(--base-color));
+    z-index: 1000;
+    border: 0px 0px 10px 10px;
+    border-radius: 4px;
+    font-size: 30px;
+    text-align: center;
+}
+
+.postgame-stats .stat-sliders{
+    position: absolute;
+    top: 540px;
+    left:1100px;
+    width: 360px;
+    height:700px;
+}
+
+.postgame-stats .stat-sliders .stat-slider{
+    position: relative;
+    width: 360px;
+    height:120px;
+}
+
+.postgame-stats .stat-sliders .stat-slider .stat-slider-name{
+    font-size:40px;
+    color:rgb(190, 190, 190);
+    width:100%;
+    text-align: center;
+}
+
+.postgame-stats .stat-sliders .stat-slider .stat-slider-box{
+    width:100%;
+}
+
+.postgame-stats .stat-sliders .stat-slider .stat-slider-box .stat-slider-left{
+    height:10px;
+    width:174px;
+    position: absolute;
+    border-right:6px solid white;
+    background-color: rgba(var(--blue));
+}
+.postgame-stats .stat-sliders .stat-slider .stat-slider-box .stat-slider-right{
+    height:10px;
+    width:174px;
+    left:174px;
+    position: absolute;
+    border-left:6px solid white;
+    background-color: rgba(var(--orange));
+}

@@ -1,4 +1,4 @@
-import '../css/teamboard.css';
+import '../css/Teamboard.css';
 import assist_svg from '../assets/stat-icons/assist.svg'
 import save_svg from '../assets/stat-icons/save.svg'
 import goal_svg from '../assets/stat-icons/goal.svg'

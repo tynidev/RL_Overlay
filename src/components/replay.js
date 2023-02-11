@@ -1,4 +1,4 @@
-import '../css/replay.css';
+import '../css/Replay.css';
 import React from 'react';
 import assist_svg from '../assets/stat-icons/assist.svg'
 import goal_svg from '../assets/stat-icons/goal.svg'

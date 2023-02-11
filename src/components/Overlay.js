@@ -81,7 +81,7 @@ class Overlay extends React.Component {
      if(!this.state.display)
        return (<div className='overlay'></div>);
     
-    switch("post-game")
+    switch(this.state.display)
     {
       case "in-game":
         return (

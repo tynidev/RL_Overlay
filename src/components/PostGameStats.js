@@ -62,12 +62,12 @@ class PostGameStats extends React.Component {
     [right, stats] = this.FillTeam(stats, this.state.right, false);
 
     let leftStatSliderWidth = {
-        score: (360 - 10) * (stats.score.left / (stats.score.left + stats.score.right)),
-        goals: (360 - 10) * (stats.goals.left / (stats.goals.left + stats.goals.right)),
-        assists: (360 - 10) * (stats.assists.left / (stats.assists.left + stats.assists.right)),
-        shots: (360 - 10) * (stats.shots.left / (stats.shots.left + stats.shots.right)),
-        saves: (360 - 10) * (stats.saves.left / (stats.saves.left + stats.saves.right)),
-        demos: (360 - 10) * (stats.demos.left / (stats.demos.left + stats.demos.right)),
+        score: (360 - 10) * this.GetPercentage(stats.score.left, stats.score.right),
+        goals: (360 - 10) * this.GetPercentage(stats.goals.left, stats.goals.right),
+        assists: (360 - 10) * this.GetPercentage(stats.assists.left, stats.assists.right),
+        shots: (360 - 10) * this.GetPercentage(stats.shots.left, stats.shots.right),
+        saves: (360 - 10) * this.GetPercentage(stats.saves.left, stats.saves.right),
+        demos: (360 - 10) * this.GetPercentage(stats.demos.left, stats.demos.right),
     };
     
     return (
@@ -90,9 +90,12 @@ class PostGameStats extends React.Component {
         <div className="bottom-postgame-darken"></div>
 
         <table className="left-team-stats">
+            <thead>
             <tr>
                 <th>{left[0].name}</th><th>{left[1].name}</th><th>{left[2].name}</th>
             </tr>
+            </thead>
+            <tbody>
             <tr className='score'>
                 <td>{left[0].score}</td><td>{left[1].score}</td><td>{left[2].score}</td>
             </tr>
@@ -111,6 +114,7 @@ class PostGameStats extends React.Component {
             <tr className='demos'>
                 <td>{left[0].demos}</td><td>{left[1].demos}</td><td>{left[2].demos}</td>
             </tr>
+            </tbody>
         </table>
 
         <div className='stat-sliders'>
@@ -153,9 +157,12 @@ class PostGameStats extends React.Component {
         </div>
 
         <table className="right-team-stats">
+            <thead>
             <tr className='name'>
                 <th>{right[0].name}</th><th>{right[1].name}</th><th>{right[2].name}</th>
             </tr>
+            </thead>
+            <tbody>
             <tr className='score'>
                 <td>{right[0].score}</td><td>{right[1].score}</td><td>{right[2].score}</td>
             </tr>
@@ -174,6 +181,7 @@ class PostGameStats extends React.Component {
             <tr className='demos'>
                 <td>{right[0].demos}</td><td>{right[1].demos}</td><td>{right[2].demos}</td>
             </tr>
+            </tbody>
         </table>
         <div className="left-player-names-underline"></div>
         <div className="right-player-names-underline"></div>
@@ -212,6 +220,15 @@ class PostGameStats extends React.Component {
     }
     return [filledTeam, stats];
   } 
+
+  GetPercentage(left, right){
+    var num = (left / (left + right));
+    if(isNaN(num))
+        return 0;
+    if(num === Infinity)
+        return 1;
+    return num;
+  }
 }
 
 export default PostGameStats;

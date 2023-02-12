@@ -24,7 +24,7 @@ class Match {
     state = GameState.None;
 
     localplayer_support = false;
-    localPlayer;
+    localPlayer = undefined;
 
     stats = new Stats();
 
@@ -49,11 +49,26 @@ class Match {
     ballUpdateCallbacks = [];
     seriesUpdateCallbacks = [];
 
+    RCONN = undefined;
+
     /**
      * Constructor
      * @param {WebSocket client} ws 
      */
-    constructor(ws) {
+    constructor(ws, RCONPASS=undefined, RCONPORT=9002, localplayer_support=true) {
+        
+        if(RCONPASS)
+        {
+            // Hook up remote connection to bakkes console
+            this.RCON = new WebSocket(`ws://localhost:${RCONPORT}`);
+            let r = this.RCON;
+            this.RCON.onopen = function open() {
+                r.send(`rcon_password ${RCONPASS}`)
+                r.send('rcon_refresh_allowed');
+                r.send('replay_gui hud 0')
+            };
+        }
+
         // When game is created before everyone has picked sides or specator roles
         ws.subscribe("game", "match_created", (p) => { 
             this.game = {};
@@ -63,6 +78,11 @@ class Match {
             this.spectating = true;
             this.state = GameState.PreGameLobby;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
+            if(this.RCON)
+            {
+                this.RCON.send('replay_gui hud 1');
+                this.RCON.send('replay_gui matchinfo 1');
+            }
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
 
@@ -82,7 +102,27 @@ class Match {
             this.state = GameState.InGame;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
-        //ws.subscribe("game", "post_countdown_begin", (p) => { this.post_countdown_begin(p) }); // duplicate of pre_countdown_begin
+        ws.subscribe("game", "post_countdown_begin", (p) => { 
+            if(this.RCON)
+            {
+                if(!this.localPlayer){ // if were not a local player then hide the GUI
+                    this.RCON.send('replay_gui hud 1');
+                    this.RCON.send('replay_gui matchinfo 1');
+                    let r = this.RCON;
+                    setTimeout(() => {
+                        r.send('replay_gui hud 0');
+                        r.send('replay_gui matchinfo 0');
+                    }, 250);
+                    this.RCON.send('boostbar_enabled 0');
+                }
+                else{
+                    this.RCON.send('replay_gui hud 1');
+                    this.RCON.send('replay_gui matchinfo 1');
+                    this.RCON.send('boostbar_enabled 1');
+                }
+            }
+            this.post_countdown_begin(p) 
+        });
 
         // Kick off countdown finished and cars are free to GO!!!!
         ws.subscribe("game", "round_started_go", (p) => { this.state = GameState.InGame; });

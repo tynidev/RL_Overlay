@@ -8,9 +8,7 @@ import Match from './match'
 import Overlay from './components/Overlay';
 
 WsSubscribers.init(49322, false);
-
 const match = new Match(WsSubscribers);
-match.localplayer_support = true;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

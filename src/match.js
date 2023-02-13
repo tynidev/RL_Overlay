@@ -121,7 +121,6 @@ class Match {
                     this.RCON.send('boostbar_enabled 1');
                 }
             }
-            this.post_countdown_begin(p) 
         });
 
         // Kick off countdown finished and cars are free to GO!!!!

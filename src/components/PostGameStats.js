@@ -48,18 +48,8 @@ class PostGameStats extends React.Component {
   }
 
   render(){
-    let stats = {
-        score: { left: 0, right: 0},
-        goals: { left: 0, right: 0},
-        assists: { left: 0, right: 0},
-        shots: { left: 0, right: 0},
-        saves: { left: 0, right: 0},
-        demos: { left: 0, right: 0},
-    };
 
-    let left = []; let right = [];
-    [left, stats] = this.FillTeam(stats, this.state.left, true);
-    [right, stats] = this.FillTeam(stats, this.state.right, false);
+    let [left, right, stats] = this.FillTeams();
 
     let leftStatSliderWidth = {
         score: (360 - 10) * this.GetPercentage(stats.score.left, stats.score.right),
@@ -188,26 +178,31 @@ class PostGameStats extends React.Component {
     </div>);
   }
 
-  FillTeam(stats, team, left){
-    let filledTeam = [];
+  FillTeams(){
+    
+    let stats = {
+        score: { left: 0, right: 0},
+        goals: { left: 0, right: 0},
+        assists: { left: 0, right: 0},
+        shots: { left: 0, right: 0},
+        saves: { left: 0, right: 0},
+        demos: { left: 0, right: 0},
+    };
+
+    let left = [];
     for(let i = 0; i < 3; i++){
-        if(i < team.length){
-            let p = team[i];
-            filledTeam.push(team[i]);
-            left ? stats.score.left += p.score : stats.score.right += p.score;
-            left ? stats.goals.left += p.goals : stats.goals.right += p.goals;
-            left ? stats.assists.left += p.assists : stats.assists.right += p.assists;
-            left ? stats.shots.left += p.shots : stats.shots.right += p.shots;
-            left ? stats.saves.left += p.saves : stats.saves.right += p.saves;
-            left ? stats.demos.left += p.demos : stats.demos.right += p.demos;
-            stats.goals.right += p.goals;
-            stats.assists.right += p.assists;
-            stats.shots.right += p.shots;
-            stats.saves.right += p.saves;
-            stats.demos.right += p.demos;
+        if(i < this.state.left.length){
+            let p = this.state.left[i];
+            left.push(this.state.left[i]);
+            stats.score.left += p.score;
+            stats.goals.left += p.goals;
+            stats.assists.left += p.assists;
+            stats.shots.left += p.shots;
+            stats.saves.left += p.saves;
+            stats.demos.left += p.demos;
         }
         else{
-            filledTeam.push({
+            left.push({
                 name: '',
                 score: '',
                 goals: '',
@@ -218,15 +213,38 @@ class PostGameStats extends React.Component {
             });
         }
     }
-    return [filledTeam, stats];
+    let right = [];
+    for(let i = 0; i < 3; i++){
+        if(i < this.state.right.length){
+            let p = this.state.right[i];
+            right.push(this.state.right[i]);
+            stats.score.right += p.score;
+            stats.goals.right += p.goals;
+            stats.assists.right += p.assists;
+            stats.shots.right += p.shots;
+            stats.saves.right += p.saves;
+            stats.demos.right += p.demos;
+        }
+        else{
+            right.push({
+                name: '',
+                score: '',
+                goals: '',
+                assists: '',
+                shots: '',
+                saves: '',
+                demos: '',
+            });
+        }
+    }
+
+    return [left, right, stats];
   } 
 
   GetPercentage(left, right){
+    if(left + right === 0)
+        return 0.5;
     var num = (left / (left + right));
-    if(isNaN(num))
-        return 0;
-    if(num === Infinity)
-        return 1;
     return num;
   }
 }

@@ -1,19 +1,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
 import './css/root.css';
 import reportWebVitals from './reportWebVitals';
 
 import WsSubscribers from './ws_subscribers'
 import Match from './match'
-import Overlay from './components/Overlay';
+
+import Stream from './routes/Stream';
+import GameStats from "./routes/GameStats";
 
 WsSubscribers.init(49322, false);
 const match = new Match(WsSubscribers);
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Stream match={match}/>,
+  },
+  {
+    path: "/post-game",
+    element: <GameStats match={match}/>,
+  },
+]);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Overlay match={match}/>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
 

@@ -1,12 +1,12 @@
 import React from 'react';
 import GameState from '../GameState';
-import PostGameStats from './PostGameStats';
-import Replay from './Replay';
-import Scoreboard from './Scoreboard';
-import Spectating from './Spectating';
-import Teamboard from './Teamboard';
+import PostGameStats from '../components/PostGameStats';
+import Replay from '../components/Replay';
+import Scoreboard from '../components/Scoreboard';
+import Spectating from '../components/Spectating';
+import Teamboard from '../components/Teamboard';
 
-class Overlay extends React.Component {
+class Stream extends React.Component {
   
   /** @type {Match} */
   match;
@@ -79,7 +79,7 @@ class Overlay extends React.Component {
   }
 
   render(){
-    switch(GameState.PostGame)
+    switch(this.state.gamestate)
     {
       case GameState.None:
       case GameState.PreGameLobby:
@@ -107,4 +107,4 @@ class Overlay extends React.Component {
   }
 }
 
-export default Overlay;
+export default Stream;

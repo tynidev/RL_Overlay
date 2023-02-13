@@ -10,6 +10,18 @@
 .postgame-stats table tr{
     border-bottom: 6px solid rgba(var(--base-color));
 }
+.postgame-stats table tr.mvp-row, .postgame-stats table tr.name{
+    border-bottom: none
+}
+.postgame-stats table tr.mvp-row .mvp{
+    visibility: hidden;
+    height:100px;
+    filter: 
+        invert(1) 
+        sepia(0.6) 
+        saturate(1000%)
+        drop-shadow(2px 2px 6px rgba(255, 217, 0, 1));
+}
 .postgame-stats table th{
     text-align: center;
     font-size: 35px;
@@ -31,7 +43,7 @@
 
 .postgame-stats table.left-team-stats{
     position:absolute;
-    top:400px;
+    top:293px;
     left:100px;
     width:1000px;
     border-collapse: collapse;
@@ -39,7 +51,7 @@
 
 .postgame-stats table.right-team-stats{
     position:absolute;
-    top:400px;
+    top:293px;
     left:1460px;
     width:1000px;
     border-collapse: collapse;

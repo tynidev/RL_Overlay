@@ -1,4 +1,5 @@
 import '../css/PostGameStats.css';
+import mvp_svg from '../assets/stat-icons/mvp.svg'
 import React from 'react';
 
 class PostGameStats extends React.Component {
@@ -49,7 +50,7 @@ class PostGameStats extends React.Component {
 
   render(){
 
-    let [left, right, stats] = this.FillTeams();
+    let [left, right, stats, mvp] = this.FillTeams();
 
     let leftStatSliderWidth = {
         score: (360 - 10) * this.GetPercentage(stats.score.left, stats.score.right),
@@ -81,7 +82,10 @@ class PostGameStats extends React.Component {
 
         <table className="left-team-stats">
             <thead>
-            <tr>
+            <tr className='mvp-row'>
+                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[0] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[1] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[2] ? "visible" : "hidden"}}/></th>
+            </tr>
+            <tr className='name'>
                 <th>{left[0].name}</th><th>{left[1].name}</th><th>{left[2].name}</th>
             </tr>
             </thead>
@@ -148,6 +152,9 @@ class PostGameStats extends React.Component {
 
         <table className="right-team-stats">
             <thead>
+            <tr className='mvp-row'>
+                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[3] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[4] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[5] ? "visible" : "hidden"}}/></th>
+            </tr>
             <tr className='name'>
                 <th>{right[0].name}</th><th>{right[1].name}</th><th>{right[2].name}</th>
             </tr>
@@ -180,6 +187,10 @@ class PostGameStats extends React.Component {
 
   FillTeams(){
     
+    let mvp = [false, false, false, false, false, false];
+    let mvp_max = 0;
+    let mvp_idx = 0;
+    
     let stats = {
         score: { left: 0, right: 0},
         goals: { left: 0, right: 0},
@@ -200,6 +211,11 @@ class PostGameStats extends React.Component {
             stats.shots.left += p.shots;
             stats.saves.left += p.saves;
             stats.demos.left += p.demos;
+            if(p.score >= mvp_max)
+            {
+                mvp_idx = i;
+                mvp_max = p.score;
+            }
         }
         else{
             left.push({
@@ -224,6 +240,11 @@ class PostGameStats extends React.Component {
             stats.shots.right += p.shots;
             stats.saves.right += p.saves;
             stats.demos.right += p.demos;
+            if(p.score >= mvp_max)
+            {
+                mvp_idx = i + 3;
+                mvp_max = p.score;
+            }
         }
         else{
             right.push({
@@ -238,7 +259,9 @@ class PostGameStats extends React.Component {
         }
     }
 
-    return [left, right, stats];
+    mvp[mvp_idx] = true;
+    
+    return [left, right, stats, mvp];
   } 
 
   GetPercentage(left, right){

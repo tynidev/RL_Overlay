@@ -16,7 +16,8 @@ class Stream extends React.Component {
     super(props);
     this.match = props.match;
     this.state = {
-      gamestate: this.match.state
+      gamestate: this.match.state,
+      ScoreboardState: Scoreboard.GetState(this.match)
     };
   }
 
@@ -77,11 +78,27 @@ class Stream extends React.Component {
         // If we join in the middle of the match show the overlay
         if(this.match.state === GameState.InGame && !this.state.display) {
           this.setState({
-            gamestate: this.match.state
+            gamestate: this.match.state,
+            ScoreboardState: Scoreboard.GetState(this.match),
           });
+        }
+        else{
+          this.setState({ ScoreboardState: Scoreboard.GetState(this.match) });
         }
       })
     );
+
+    // OnTeamsUpdated - When Team scores/names/colors are updated
+    this.unsubscribers.push(
+      this.match.OnTeamsUpdated((teams) => {
+        this.setState({ScoreboardState: Scoreboard.GetState(this.match) })
+    }));
+
+    // OnSeriesUpdate
+    this.unsubscribers.push(
+      this.match.OnSeriesUpdate((series) => {
+        this.setState({ScoreboardState: Scoreboard.GetState(this.match) })
+    }));
   }
 
   componentWillUnmount(){
@@ -100,7 +117,7 @@ class Stream extends React.Component {
         return (
         <div className="overlay">
           <PostGameStats match={this.match} displayPostGame={false}/>
-          <Scoreboard match={this.match} />
+          <Scoreboard {...this.state.ScoreboardState} />
           <Teamboard match={this.match} />
           <Spectating match={this.match} />
           <Replay match={this.match} />

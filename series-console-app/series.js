@@ -163,7 +163,7 @@ prompt.get([
 
     WsSubscribers.send("game", "series_update", {
     "series_txt" : r.series_text,
-    "length" : r.series_length, 
+    "length" : parseInt(r.series_length), 
     "teams": [
         {
         "team" : 0,
@@ -225,7 +225,7 @@ prompt.get([
             right_team = b.right_team;
             WsSubscribers.send("game", "series_update", {
                 "series_txt" : r.series_text,
-                "length" : r.series_length, 
+                "length" : parseInt(r.series_length), 
                 "teams": [
                     {
                     "team" : 0,

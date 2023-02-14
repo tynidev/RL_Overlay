@@ -6,16 +6,6 @@ import Match from '../match'
 
 class Scoreboard extends React.Component {
   
-  /** @type {Match} */
-  match;
-  unsubscribers = [];
-
-  constructor(props) {
-    super(props);
-    this.match = props.match;
-    this.state = Scoreboard.GetState(this.match);
-  }
-  
   /**
      * Static method to generate props from match
      * @param {Match} match
@@ -54,60 +44,35 @@ class Scoreboard extends React.Component {
     }
   }
 
-  componentDidMount() {
-    // OnTimeUpdated - When a time update is recieved
-    this.unsubscribers.push(
-      this.match.OnTimeUpdated((time, seconds, isOT) => {
-        // Update time
-        this.setState(Scoreboard.GetState(this.match))
-      }));
-
-    // OnTeamsUpdated - When Team scores/names/colors are updated
-    this.unsubscribers.push(
-      this.match.OnTeamsUpdated((teams) => {
-        this.setState(Scoreboard.GetState(this.match));
-    }));
-
-    // OnSeriesUpdate
-    this.unsubscribers.push(
-      this.match.OnSeriesUpdate((series) => {
-        this.setState(Scoreboard.GetState(this.match));
-    }));
-  }
-
-  componentWillUnmount(){
-    this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
-    this.unsubscribers = [];
-  }
-
   render() {
+    let {time, seconds, isOT, teams, series} = this.props;
     let timeStyle = {color:"#fffbb3", fontSize: "60px"};
-    if(!this.state.isOT)
+    if(!isOT)
     {
-      if(this.state.seconds <= 10)
+      if(seconds <= 10)
         timeStyle = {color:"rgb(209, 35, 23)", fontSize: "60px"};
-      else if(this.state.seconds <= 30)
+      else if(seconds <= 30)
         timeStyle = {color:"#ffa53d", fontSize: "60px"};
-      else if(this.state.seconds <= 60)
+      else if(seconds <= 60)
         timeStyle = {color:"#ffe880", fontSize: "60px"};
     }
 
-    let leftTeamName = this.state.teams[0].name;
-    let rightTeamName = this.state.teams[1].name;
+    let leftTeamName = teams[0].name;
+    let rightTeamName = teams[1].name;
     let series_txt = '';
     
     let leftMarks = (<div className="left" />);
     let rightMarks = (<div className="right" />);
     
-    series_txt = this.state.series.series_txt;
-    if(this.state.series.length > 0)
+    series_txt = series.series_txt;
+    if(series.length > 0)
     {
-      leftTeamName = this.state.series.teams[0].name;
-      rightTeamName = this.state.series.teams[1].name;
+      leftTeamName = series.teams[0].name;
+      rightTeamName = series.teams[1].name;
 
-      let games = Math.ceil(this.state.series.length / 2);
-      let leftWon = this.state.series.teams[0].matches_won;
-      let rightWon = this.state.series.teams[1].matches_won;
+      let games = Math.ceil(series.length / 2);
+      let leftWon = series.teams[0].matches_won;
+      let rightWon = series.teams[1].matches_won;
 
       let leftRows = [];
       let rightRows = [];
@@ -136,18 +101,18 @@ class Scoreboard extends React.Component {
       
       <div className="left">
         <div className="name">{this.truncate(leftTeamName, 12)}</div>
-        <div className="score">{this.state.teams[0].score}</div>
+        <div className="score">{teams[0].score}</div>
       </div>
 
       <div className="center">
         <div className="box">
-          <div className="time" style={timeStyle}>{this.state.time}</div>
+          <div className="time" style={timeStyle}>{time}</div>
         </div>
       </div>
 
       <div className="right">
         <div className="name">{this.truncate(rightTeamName, 12)}</div>
-        <div className="score">{this.state.teams[1].score}</div>
+        <div className="score">{teams[1].score}</div>
       </div>
 
       <div className="series-tally">

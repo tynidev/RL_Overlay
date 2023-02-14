@@ -33,7 +33,7 @@ class GameStats extends React.Component {
 
   render(){
     return (
-      <div className="overlay">
+      <div className="overlay" style={{transformOrigin: "left", transform:"scale(" + this.props.width / 2560 + ")"}}>
         <PostGameStats {...this.state.PostGameStatsState} display={true}/>
       </div>);
   }

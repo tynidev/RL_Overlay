@@ -3,7 +3,8 @@ const WsSubscribers = {
   websocket: undefined,
   webSocketConnected: false,
   registerQueue: [],
-  init: function(port, debug, debugFilters) {
+  init: function(host, port, debug, debugFilters) {
+      host = host || "localhost";
       port = port || 49322;
       debug = debug || false;
       if (debug) {
@@ -14,7 +15,7 @@ const WsSubscribers = {
               console.warn("To use filters, pass in an array of 'channel:event' strings to the second parameter of the init function");
           }
       }
-      WsSubscribers.webSocket = new WebSocket("ws://localhost:" + port);
+      WsSubscribers.webSocket = new WebSocket("ws://" + host + ":" + port);
       WsSubscribers.webSocket.onmessage = function (event) {
           let jEvent = JSON.parse(event.data);
           if (!jEvent.hasOwnProperty('event')) {

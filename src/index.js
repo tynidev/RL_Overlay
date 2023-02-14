@@ -13,7 +13,27 @@ import Match from './match'
 import Stream from './routes/Stream';
 import GameStats from "./routes/GameStats";
 
-WsSubscribers.init(49322, false);
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height
+  };
+}
+
+const { height, width } = getWindowDimensions();
+
+console.log("Width: " + width + " Height: " + height);
+console.log("WS_RELAY_HOST:"  + process.env.REACT_APP_WS_RELAY_HOST);
+console.log("WS_RELAY_PORT:"  + process.env.REACT_APP_WS_RELAY_PORT);
+console.log("WS_RELAY_DEBUG:"  + process.env.REACT_APP_WS_RELAY_DEBUG);
+
+WsSubscribers.init(
+  process.env.REACT_APP_WS_RELAY_HOST, 
+  process.env.REACT_APP_WS_RELAY_PORT, 
+  process.env.REACT_APP_WS_RELAY_DEBUG
+  );
+
 const match = new Match(WsSubscribers, process.env.REACT_APP_RCONN_PASS);
 
 const router = createBrowserRouter([
@@ -22,8 +42,8 @@ const router = createBrowserRouter([
     element: <Stream match={match}/>,
   },
   {
-    path: "/post-game",
-    element: <GameStats match={match}/>,
+    path: "/game-stats",
+    element: <GameStats match={match} width={width}/>,
   },
 ]);
 

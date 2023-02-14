@@ -21,6 +21,7 @@ class Stream extends React.Component {
       SpectatingState: Spectating.GetState(this.match, undefined, undefined),
       TeamboardState: Teamboard.GetState(this.match),
       ReplayState: Replay.GetState(undefined, undefined, undefined),
+      PostGameStatsState: PostGameStats.GetState(this.match),
     };
   }
 
@@ -70,7 +71,10 @@ class Stream extends React.Component {
     // OnPlayersUpdated - When players stats/properties have changed
     this.unsubscribers.push(
       this.match.OnPlayersUpdated((left, right) => {
-        this.setState({ TeamboardState: Teamboard.GetState(this.match)});
+        this.setState({ 
+          TeamboardState: Teamboard.GetState(this.match),
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        });
       })
     );
 
@@ -115,18 +119,27 @@ class Stream extends React.Component {
     // OnTeamsUpdated - When Team scores/names/colors are updated
     this.unsubscribers.push(
       this.match.OnTeamsUpdated((teams) => {
-        this.setState({ScoreboardState: Scoreboard.GetState(this.match) })
+        this.setState({
+          ScoreboardState: Scoreboard.GetState(this.match),
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        })
     }));
 
     // OnSeriesUpdate
     this.unsubscribers.push(
       this.match.OnSeriesUpdate((series) => {
-        this.setState({ScoreboardState: Scoreboard.GetState(this.match) })
+        this.setState({
+          ScoreboardState: Scoreboard.GetState(this.match),
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        })
     }));
 
     // OnGameEnded - When name of team winner is displayed on screen after game is over
     this.unsubscribers.push(
       this.match.OnGameEnded(() => {
+        this.setState({
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        });
         setTimeout(() => {
           this.setState({
             gamestate: this.match.state
@@ -171,7 +184,7 @@ class Stream extends React.Component {
       case GameState.InGame:
         return (
         <div className="overlay">
-          <PostGameStats match={this.match} displayPostGame={false}/>
+          <PostGameStats {...this.state.PostGameStatsState} display={false}/>
           <Scoreboard {...this.state.ScoreboardState} />
           <Teamboard {...this.state.TeamboardState} />
           <Spectating {...this.state.SpectatingState} />
@@ -181,13 +194,13 @@ class Stream extends React.Component {
       case GameState.GameEnded:
         return (
         <div className="overlay">
-          <PostGameStats match={this.match} displayPostGame={false}/>
+          <PostGameStats {...this.state.PostGameStatsState} display={false}/>
         </div>);
 
       case GameState.PostGame:
         return (
           <div className="overlay">
-            <PostGameStats match={this.match} displayPostGame={true}/>
+            <PostGameStats {...this.state.PostGameStatsState} display={true}/>
           </div>);
           
       default:

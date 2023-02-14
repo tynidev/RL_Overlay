@@ -11,10 +11,19 @@ class GameStats extends React.Component {
     super(props);
     this.match = props.match;
     this.state = {
+      PostGameStatsState: PostGameStats.GetState(this.match)
     };
   }
 
   componentDidMount() {
+    // OnPlayersUpdated - When players stats/properties have changed
+    this.unsubscribers.push(
+      this.match.OnPlayersUpdated((left, right) => {
+        this.setState({ 
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        });
+      })
+    );
   }
 
   componentWillUnmount(){
@@ -25,7 +34,7 @@ class GameStats extends React.Component {
   render(){
     return (
       <div className="overlay">
-        <PostGameStats match={this.match} displayPostGame={true}/>
+        <PostGameStats {...this.state.PostGameStatsState} display={true}/>
       </div>);
   }
 }

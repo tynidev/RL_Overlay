@@ -2,72 +2,38 @@ import '../css/PostGameStats.css';
 import mvp_svg from '../assets/stat-icons/mvp.svg'
 import React from 'react';
 
+// eslint-disable-next-line no-unused-vars
+import Match from '../match'
+
 class PostGameStats extends React.Component {
-  
-  /** @type {Match} */
-  match;
-  unsubscribers = [];
-  
-  constructor(props) {
-    super(props);
-    this.match = props.match;
-    this.state = {
-        teams: [
-            {
-              name: "Blue",
-              score: 0,
-            },
-            {
-              name: "Orange",
-              score: 0,
-            }
-          ],
-        left: [],
-        right: [],
-        display: props.displayPostGame,
-        series: props.match.series,
-    };
-  }
 
-  componentDidMount() {
-    // OnPlayersUpdated - When players stats/properties have changed
-    this.unsubscribers.push(
-      this.match.OnPlayersUpdated((left, right) => {
-        this.setState({left: left,right: right});
-      })
-    );    
-    // OnTeamsUpdated - When Team scores/names/colors are updated
-    this.unsubscribers.push(
-      this.match.OnTeamsUpdated((teams) => {
-        this.setState({teams: teams});
-      })
-    );    
-    // OnSeriesUpdate
-    this.unsubscribers.push(
-        this.match.OnSeriesUpdate((series) => {
-          this.setState({
-            series: series
-          })
-        })
-      );
-    // OnSeriesUpdate
-    this.unsubscribers.push(
-        this.match.OnGameEnded((series) => {
-        this.setState({
-            series: this.match.series
-        })
-        })
-    );
-  }
-
-  componentWillUnmount(){
-    this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
-    this.unsubscribers = [];
-  }
+    /**
+     * Static method to generate props from match
+     * @param {Match} match
+     */
+    static GetState(match){
+        return {
+            teams: match?.game?.teams ?? [
+                {
+                    name: "Blue",
+                    score: 0,
+                },
+                {
+                    name: "Orange",
+                    score: 0,
+                }
+                ],
+            left: match?.left ?? [],
+            right: match?.right ?? [],
+            series: match.series,
+        };
+    }
 
   render(){
 
-    let [left, right, stats, mvp] = this.FillTeams();
+    let {teams, left, right, series, display} = this.props;
+
+    let [left_team, right_team, stats, mvp] = this.FillTeams(teams, left, right);
 
     let leftStatSliderWidth = {
         score: (360 - 10) * this.GetPercentage(stats.score.left, stats.score.right),
@@ -81,28 +47,28 @@ class PostGameStats extends React.Component {
     let series_txt = "";
     let game_txt = "";
     let best_of = "";
-    if(this.state.series.length > 0)
+    if(series.length > 0)
     {
-        let left_won = this.state.series.teams[0].matches_won;
-        let right_won = this.state.series.teams[1].matches_won;
-        let games = Math.ceil(this.match.series.length / 2);
+        let left_won = series.teams[0].matches_won;
+        let right_won = series.teams[1].matches_won;
+        let games = Math.ceil(series.length / 2);
 
         let games_played = left_won + right_won;
         game_txt = "GAME " + games_played; 
-        best_of = "Best of " + this.state.series.length;
+        best_of = "Best of " + series.length;
         if(left_won > right_won)
         {
             if(left_won === games)
-                series_txt = this.state.series.teams[0].name + " wins " + left_won + "-" + right_won;
+                series_txt = series.teams[0].name + " wins " + left_won + "-" + right_won;
             else
-                series_txt = this.state.series.teams[0].name + " leads " + left_won + "-" + right_won;
+                series_txt = series.teams[0].name + " leads " + left_won + "-" + right_won;
         }
         else if(left_won < right_won)
         {
             if(right_won === games)
-                series_txt = this.state.series.teams[1].name + " wins " + right_won + "-" + left_won;
+                series_txt = series.teams[1].name + " wins " + right_won + "-" + left_won;
             else
-                series_txt = this.state.series.teams[1].name + " leads " + right_won + "-" + left_won;
+                series_txt = series.teams[1].name + " leads " + right_won + "-" + left_won;
         }
         else
         {
@@ -111,10 +77,10 @@ class PostGameStats extends React.Component {
     }
 
     return (
-    <div className="postgame-stats" style={{opacity:this.props.displayPostGame ? "1" : "0", transition:"400ms"}}>
+    <div className="postgame-stats" style={{opacity:display ? "1" : "0", transition:"400ms"}}>
         <div className="left-team-score-overline"></div>
-        <div className="left-team-score">{this.state.teams[0].score}</div>
-        <div className="left-team-name">{this.match.series.teams[0].name}</div>
+        <div className="left-team-score">{teams[0].score}</div>
+        <div className="left-team-name">{series.teams[0].name}</div>
 
         <div className='seriesBox'> 
             <div className='game_txt'>{game_txt}</div>
@@ -124,8 +90,8 @@ class PostGameStats extends React.Component {
         <div className='series-score'>{series_txt}</div>
 
         <div className="right-team-score-overline"></div>
-        <div className="right-team-score">{this.state.teams[1].score}</div>
-        <div className="right-team-name">{this.match.series.teams[1].name}</div>
+        <div className="right-team-score">{teams[1].score}</div>
+        <div className="right-team-name">{series.teams[1].name}</div>
 
         <div className="bottom-postgame-darken"></div>
 
@@ -135,27 +101,27 @@ class PostGameStats extends React.Component {
                 <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[2] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[0] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[1] ? "visible" : "hidden"}}/></th>
             </tr>
             <tr className='name'>
-                <th>{left[2].name}</th><th>{left[0].name}</th><th>{left[1].name}</th>
+                <th>{left_team[2].name}</th><th>{left_team[0].name}</th><th>{left_team[1].name}</th>
             </tr>
             </thead>
             <tbody>
             <tr className='score'>
-                <td>{left[2].score}</td><td>{left[0].score}</td><td>{left[1].score}</td>
+                <td>{left_team[2].score}</td><td>{left_team[0].score}</td><td>{left_team[1].score}</td>
             </tr>
             <tr className='goals'>
-                <td>{left[2].goals}</td><td>{left[0].goals}</td><td>{left[1].goals}</td>
+                <td>{left_team[2].goals}</td><td>{left_team[0].goals}</td><td>{left_team[1].goals}</td>
             </tr>
             <tr className='assists'>
-                <td>{left[2].assists}</td><td>{left[0].assists}</td><td>{left[1].assists}</td>
+                <td>{left_team[2].assists}</td><td>{left_team[0].assists}</td><td>{left_team[1].assists}</td>
             </tr>
             <tr className='shots'>
-                <td>{left[2].shots}</td><td>{left[0].shots}</td><td>{left[1].shots}</td>
+                <td>{left_team[2].shots}</td><td>{left_team[0].shots}</td><td>{left_team[1].shots}</td>
             </tr>
             <tr className='saves'>
-                <td>{left[2].saves}</td><td>{left[0].saves}</td><td>{left[1].saves}</td>
+                <td>{left_team[2].saves}</td><td>{left_team[0].saves}</td><td>{left_team[1].saves}</td>
             </tr>
             <tr className='demos'>
-                <td>{left[2].demos}</td><td>{left[0].demos}</td><td>{left[1].demos}</td>
+                <td>{left_team[2].demos}</td><td>{left_team[0].demos}</td><td>{left_team[1].demos}</td>
             </tr>
             </tbody>
         </table>
@@ -205,27 +171,27 @@ class PostGameStats extends React.Component {
                 <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[5] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[3] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[4] ? "visible" : "hidden"}}/></th>
             </tr>
             <tr className='name'>
-                <th>{right[2].name}</th><th>{right[0].name}</th><th>{right[1].name}</th>
+                <th>{right_team[2].name}</th><th>{right_team[0].name}</th><th>{right_team[1].name}</th>
             </tr>
             </thead>
             <tbody>
             <tr className='score'>
-                <td>{right[2].score}</td><td>{right[0].score}</td><td>{right[1].score}</td>
+                <td>{right_team[2].score}</td><td>{right_team[0].score}</td><td>{right_team[1].score}</td>
             </tr>
             <tr className='goals'>
-                <td>{right[2].goals}</td><td>{right[0].goals}</td><td>{right[1].goals}</td>
+                <td>{right_team[2].goals}</td><td>{right_team[0].goals}</td><td>{right_team[1].goals}</td>
             </tr>
             <tr className='assists'>
-                <td>{right[2].assists}</td><td>{right[0].assists}</td><td>{right[1].assists}</td>
+                <td>{right_team[2].assists}</td><td>{right_team[0].assists}</td><td>{right_team[1].assists}</td>
             </tr>
             <tr className='shots'>
-                <td>{right[2].shots}</td><td>{right[0].shots}</td><td>{right[1].shots}</td>
+                <td>{right_team[2].shots}</td><td>{right_team[0].shots}</td><td>{right_team[1].shots}</td>
             </tr>
             <tr className='saves'>
-                <td>{right[2].saves}</td><td>{right[0].saves}</td><td>{right[1].saves}</td>
+                <td>{right_team[2].saves}</td><td>{right_team[0].saves}</td><td>{right_team[1].saves}</td>
             </tr>
             <tr className='demos'>
-                <td>{right[2].demos}</td><td>{right[0].demos}</td><td>{right[1].demos}</td>
+                <td>{right_team[2].demos}</td><td>{right_team[0].demos}</td><td>{right_team[1].demos}</td>
             </tr>
             </tbody>
         </table>
@@ -234,7 +200,7 @@ class PostGameStats extends React.Component {
     </div>);
   }
 
-  FillTeams(){
+  FillTeams(teams, left_orig, right_orig){
     
     let mvp = [false, false, false, false, false, false];
     let mvp_max = 0;
@@ -251,16 +217,16 @@ class PostGameStats extends React.Component {
 
     let left = [];
     for(let i = 0; i < 3; i++){
-        if(i < this.state.left.length){
-            let p = this.state.left[i];
-            left.push(this.state.left[i]);
+        if(i < left_orig.length){
+            let p = left_orig[i];
+            left.push(left_orig[i]);
             stats.score.left += p.score;
             stats.goals.left += p.goals;
             stats.assists.left += p.assists;
             stats.shots.left += p.shots;
             stats.saves.left += p.saves;
             stats.demos.left += p.demos;
-            if(this.match.game.teams[0].score >= this.match.game.teams[1].score && p.score >= mvp_max)
+            if(teams[0].score >= teams[1].score && p.score >= mvp_max)
             {
                 mvp_idx = i;
                 mvp_max = p.score;
@@ -280,16 +246,16 @@ class PostGameStats extends React.Component {
     }
     let right = [];
     for(let i = 0; i < 3; i++){
-        if(i < this.state.right.length){
-            let p = this.state.right[i];
-            right.push(this.state.right[i]);
+        if(i < right_orig.length){
+            let p = right_orig[i];
+            right.push(right_orig[i]);
             stats.score.right += p.score;
             stats.goals.right += p.goals;
             stats.assists.right += p.assists;
             stats.shots.right += p.shots;
             stats.saves.right += p.saves;
             stats.demos.right += p.demos;
-            if(this.match.game.teams[1].score >= this.match.game.teams[0].score && p.score >= mvp_max)
+            if(teams[1].score >= teams[0].score && p.score >= mvp_max)
             {
                 mvp_idx = i + 3;
                 mvp_max = p.score;

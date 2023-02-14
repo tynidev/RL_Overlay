@@ -26,18 +26,18 @@ class Scoreboard extends React.Component {
         }
       ],
       series: match?.series ?? {
-        "series_txt" : "ROCKET LEAGUE",
-        "length" : 1, 
-        "teams": [
+        series_txt : "ROCKET LEAGUE",
+        length : 1, 
+        teams: [
             {
-            "team" : 0,
-            "name" : "Blue",
-            "matches_won" : 0
+            team : 0,
+            name : "Blue",
+            matches_won : 0
             },
             {
-            "team" : 1,
-            "name" : "Orange",
-            "matches_won" : 0
+            team : 1,
+            name : "Orange",
+            matches_won : 0
             }
         ]
     },

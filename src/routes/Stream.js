@@ -32,37 +32,6 @@ class Stream extends React.Component {
       })
     );
 
-    // OnMatchEnded - When match is destroyed
-    this.unsubscribers.push(
-      this.match.OnMatchEnded(() => {
-        this.setState({
-          gamestate: this.match.state
-        });
-      })
-    );
-
-    // OnGameEnded - When name of team winner is displayed on screen after game is over
-    this.unsubscribers.push(
-      this.match.OnGameEnded(() => {
-        setTimeout(() => {
-          this.setState({
-            gamestate: this.match.state
-          });
-        }, 2990);
-      })
-    );
-
-    
-    this.unsubscribers.push(
-      this.match.OnPodiumStart(() => {
-        setTimeout(() => {
-          this.setState({
-            gamestate: this.match.state
-          });
-        }, 4700);
-      })
-    );
-
     // OnFirstCountdown - When the first kick off of the game occurs
     this.unsubscribers.push(
       this.match.OnFirstCountdown(() => {
@@ -70,6 +39,13 @@ class Stream extends React.Component {
           gamestate: this.match.state
         });
       })
+    );    
+    
+    // OnCountdown - When a kickoff countdown occurs
+    this.unsubscribers.push(
+     this.match.OnCountdown(() => { 
+      this.setState({ SpectatingState: Spectating.GetState(this.match, "OnCountdown", this.state.SpectatingState)});
+     })
     );
 
     // OnTimeUpdated - When a time update is recieved
@@ -88,6 +64,30 @@ class Stream extends React.Component {
       })
     );
 
+    // OnPlayersUpdated - When players stats/properties have changed
+    this.unsubscribers.push(
+      this.match.OnPlayersUpdated((left, right) => {
+        this.setState({ TeamboardState: Teamboard.GetState(this.match)});
+      })
+    );
+
+    // OnSpecatorUpdated - When the spectated player changes
+    this.unsubscribers.push(
+      this.match.OnSpecatorUpdated((hasTarget, player) => {
+        this.setState({ 
+          TeamboardState: Teamboard.GetState(this.match), 
+          SpectatingState: Spectating.GetState(this.match, "OnSpecatorUpdated", this.state.SpectatingState) 
+        });
+      })
+    );    
+    
+    // OnInstantReplayStart - When an in game instant replay is started after a goal
+    this.unsubscribers.push(
+      this.match.OnInstantReplayStart(() => { 
+        this.setState({ SpectatingState: Spectating.GetState(this.match, "OnInstantReplayStart", this.state.SpectatingState)});
+      })
+    );
+
     // OnTeamsUpdated - When Team scores/names/colors are updated
     this.unsubscribers.push(
       this.match.OnTeamsUpdated((teams) => {
@@ -99,6 +99,37 @@ class Stream extends React.Component {
       this.match.OnSeriesUpdate((series) => {
         this.setState({ScoreboardState: Scoreboard.GetState(this.match) })
     }));
+
+    // OnGameEnded - When name of team winner is displayed on screen after game is over
+    this.unsubscribers.push(
+      this.match.OnGameEnded(() => {
+        setTimeout(() => {
+          this.setState({
+            gamestate: this.match.state
+          });
+        }, 2990);
+      })
+    );
+
+    // OnPodiumStart - Celebration screen for winners podium after game ends
+    this.unsubscribers.push(
+      this.match.OnPodiumStart(() => {
+        setTimeout(() => {
+          this.setState({
+            gamestate: this.match.state
+          });
+        }, 4700);
+      })
+    );
+
+    // OnMatchEnded - When match is destroyed
+    this.unsubscribers.push(
+      this.match.OnMatchEnded(() => {
+        this.setState({
+          gamestate: this.match.state
+        });
+      })
+    );
   }
 
   componentWillUnmount(){
@@ -118,8 +149,8 @@ class Stream extends React.Component {
         <div className="overlay">
           <PostGameStats match={this.match} displayPostGame={false}/>
           <Scoreboard {...this.state.ScoreboardState} />
-          <Teamboard match={this.match} />
-          <Spectating match={this.match} />
+          <Teamboard {...this.state.TeamboardState} />
+          <Spectating {...this.state.SpectatingState} />
           <Replay match={this.match} />
         </div>);
 

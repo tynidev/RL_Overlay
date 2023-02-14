@@ -140,7 +140,7 @@ class Match {
 
     stats = new Stats();
 
-    spectating = true;
+    playerTarget = undefined;
 
     /**
      * Series information
@@ -225,7 +225,6 @@ class Match {
             this.left = [];
             this.right = [];
             this.stats = new Stats();
-            this.spectating = true;
             this.state = GameState.PreGameLobby;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
             this.hiddenUI = false;
@@ -326,7 +325,6 @@ class Match {
             this.left = [];
             this.right = [];
             this.stats = new Stats();
-            this.spectating = true;
             this.state = GameState.None;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
             this.hiddenUI = false;
@@ -638,17 +636,18 @@ class Match {
             if(this.localPlayer)
             {
                 // local player is playing.....
-                this.spectating = false;
+                this.playerTarget = this.localPlayer;
             }
             else
             {
                 // local player is not playing so just see if game hasTarget
-                this.spectating = game.hasTarget;
+                this.playerTarget = param.players[game.target];
             }
         }
         else
         {
             this.localPlayer = undefined;
+            this.playerTarget = param.players[game.target];
         }
 
         let localPlayer = this.localPlayer; // we set local variable since we can't access this inside foreach

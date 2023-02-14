@@ -6,52 +6,32 @@ import shot_svg from '../assets/stat-icons/shot-on-goal.svg'
 import demo_svg from '../assets/stat-icons/demolition.svg'
 import React from 'react';
 
+// eslint-disable-next-line no-unused-vars
+import Match from '../match'
+
 class Teamboard extends React.Component {
   
-  /** @type {Match} */
-  match;
-  unsubscribers = [];
-
-  constructor(props) {
-    super(props);
-    this.match = props.match;
-    this.state = {
+  /**
+     * Static method to generate props from match
+     * @param {Match} match
+     */
+  static GetState(match){
+    return {
       teams: [
-        [], []
+        match.left, match.right
       ],
-      spectating: this.match.spectating,
-      playerTarget: undefined,
+      playerTarget: match.playerTarget,
+      localPlayer: match.localPlayer,
     };
   }
 
-  componentDidMount() {
-    // OnPlayersUpdated - When players stats/properties have changed
-    this.unsubscribers.push(
-      this.match.OnPlayersUpdated((left, right) => {
-        this.setState({teams: [left, right], spectating: this.match.spectating});
-      })
-    );
-
-    this.unsubscribers.push(
-      this.match.OnSpecatorUpdated((_, player) => {
-        this.setState({
-          playerTarget: player
-        });
-      })
-    );
-  }
-
-  componentWillUnmount(){
-    this.unsubscribers.forEach(unsubscribe => unsubscribe(this.match));
-    this.unsubscribers = [];
-  }
-
   render() {
+    let {teams, playerTarget, localPlayer} = this.props;
     return (
       <div className='teamboard'>
         <div className='left'>
-        {this.state.teams[0].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (this.state.playerTarget && this.state.playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
+        {teams[0].map((player, index) => (
+          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (playerTarget && playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
             <div className='name'>{this.truncate(player.name)}</div>
             <div className="stats">
               <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>
@@ -60,7 +40,7 @@ class Teamboard extends React.Component {
               <div className="stat"><div className="shots">{player.shots}</div><img src={shot_svg} alt=''/></div>
               <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
             </div>
-            <div className="boost" style={{visibility:!this.match.localPlayer ? 'visible' : 'hidden'}}>
+            <div className="boost" style={{visibility:!localPlayer ? 'visible' : 'hidden'}}>
               <div className="fill-bg"></div>
               <div className="fill" style={{width:player.boost + "%"}}></div>
               <div className="num">{player.boost}</div>
@@ -70,8 +50,8 @@ class Teamboard extends React.Component {
         </div>
 
         <div className='right'>
-        {this.state.teams[1].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (this.state.playerTarget && this.state.playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
+        {teams[1].map((player, index) => (
+          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (playerTarget && playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
             <div className='name'>{this.truncate(player.name)}</div>
             <div className="stats">
               <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>
@@ -80,7 +60,7 @@ class Teamboard extends React.Component {
               <div className="stat"><div className="shots">{player.shots}</div><img src={shot_svg} alt=''/></div>
               <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
             </div>
-            <div className="boost" style={{visibility:!this.match.localPlayer ? 'visible' : 'hidden'}}>
+            <div className="boost" style={{visibility:!localPlayer ? 'visible' : 'hidden'}}>
               <div className="fill-bg"></div>
               <div className="fill" style={{width:player.boost + "%"}}></div>
               <div className="num">{player.boost}</div>

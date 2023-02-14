@@ -14,7 +14,7 @@ import Stream from './routes/Stream';
 import GameStats from "./routes/GameStats";
 
 WsSubscribers.init(49322, false);
-const match = new Match(WsSubscribers);
+const match = new Match(WsSubscribers, process.env.REACT_APP_RCONN_PASS);
 
 const router = createBrowserRouter([
   {

@@ -12,15 +12,127 @@ function pad(num, size) {
    */
 class Match {
 
-    // Last game state recorded
+    /** 
+     * Game state received from SOS 
+     * @type {{
+        arena: string,
+        ball: {
+            location: {
+                X: number,
+                Y: number,
+                Z: number
+            },
+            speed: number,
+            team: number
+        },
+        hasTarget: boolean,
+        hasWinner: boolean,
+        isO: boolean,
+        isReplay: boolean,
+        isSeries: boolean,
+        localplayer: string,
+        seriesLength: number,
+        target: string,
+        teams: [
+            {
+                color_primary: string,
+                color_secondary: string,
+                name: string,
+                score: number
+            },
+            {
+                color_primary: string,
+                color_secondary: string,
+                name: string,
+                score: number
+            }
+        ],
+        time_milliseconds: number,
+        time_seconds: number,
+        winner: string
+    }} */
     game = {};
 
-    // Last left team recorded
+    /**
+     * Team that appears on left of scoreboard 
+     * @type {
+        Object.<string, {
+            assists: number,
+            attacker: string,
+            boost: number,
+            cartouches: number,
+            demos: number,
+            goals: number,
+            hasCar: boolean,
+            id: string,
+            isDead: boolean,
+            isPowersliding: boolean,
+            isSonic: boolean,
+            location: {
+                X: boolean,
+                Y: boolean,
+                Z: boolean,
+                pitch: number,
+                roll: number,
+                yaw: number
+            },
+            name: string,
+            onGround: boolean,
+            onWall: boolean,
+            primaryID: string,
+            saves: number,
+            score: number,
+            shortcut: number,
+            shots: number,
+            speed: number,
+            team: number,
+            touches: number
+        }>
+     } */
     left = [];
 
-    // Last right team recorded
+    /**
+     * Team that appears on right of scoreboard 
+     * @type {
+        Object.<string, {
+            assists: number,
+            attacker: string,
+            boost: number,
+            cartouches: number,
+            demos: number,
+            goals: number,
+            hasCar: boolean,
+            id: string,
+            isDead: boolean,
+            isPowersliding: boolean,
+            isSonic: boolean,
+            location: {
+                X: boolean,
+                Y: boolean,
+                Z: boolean,
+                pitch: number,
+                roll: number,
+                yaw: number
+            },
+            name: string,
+            onGround: boolean,
+            onWall: boolean,
+            primaryID: string,
+            saves: number,
+            score: number,
+            shortcut: number,
+            shots: number,
+            speed: number,
+            team: number,
+            touches: number
+        }>
+     } */
     right = [];
 
+    /**
+     * Current GameState the match is in
+     * @type GameState
+     */
     state = GameState.None;
 
     localplayer_support = false;
@@ -30,6 +142,24 @@ class Match {
 
     spectating = true;
 
+    /**
+     * Series information
+     * @type {
+        series_txt : string,
+        length : number, 
+        teams: [
+            {
+            "team" : number,
+            "name" : string,
+            "matches_won" : number
+            },
+            {
+            "team" : number,
+            "name" : string,
+            "matches_won" : number
+            }
+        ]
+    } */
     series = {
         "series_txt" : "ROCKET LEAGUE",
         "length" : 1, 
@@ -469,6 +599,15 @@ class Match {
          };
     }
 
+    /** Gets the game time in readable string format
+     * @param game
+     */
+    static GameTimeString(game){
+        let seconds = game.time_seconds % 60;
+        let min = Math.floor(game.time_seconds / 60);
+        return (game.isOT ? "+" : "") + min + ":" + pad(seconds, 2);
+    }
+
     /***************************/
     /**** INTERNAL METHODS  ****/
     /***************************/
@@ -531,11 +670,7 @@ class Match {
             if(this.game.time_seconds)
                 this.state = GameState.InGame;
             this.timeUpdateCallbacks.forEach(function (callback, index) {
-                
-                let seconds = game.time_seconds % 60;
-                let min = Math.floor(game.time_seconds / 60);
-
-                callback((game.isOT ? "+" : "") + min + ":" + pad(seconds, 2), game.time_seconds, game.isOT);
+                callback(Match.GameTimeString(game), game.time_seconds, game.isOT);
             });
         }
 

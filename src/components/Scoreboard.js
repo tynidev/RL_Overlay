@@ -1,6 +1,9 @@
 import '../css/Scoreboard.css';
 import React from 'react';
 
+// eslint-disable-next-line no-unused-vars
+import Match from '../match'
+
 class Scoreboard extends React.Component {
   
   /** @type {Match} */
@@ -10,11 +13,19 @@ class Scoreboard extends React.Component {
   constructor(props) {
     super(props);
     this.match = props.match;
-    this.state = {
-      time: "5:00",
-      seconds: 5 * 60,
-      isOT: false,
-      teams: [
+    this.state = Scoreboard.GetState(this.match);
+  }
+  
+  /**
+     * Static method to generate props from match
+     * @param {Match} match
+     */
+  static GetState(match){
+    return {
+      time: match?.game ? Match.GameTimeString(match.game) : "5:00",
+      seconds: match?.game?.seconds ?? 5 * 60,
+      isOT: match?.game?.isOT ?? false,
+      teams: match?.game?.teams ?? [
         {
           name: "Blue",
           score: 0,
@@ -24,8 +35,23 @@ class Scoreboard extends React.Component {
           score: 0,
         }
       ],
-      series: undefined,
-    };
+      series: match?.series ?? {
+        "series_txt" : "ROCKET LEAGUE",
+        "length" : 1, 
+        "teams": [
+            {
+            "team" : 0,
+            "name" : "Blue",
+            "matches_won" : 0
+            },
+            {
+            "team" : 1,
+            "name" : "Orange",
+            "matches_won" : 0
+            }
+        ]
+    },
+    }
   }
 
   componentDidMount() {
@@ -33,29 +59,20 @@ class Scoreboard extends React.Component {
     this.unsubscribers.push(
       this.match.OnTimeUpdated((time, seconds, isOT) => {
         // Update time
-        this.setState({
-          time: time,
-          seconds: seconds,
-          isOT: isOT
-        });
-      })
-    );
+        this.setState(Scoreboard.GetState(this.match))
+      }));
 
     // OnTeamsUpdated - When Team scores/names/colors are updated
     this.unsubscribers.push(
       this.match.OnTeamsUpdated((teams) => {
-        this.setState({teams: teams});
-      })
-    );
+        this.setState(Scoreboard.GetState(this.match));
+    }));
 
     // OnSeriesUpdate
     this.unsubscribers.push(
       this.match.OnSeriesUpdate((series) => {
-        this.setState({
-          series: series
-        })
-      })
-    );
+        this.setState(Scoreboard.GetState(this.match));
+    }));
   }
 
   componentWillUnmount(){
@@ -82,15 +99,15 @@ class Scoreboard extends React.Component {
     let leftMarks = (<div className="left" />);
     let rightMarks = (<div className="right" />);
     
-    series_txt = this.match.series.series_txt;
-    if(this.match.series.length > 0)
+    series_txt = this.state.series.series_txt;
+    if(this.state.series.length > 0)
     {
-      leftTeamName = this.match.series.teams[0].name;
-      rightTeamName = this.match.series.teams[1].name;
+      leftTeamName = this.state.series.teams[0].name;
+      rightTeamName = this.state.series.teams[1].name;
 
-      let games = Math.ceil(this.match.series.length / 2);
-      let leftWon = this.match.series.teams[0].matches_won;
-      let rightWon = this.match.series.teams[1].matches_won;
+      let games = Math.ceil(this.state.series.length / 2);
+      let leftWon = this.state.series.teams[0].matches_won;
+      let rightWon = this.state.series.teams[1].matches_won;
 
       let leftRows = [];
       let rightRows = [];

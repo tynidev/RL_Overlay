@@ -17,7 +17,10 @@ class Stream extends React.Component {
     this.match = props.match;
     this.state = {
       gamestate: this.match.state,
-      ScoreboardState: Scoreboard.GetState(this.match)
+      ScoreboardState: Scoreboard.GetState(this.match),
+      SpectatingState: Spectating.GetState(this.match, undefined, undefined),
+      TeamboardState: Teamboard.GetState(this.match),
+      ReplayState: Replay.GetState(undefined, undefined, undefined),
     };
   }
 
@@ -84,7 +87,28 @@ class Stream extends React.Component {
     // OnInstantReplayStart - When an in game instant replay is started after a goal
     this.unsubscribers.push(
       this.match.OnInstantReplayStart(() => { 
-        this.setState({ SpectatingState: Spectating.GetState(this.match, "OnInstantReplayStart", this.state.SpectatingState)});
+        this.setState({ 
+          SpectatingState: Spectating.GetState(this.match, "OnInstantReplayStart", this.state.SpectatingState),
+          ReplayState: Replay.GetState("OnInstantReplayStart", undefined, this.state.ReplayState),
+        });
+      })
+    );
+    
+    // OnInstantReplayEnd - When an in game instant replay is ended
+    this.unsubscribers.push(
+      this.match.OnInstantReplayEnd(() => { 
+        this.setState({ 
+          ReplayState: Replay.GetState("OnInstantReplayEnd", undefined, this.state.ReplayState),
+        });
+      })
+    );
+    
+    // OnGoalScored - When a goal is scored
+    this.unsubscribers.push(
+      this.match.OnGoalScored((data) => { 
+        this.setState({ 
+          ReplayState: Replay.GetState("OnGoalScored", data, this.state.ReplayState),
+        });
       })
     );
 
@@ -151,7 +175,7 @@ class Stream extends React.Component {
           <Scoreboard {...this.state.ScoreboardState} />
           <Teamboard {...this.state.TeamboardState} />
           <Spectating {...this.state.SpectatingState} />
-          <Replay match={this.match} />
+          <Replay {...this.state.ReplayState}  />
         </div>);
 
       case GameState.GameEnded:

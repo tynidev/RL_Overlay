@@ -75,6 +75,8 @@ class Match {
      */
     constructor(ws, RCONPASS=undefined, RCONPORT=9002, localplayer_support=true) {
         
+        this.localplayer_support = localplayer_support;
+
         if(RCONPASS)
         {
             // Hook up remote connection to bakkes console

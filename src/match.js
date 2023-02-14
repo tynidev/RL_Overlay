@@ -105,8 +105,19 @@ class Match {
 
             if(this.RCON)
             {
-                this.RCON.send('replay_gui hud 1');
-                this.RCON.send('replay_gui matchinfo 1');
+                if(!this.localPlayer){ // if were not a local player then hide the GUI
+                    this.RCON.send('replay_gui hud 1');
+                    this.RCON.send('replay_gui matchinfo 1');
+                    let r = this.RCON;
+                    setTimeout(() => {
+                        r.send('replay_gui hud 0');
+                        r.send('replay_gui matchinfo 0');
+                    }, 600);
+                }
+                else{
+                    this.RCON.send('replay_gui hud 1');
+                    this.RCON.send('replay_gui matchinfo 1');
+                }
             }
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -127,26 +138,7 @@ class Match {
             this.state = GameState.InGame;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
-        ws.subscribe("game", "post_countdown_begin", (p) => { 
-            if(this.RCON)
-            {
-                if(!this.localPlayer){ // if were not a local player then hide the GUI
-                    this.RCON.send('replay_gui hud 1');
-                    this.RCON.send('replay_gui matchinfo 1');
-                    let r = this.RCON;
-                    setTimeout(() => {
-                        r.send('replay_gui hud 0');
-                        r.send('replay_gui matchinfo 0');
-                    }, 250);
-                    this.RCON.send('boostbar_enabled 0');
-                }
-                else{
-                    this.RCON.send('replay_gui hud 1');
-                    this.RCON.send('replay_gui matchinfo 1');
-                    this.RCON.send('boostbar_enabled 1');
-                }
-            }
-        });
+        // ws.subscribe("game", "post_countdown_begin", (p) => {});
 
         // Kick off countdown finished and cars are free to GO!!!!
         ws.subscribe("game", "round_started_go", (p) => { this.state = GameState.InGame; });
@@ -188,7 +180,7 @@ class Match {
 
         // When name of team winner is displayed on screen after game is over
         ws.subscribe("game", "match_ended", (p) => { 
-            this.state = GameState.PostGame;
+            this.state = GameState.GameEnded;
             this.series.teams[p.winner_team_num].matches_won += 1;
             this.gameEndCallbacks.forEach((callback) => { callback(); });
         });

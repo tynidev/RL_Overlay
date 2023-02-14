@@ -47,7 +47,18 @@ class Stream extends React.Component {
           this.setState({
             gamestate: this.match.state
           });
-        }, 7600);
+        }, 2990);
+      })
+    );
+
+    
+    this.unsubscribers.push(
+      this.match.OnPodiumStart(() => {
+        setTimeout(() => {
+          this.setState({
+            gamestate: this.match.state
+          });
+        }, 4700);
       })
     );
 
@@ -93,6 +104,12 @@ class Stream extends React.Component {
           <Teamboard match={this.match} />
           <Spectating match={this.match} />
           <Replay match={this.match} />
+        </div>);
+
+      case GameState.GameEnded:
+        return (
+        <div className="overlay">
+          <PostGameStats match={this.match} displayPostGame={false}/>
         </div>);
 
       case GameState.PostGame:

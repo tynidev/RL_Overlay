@@ -230,12 +230,12 @@ prompt.get([
                     {
                     "team" : 0,
                     "name" : left_team,
-                    "matches_won" : left_score
+                    "matches_won" : parseInt(left_score)
                     },
                     {
                     "team" : 1,
                     "name" : right_team,
-                    "matches_won" : right_score
+                    "matches_won" : parseInt(right_score)
                     }
                 ]
                 });

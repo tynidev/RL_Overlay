@@ -82,39 +82,37 @@ class Scoreboard extends React.Component {
     let leftMarks = (<div className="left" />);
     let rightMarks = (<div className="right" />);
     
-    if(this.state.series)
+    series_txt = this.match.series.series_txt;
+    if(this.match.series.length > 1)
     {
-      leftTeamName = this.state.series.teams[0].name;
-      rightTeamName = this.state.series.teams[1].name;
-      series_txt = this.state.series.series_txt;
+      leftTeamName = this.match.series.teams[0].name;
+      rightTeamName = this.match.series.teams[1].name;
 
-      let games = Math.ceil(this.state.series.length / 2);
-      let leftWon = this.state.series.teams[0].matches_won;
-      let rightWon = this.state.series.teams[1].matches_won;
-      if(games > 1)
+      let games = Math.ceil(this.match.series.length / 2);
+      let leftWon = this.match.series.teams[0].matches_won;
+      let rightWon = this.match.series.teams[1].matches_won;
+
+      let leftRows = [];
+      let rightRows = [];
+      for(var i = 1; i <= games; i++)
       {
-        let leftRows = [];
-        let rightRows = [];
-        for(var i = 1; i <= games; i++)
-        {
 
-          leftRows.push((<div className={"mark" + (leftWon > 0 ? " w" : "")} key={i}></div>));
-          rightRows.push((<div className={"mark" + (rightWon > 0 ? " w" : "")} key={i}></div>));
+        leftRows.push((<div className={"mark" + (leftWon > 0 ? " w" : "")} key={i}></div>));
+        rightRows.push((<div className={"mark" + (rightWon > 0 ? " w" : "")} key={i}></div>));
 
-          leftWon--;
-          rightWon--;
-        }
-
-        leftMarks = 
-          (<div className="left">
-            {leftRows}
-          </div>);
-
-        rightMarks = 
-          (<div className="right">
-            {rightRows}
-          </div>);
+        leftWon--;
+        rightWon--;
       }
+
+      leftMarks = 
+        (<div className="left">
+          {leftRows}
+        </div>);
+
+      rightMarks = 
+        (<div className="right">
+          {rightRows}
+        </div>);
     }
 
     return <div className="scoreboard">

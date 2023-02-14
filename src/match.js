@@ -30,6 +30,23 @@ class Match {
 
     spectating = true;
 
+    series = {
+        "series_txt" : "ROCKET LEAGUE",
+        "length" : 1, 
+        "teams": [
+            {
+            "team" : 0,
+            "name" : "Blue",
+            "matches_won" : 0
+            },
+            {
+            "team" : 1,
+            "name" : "Orange",
+            "matches_won" : 0
+            }
+        ]
+    };
+
     // All callback arrays
     matchCreatedCallbacks = [];
     initializedCallbacks = [];
@@ -78,6 +95,14 @@ class Match {
             this.spectating = true;
             this.state = GameState.PreGameLobby;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
+            
+            let games = Math.ceil(this.series.length / 2);
+            if(this.series.teams[0].matches_won === games || this.series.teams[1].matches_won === games)
+            {
+                this.series.teams[0].matches_won = 0;
+                this.series.teams[1].matches_won = 0;
+            }
+
             if(this.RCON)
             {
                 this.RCON.send('replay_gui hud 1');
@@ -164,6 +189,7 @@ class Match {
         // When name of team winner is displayed on screen after game is over
         ws.subscribe("game", "match_ended", (p) => { 
             this.state = GameState.PostGame;
+            this.series.teams[p.winner_team_num].matches_won += 1;
             this.gameEndCallbacks.forEach((callback) => { callback(); });
         });
 
@@ -203,6 +229,7 @@ class Match {
         //     ]
         // }
         ws.subscribe("game", "series_update", (p) => { 
+            this.series = p;
             this.seriesUpdateCallbacks.forEach((callback) => { callback(p); });
         });
     }

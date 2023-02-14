@@ -25,6 +25,7 @@ class PostGameStats extends React.Component {
         left: [],
         right: [],
         display: props.displayPostGame,
+        series: props.match.series,
     };
   }
 
@@ -40,6 +41,22 @@ class PostGameStats extends React.Component {
       this.match.OnTeamsUpdated((teams) => {
         this.setState({teams: teams});
       })
+    );    
+    // OnSeriesUpdate
+    this.unsubscribers.push(
+        this.match.OnSeriesUpdate((series) => {
+          this.setState({
+            series: series
+          })
+        })
+      );
+    // OnSeriesUpdate
+    this.unsubscribers.push(
+        this.match.OnGameEnded((series) => {
+        this.setState({
+            series: this.match.series
+        })
+        })
     );
   }
 
@@ -61,22 +78,54 @@ class PostGameStats extends React.Component {
         demos: (360 - 10) * this.GetPercentage(stats.demos.left, stats.demos.right),
     };
     
+    let series_txt = "";
+    let game_txt = "";
+    let best_of = "";
+    if(this.state.series.length > 0)
+    {
+        let left_won = this.state.series.teams[0].matches_won;
+        let right_won = this.state.series.teams[1].matches_won;
+        let games = Math.ceil(this.match.series.length / 2);
+
+        let games_played = left_won + right_won;
+        game_txt = "GAME " + games_played; 
+        best_of = "Best of " + this.state.series.length;
+        if(left_won > right_won)
+        {
+            if(left_won === games)
+                series_txt = this.state.series.teams[0].name + " wins " + left_won + "-" + right_won;
+            else
+                series_txt = this.state.series.teams[0].name + " leads " + left_won + "-" + right_won;
+        }
+        else if(left_won < right_won)
+        {
+            if(right_won === games)
+                series_txt = this.state.series.teams[1].name + " wins " + right_won + "-" + left_won;
+            else
+                series_txt = this.state.series.teams[1].name + " leads " + right_won + "-" + left_won;
+        }
+        else
+        {
+            series_txt = "series tied " + left_won + "-" + right_won;
+        }
+    }
+
     return (
     <div className="postgame-stats" style={{opacity:this.props.displayPostGame ? "1" : "0", transition:"400ms"}}>
         <div className="left-team-score-overline"></div>
         <div className="left-team-score">{this.state.teams[0].score}</div>
-        <div className="left-team-name">{this.state.teams[0].name}</div>
+        <div className="left-team-name">{this.match.series.teams[0].name}</div>
 
         <div className='seriesBox'> 
-            <div className='game_txt'>post Game</div>
-            <div className='best_of'>Stats</div>
+            <div className='game_txt'>{game_txt}</div>
+            <div className='best_of'>{best_of}</div>
         </div>
 
-        {/*<div className='series-score'>gengmobile leads 2-0</div> */}
+        <div className='series-score'>{series_txt}</div>
 
         <div className="right-team-score-overline"></div>
         <div className="right-team-score">{this.state.teams[1].score}</div>
-        <div className="right-team-name">{this.state.teams[1].name}</div>
+        <div className="right-team-name">{this.match.series.teams[1].name}</div>
 
         <div className="bottom-postgame-darken"></div>
 
@@ -211,7 +260,7 @@ class PostGameStats extends React.Component {
             stats.shots.left += p.shots;
             stats.saves.left += p.saves;
             stats.demos.left += p.demos;
-            if(p.score >= mvp_max)
+            if(this.match.game.teams[0].score >= this.match.game.teams[1].score && p.score >= mvp_max)
             {
                 mvp_idx = i;
                 mvp_max = p.score;
@@ -240,7 +289,7 @@ class PostGameStats extends React.Component {
             stats.shots.right += p.shots;
             stats.saves.right += p.saves;
             stats.demos.right += p.demos;
-            if(p.score >= mvp_max)
+            if(this.match.game.teams[1].score >= this.match.game.teams[0].score && p.score >= mvp_max)
             {
                 mvp_idx = i + 3;
                 mvp_max = p.score;

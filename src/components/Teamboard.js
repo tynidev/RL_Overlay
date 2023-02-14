@@ -18,10 +18,10 @@ class Teamboard extends React.Component {
   static GetState(match){
     return {
       teams: [
-        match.left, match.right
+        match?.left ?? [], match?.right ?? []
       ],
-      playerTarget: match.playerTarget,
-      localPlayer: match.localPlayer,
+      playerTarget: match?.playerTarget ?? undefined,
+      localPlayer: match?.localPlayer ?? undefined,
     };
   }
 

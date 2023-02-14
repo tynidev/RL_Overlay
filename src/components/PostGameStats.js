@@ -132,30 +132,30 @@ class PostGameStats extends React.Component {
         <table className="left-team-stats">
             <thead>
             <tr className='mvp-row'>
-                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[0] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[1] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[2] ? "visible" : "hidden"}}/></th>
+                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[2] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[0] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[1] ? "visible" : "hidden"}}/></th>
             </tr>
             <tr className='name'>
-                <th>{left[0].name}</th><th>{left[1].name}</th><th>{left[2].name}</th>
+                <th>{left[2].name}</th><th>{left[0].name}</th><th>{left[1].name}</th>
             </tr>
             </thead>
             <tbody>
             <tr className='score'>
-                <td>{left[0].score}</td><td>{left[1].score}</td><td>{left[2].score}</td>
+                <td>{left[2].score}</td><td>{left[0].score}</td><td>{left[1].score}</td>
             </tr>
             <tr className='goals'>
-                <td>{left[0].goals}</td><td>{left[1].goals}</td><td>{left[2].goals}</td>
+                <td>{left[2].goals}</td><td>{left[0].goals}</td><td>{left[1].goals}</td>
             </tr>
             <tr className='assists'>
-                <td>{left[0].assists}</td><td>{left[1].assists}</td><td>{left[2].assists}</td>
+                <td>{left[2].assists}</td><td>{left[0].assists}</td><td>{left[1].assists}</td>
             </tr>
             <tr className='shots'>
-                <td>{left[0].shots}</td><td>{left[1].shots}</td><td>{left[2].shots}</td>
+                <td>{left[2].shots}</td><td>{left[0].shots}</td><td>{left[1].shots}</td>
             </tr>
             <tr className='saves'>
-                <td>{left[0].saves}</td><td>{left[1].saves}</td><td>{left[2].saves}</td>
+                <td>{left[2].saves}</td><td>{left[0].saves}</td><td>{left[1].saves}</td>
             </tr>
             <tr className='demos'>
-                <td>{left[0].demos}</td><td>{left[1].demos}</td><td>{left[2].demos}</td>
+                <td>{left[2].demos}</td><td>{left[0].demos}</td><td>{left[1].demos}</td>
             </tr>
             </tbody>
         </table>
@@ -202,30 +202,30 @@ class PostGameStats extends React.Component {
         <table className="right-team-stats">
             <thead>
             <tr className='mvp-row'>
-                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[3] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[4] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[5] ? "visible" : "hidden"}}/></th>
+                <th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[5] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[3] ? "visible" : "hidden"}}/></th><th><img className="mvp" src={mvp_svg} alt='' style={{visibility:mvp[4] ? "visible" : "hidden"}}/></th>
             </tr>
             <tr className='name'>
-                <th>{right[0].name}</th><th>{right[1].name}</th><th>{right[2].name}</th>
+                <th>{right[2].name}</th><th>{right[0].name}</th><th>{right[1].name}</th>
             </tr>
             </thead>
             <tbody>
             <tr className='score'>
-                <td>{right[0].score}</td><td>{right[1].score}</td><td>{right[2].score}</td>
+                <td>{right[2].score}</td><td>{right[0].score}</td><td>{right[1].score}</td>
             </tr>
             <tr className='goals'>
-                <td>{right[0].goals}</td><td>{right[1].goals}</td><td>{right[2].goals}</td>
+                <td>{right[2].goals}</td><td>{right[0].goals}</td><td>{right[1].goals}</td>
             </tr>
             <tr className='assists'>
-                <td>{right[0].assists}</td><td>{right[1].assists}</td><td>{right[2].assists}</td>
+                <td>{right[2].assists}</td><td>{right[0].assists}</td><td>{right[1].assists}</td>
             </tr>
             <tr className='shots'>
-                <td>{right[0].shots}</td><td>{right[1].shots}</td><td>{right[2].shots}</td>
+                <td>{right[2].shots}</td><td>{right[0].shots}</td><td>{right[1].shots}</td>
             </tr>
             <tr className='saves'>
-                <td>{right[0].saves}</td><td>{right[1].saves}</td><td>{right[2].saves}</td>
+                <td>{right[2].saves}</td><td>{right[0].saves}</td><td>{right[1].saves}</td>
             </tr>
             <tr className='demos'>
-                <td>{right[0].demos}</td><td>{right[1].demos}</td><td>{right[2].demos}</td>
+                <td>{right[2].demos}</td><td>{right[0].demos}</td><td>{right[1].demos}</td>
             </tr>
             </tbody>
         </table>

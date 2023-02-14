@@ -67,6 +67,7 @@ class Match {
     seriesUpdateCallbacks = [];
 
     RCONN = undefined;
+    hiddenUI = false;
 
     /**
      * Constructor
@@ -95,29 +96,13 @@ class Match {
             this.spectating = true;
             this.state = GameState.PreGameLobby;
             this.matchCreatedCallbacks.forEach((callback) => { callback(); });
+            this.hiddenUI = false;
             
             let games = Math.ceil(this.series.length / 2);
             if(this.series.teams[0].matches_won === games || this.series.teams[1].matches_won === games)
             {
                 this.series.teams[0].matches_won = 0;
                 this.series.teams[1].matches_won = 0;
-            }
-
-            if(this.RCON)
-            {
-                if(!this.localPlayer){ // if were not a local player then hide the GUI
-                    this.RCON.send('replay_gui hud 1');
-                    this.RCON.send('replay_gui matchinfo 1');
-                    let r = this.RCON;
-                    setTimeout(() => {
-                        r.send('replay_gui hud 0');
-                        r.send('replay_gui matchinfo 0');
-                    }, 600);
-                }
-                else{
-                    this.RCON.send('replay_gui hud 1');
-                    this.RCON.send('replay_gui matchinfo 1');
-                }
             }
         });
         //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -138,7 +123,19 @@ class Match {
             this.state = GameState.InGame;
             this.preCountDownBeginCallbacks.forEach((callback) => { callback(); });
         });
-        // ws.subscribe("game", "post_countdown_begin", (p) => {});
+        ws.subscribe("game", "post_countdown_begin", (p) => {
+            if(this.RCON && !this.hiddenUI)
+            {
+                this.RCON.send('replay_gui hud 1');
+                this.RCON.send('replay_gui matchinfo 1');
+                let r = this.RCON;
+                setTimeout(() => {
+                    r.send('replay_gui hud 0');
+                    r.send('replay_gui matchinfo 0');
+                }, 250);
+                this.hiddenUI = true;
+            }
+        });
 
         // Kick off countdown finished and cars are free to GO!!!!
         ws.subscribe("game", "round_started_go", (p) => { this.state = GameState.InGame; });
@@ -200,6 +197,7 @@ class Match {
             this.spectating = true;
             this.state = GameState.None;
             this.matchEndedCallbacks.forEach((callback) => { callback(); });
+            this.hiddenUI = false;
         });
 
         // When we get a series update

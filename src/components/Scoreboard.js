@@ -83,7 +83,7 @@ class Scoreboard extends React.Component {
     let rightMarks = (<div className="right" />);
     
     series_txt = this.match.series.series_txt;
-    if(this.match.series.length > 1)
+    if(this.match.series.length > 0)
     {
       leftTeamName = this.match.series.teams[0].name;
       rightTeamName = this.match.series.teams[1].name;

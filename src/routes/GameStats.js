@@ -23,6 +23,31 @@ class GameStats extends React.Component {
           PostGameStatsState: PostGameStats.GetState(this.match),
         });
       })
+    );    
+    
+    // OnTeamsUpdated - When Team scores/names/colors are updated
+    this.unsubscribers.push(
+      this.match.OnTeamsUpdated((teams) => {
+        this.setState({
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        })
+    }));
+
+    // OnSeriesUpdate
+    this.unsubscribers.push(
+      this.match.OnSeriesUpdate((series) => {
+        this.setState({
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        })
+    }));
+
+    // OnGameEnded - When name of team winner is displayed on screen after game is over
+    this.unsubscribers.push(
+      this.match.OnGameEnded(() => {
+        this.setState({
+          PostGameStatsState: PostGameStats.GetState(this.match),
+        });
+      })
     );
   }
 

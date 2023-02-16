@@ -1,7 +1,7 @@
 import React from 'react';
 import MiniMap from '../components/MiniMap';
 
-class MiniMapRoute extends React.Component {
+class MiniMapRoute extends React.PureComponent {
   
   /** @type {Match} */
   match;

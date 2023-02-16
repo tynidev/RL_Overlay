@@ -6,7 +6,7 @@ import Scoreboard from '../components/Scoreboard';
 import Spectating from '../components/Spectating';
 import Teamboard from '../components/Teamboard';
 
-class Stream extends React.Component {
+class Stream extends React.PureComponent {
   
   /** @type {Match} */
   match;
@@ -184,7 +184,6 @@ class Stream extends React.Component {
       case GameState.InGame:
         return (
         <div className="overlay">
-          <PostGameStats {...this.state.PostGameStatsState} display={false}/>
           <Scoreboard {...this.state.ScoreboardState} />
           <Teamboard {...this.state.TeamboardState} />
           <Spectating {...this.state.SpectatingState} />

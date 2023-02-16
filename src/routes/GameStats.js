@@ -1,7 +1,7 @@
 import React from 'react';
 import PostGameStats from '../components/PostGameStats';
 
-class GameStats extends React.Component {
+class GameStats extends React.PureComponent {
   
   /** @type {Match} */
   match;

@@ -1,9 +1,4 @@
 import '../css/Teamboard.css';
-import assist_svg from '../assets/stat-icons/assist.svg'
-import save_svg from '../assets/stat-icons/save.svg'
-import goal_svg from '../assets/stat-icons/goal.svg'
-import shot_svg from '../assets/stat-icons/shot-on-goal.svg'
-import demo_svg from '../assets/stat-icons/demolition.svg'
 import React from 'react';
 
 // eslint-disable-next-line no-unused-vars

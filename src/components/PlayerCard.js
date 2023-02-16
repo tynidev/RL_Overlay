@@ -1,4 +1,4 @@
-import '../css/Teamboard.css';
+import '../css/PlayerCard.css';
 import assist_svg from '../assets/stat-icons/assist.svg'
 import save_svg from '../assets/stat-icons/save.svg'
 import goal_svg from '../assets/stat-icons/goal.svg'
@@ -6,19 +6,19 @@ import shot_svg from '../assets/stat-icons/shot-on-goal.svg'
 import demo_svg from '../assets/stat-icons/demolition.svg'
 import React from 'react';
 
-class PlayerCard extends React {
+class PlayerCard extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (this.props.spectating !== nextProps.spectating ||
        this.props.index !== nextProps.index ||
        this.props.showBoost !== nextProps.showBoost ||
-       this.player.name !== nextProps.player.name ||
-       this.player.goals !== nextProps.player.goals ||
-       this.player.assists !== nextProps.player.assists ||
-       this.player.saves !== nextProps.player.saves ||
-       this.player.shots !== nextProps.player.shots ||
-       this.player.demos !== nextProps.player.demos ||
-       this.player.boost !== nextProps.player.boost);
+       this.props.player.name !== nextProps.player.name ||
+       this.props.player.goals !== nextProps.player.goals ||
+       this.props.player.assists !== nextProps.player.assists ||
+       this.props.player.saves !== nextProps.player.saves ||
+       this.props.player.shots !== nextProps.player.shots ||
+       this.props.player.demos !== nextProps.player.demos ||
+       this.props.player.boost !== nextProps.player.boost);
   }
 
   render() {

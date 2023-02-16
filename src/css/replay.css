@@ -2,6 +2,13 @@
 	opacity: 0;
 }
 
+.replay .bottom-overlay{
+    position: absolute;
+    left:0px;
+    top:0px;
+    height: var(--sh);
+    width: var(--sw);
+}
 #top-replay-overlay-group{
     display: none;
 }
@@ -22,7 +29,7 @@
 .replay .st3{font-size:48px;}
 
 .replay .bottom-overlay .goal-stats{
-    --stat-height:70px;
+    --stat-height:calc(var(--one) * 70);
     height: var(--stat-height);
     width: var(--sw);
     position: absolute;

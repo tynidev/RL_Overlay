@@ -1,32 +1,25 @@
-.teamboard .left .player {
-  padding: 0px 10px 10px 10px;
-  border-radius: 0 var(--box-radius) var(--box-radius) 0;
-}
-
-.teamboard .right .player {
-  padding: 0px 10px 10px 10px;
-  border-radius: var(--box-radius) 0 0 var(--box-radius);
-}
-
 .teamboard .player {
-  font-size: 22px;
-  line-height: 30px;
+  --padding: calc(var(--sw) / 256);
+  padding: 0 var(--padding) var(--padding) var(--padding);
+  font-size: 1.4rem;
+  line-height: calc(var(--padding) * 3.2);
   display: block;
-  margin: 5px 0px 5px 0px;
+  margin: calc(var(--padding) / 2) 0 calc(var(--sw) / 320) 0;
   background-color: rgb(var(--base-color));
 }
 
 .teamboard .player .boost{
-  height: 7px;
+  height: calc(var(--sw)/320);
   border-style:none;
   position: relative;
-  top:-8px;
+  top:calc(var(--sw)/-400);
 }
 
 .teamboard .player .boost .fill{
   width: 33%;
-  height: 8px;
-  transition: 0.25s;
+  height: calc(var(--sw) / 320);
+  transition: 100ms;
+  transition-timing-function: linear;
   position: relative;
 }
 
@@ -36,26 +29,24 @@
 
 .teamboard .player .boost .fill-bg{
   width: 100%;
-  height: 8px;
+  height: calc(var(--sw) / 320);
   background-color: black;
   position: relative;
-  top:8px
+  top:calc(var(--sw) / 320);
 }
 
 .teamboard .player .boost .num{
   position: relative;
   vertical-align: top;
-  line-height: 22px;
+  line-height: calc(var(--sw) / 320 * 3);
 }
 .teamboard .left .player .boost .num{
   text-align: right;
-  left: 0px; 
-  top:-36px;
+  top: calc(var(--sw) / 320 * -4.5);
 }
 .teamboard .right .player .boost .num{
   text-align: left;
-  left: 0px; 
-  top:-36px;
+  top: calc(var(--sw) / 320 * -4.5);
 }
 
 .teamboard .left .player.spectatingTeamBoard{

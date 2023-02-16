@@ -7,19 +7,27 @@
 	src: url("../assets/Myriad\ Pro\ SemiCondensed.otf");
 }
 body {
-	margin: 0px auto;
-	background-color: rgba(0, 0, 0, 1);
+	margin: 0 auto;
+	background-color: #000000;
 	width: var(--sw);
 	height: var(--sh);
 	overflow: hidden;
 	color: white;
 	font-family: "ScoreBoardFont";
-	--sw: 2560px;
-	--sh: 1440px;
 }
-#all {
+
+#root {
 	width: var(--sw);
 	height: var(--sh);
+}
+
+#outside-border {
+	position: absolute;
+	top:-1px;
+	left:-1px;
+	width: calc(var(--sw) + 1px);
+	height: calc(var(--sh) + 1px);
+	border:1px solid red;
 }
 
 :root {
@@ -28,6 +36,10 @@ body {
 	--orange: 242, 96, 29;
 	--blue: 7, 121, 211;
 	--base-color: 14, 18, 22;
+	--sw: 2560px;
+	--sh: calc(var(--sw) * 9 / 16);
+	--one: calc(var(--sw) / 2560);
 	text-transform: uppercase;
-	text-shadow: 1px 1px rgba(14, 18, 22, 0.9);
+	text-shadow: var(--one) var(--one) rgba(14, 18, 22, 0.9);
+	font-size:calc(var(--sw) / 160);
 }

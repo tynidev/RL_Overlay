@@ -1,105 +1,21 @@
+.teamboard{
+  --teamboard-w: calc(var(--sw) / 7.1);
+}
+
 .teamboard .left {
   position: absolute;
-  width: 380px;
-  top: 0px; /* 1440/2 - 400/2 = 520*/  
+  left: 0;
+  text-align: left;
+  width: var(--teamboard-w);
+  top: calc(var(--sh)/1440);
   opacity: 0.96;
 }
 
 .teamboard .right {
-  left: 2180px; /* 2560 - 400 */ 
-  text-align: right;
   position: absolute;
-  width: 380px;
-  top: 0px; /* 1440/2 - 400/2 = 520*/  
-  opacity: 0.96;
-}
-
-.teamboard .left .player {
-  padding: 0px 10px 10px 10px;
-  border-radius: 0 var(--box-radius) var(--box-radius) 0;
-}
-
-.teamboard .right .player {
-  padding: 0px 10px 10px 10px;
-  border-radius: var(--box-radius) 0 0 var(--box-radius);
-}
-
-.teamboard .player {
-  font-size: 22px;
-  line-height: 30px;
-  display: block;
-  margin: 5px 0px 5px 0px;
-  background-color: rgb(var(--base-color));
-}
-
-.teamboard .player .boost{
-  height: 7px;
-  border-style:none;
-  position: relative;
-  top:-8px;
-}
-
-.teamboard .player .boost .fill{
-  width: 33%;
-  height: 8px;
-  transition: 0.25s;
-  position: relative;
-}
-
-.teamboard .player.spectatingTeamBoard .boost .fill-bg{
-  background-color: rgb(var(--base-color));
-}
-
-.teamboard .player .boost .fill-bg{
-  width: 100%;
-  height: 8px;
-  background-color: black;
-  position: relative;
-  top:8px
-}
-
-.teamboard .player .boost .num{
-  position: relative;
-  vertical-align: top;
-  line-height: 22px;
-}
-.teamboard .left .player .boost .num{
+  left: calc(var(--sw) - var(--teamboard-w));
   text-align: right;
-  left: 0px; 
-  top:-36px;
-}
-.teamboard .right .player .boost .num{
-  text-align: left;
-  left: 0px; 
-  top:-36px;
-}
-
-.teamboard .left .player.spectatingTeamBoard{
-  background-color: rgb(var(--blue));
-  color:white;
-}
-
-.teamboard .right .player.spectatingTeamBoard{
-  background-color: rgb(var(--orange));
-  color:white;
-}
-
-.teamboard .left .player .boost .fill{
-  background-color: rgb(var(--blue));
-}
-.teamboard .left .player.spectatingTeamBoard .boost .fill{
-  background-color: white;
-}
-
-.teamboard .right .player .boost .fill{
-  background-color: rgb(var(--orange));
-  margin-left: auto; 
-  margin-right: 0;
-}
-.teamboard .right .player.spectatingTeamBoard .boost .fill{
-  background-color: white;
-}
-
-.teamboard .player .stats .stat {
-  display:none;
+  width: var(--teamboard-w);
+  top: calc(var(--sh)/1440);
+  opacity: 0.96;
 }

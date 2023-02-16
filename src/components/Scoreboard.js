@@ -46,15 +46,15 @@ class Scoreboard extends React.PureComponent {
 
   render() {
     let {time, seconds, isOT, teams, series} = this.props;
-    let timeStyle = {color:"#fffbb3", fontSize: "60px"};
+    let timeStyle = {color:"#fffbb3"};
     if(!isOT)
     {
       if(seconds <= 10)
-        timeStyle = {color:"rgb(209, 35, 23)", fontSize: "60px"};
+        timeStyle = {color:"rgb(209, 35, 23)"};
       else if(seconds <= 30)
-        timeStyle = {color:"#ffa53d", fontSize: "60px"};
+        timeStyle = {color:"#ffa53d"};
       else if(seconds <= 60)
-        timeStyle = {color:"#ffe880", fontSize: "60px"};
+        timeStyle = {color:"#ffe880"};
     }
 
     let leftTeamName = teams[0].name;

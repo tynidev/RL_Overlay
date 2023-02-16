@@ -1,58 +1,43 @@
 .spectating {
 	position: absolute;
-	top: 1150px;
-	left:-9px;
-	padding: 0 70px 0px 0px;
-	height: 80px;
+	top: calc(var(--sh) * 0.8);
+	padding: 0 calc(var(--sw) / 32) 0 0;
+	height: calc(var(--sw) / 32);
 	text-align: right;
-	font-size: 60px;
+	font-size: 3.9rem;
 }
 .spectating .name {
-	margin: 0px;
-	padding: 0px;
-	text-shadow: 2px 2px black;
-}
-.spectating .boost {
-	display: none;
-	position: relative;
-	top: -4px;
-	left: -70px;
-	width: 100%;
-}
-.spectating .boost .fill {
-	background-image: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.25));
-	width: 70%;
-	height: 25px;
+	text-shadow: calc(var(--one)*2) calc(var(--one)*2) black;
 }
 .spectating .stats {
 	position: relative;
-	text-shadow: 2px 2px black;
-	top: -20px;
+	text-shadow: calc(var(--one)*2) calc(var(--one)*2) black;
+	top: calc(var(--one)*-20);
 }
 .spectating .stats img {
 	display: inline;
 	position: relative;
 	left: 0;
-	height: 30px;
-	padding: 0px 10px 0px 40px;
+	height: calc(var(--one)*30);
+	padding: 0 calc(var(--one)*10) 0 calc(var(--one)*40);
 	filter: invert(90%);
 }
 .spectating .stats div {
 	display: inline;
 	padding-right: 3px;
-	height: 30px;
-	font-size: 40px;
+	height: calc(var(--one)*30);
+	font-size: calc(var(--one)*40);
 }
 
 .spectating-boost{
 	position: absolute;
-	--rh: 310px;
-	--rw: 310px;
-	--cr: 150;
+	--rh: calc(var(--one)*310);
+	--rw: calc(var(--one)*310);
+	--cr: calc(var(--one)*150);
 	height: var(--rh);
 	width: var(--rw);
-	top: calc(var(--sh) - calc(var(--rh) + 40px));
-	left: calc(var(--sw) - calc(var(--rw) + 30px));
+	top: calc(var(--sh) - calc(var(--rh) + calc(var(--one) * 40)));
+	left: calc(var(--sw) - calc(var(--rw) + calc(var(--one) * 30)));
 }
 
 .spectating-boost .boost-ring{
@@ -61,7 +46,7 @@
 }
 
 .spectating-boost .boost-ring .fill{
-	--stroke-w: 30;
+	--stroke-w: calc(var(--one)*30);
 	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
@@ -71,7 +56,7 @@
 }
 
 .spectating-boost .boost-ring .border-inner{
-	--stroke-w: 30;
+	--stroke-w: calc(var(--one)*30);
 	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
@@ -81,14 +66,14 @@
 }
 
 .spectating-boost .boost-ring .inner{
-	r:121;
+	r:calc(var(--one)*121);
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
 	fill:rgba(0, 0, 0, 0.8);
 }
 
 .spectating-boost .boost-ring .border-outer{
-	--stroke-w: 2;
+	--stroke-w: calc(var(--one)*2);
 	r:calc(var(--cr) - calc(var(--stroke-w) / 2));
 	cx:calc(var(--rw) / 2);
 	cy:calc(var(--rh) / 2);
@@ -108,6 +93,12 @@
 	fill:red;
 }
 
-.spectating-boost .boost-ring .boost-num, .spectating-boost .boost-ring .speed-num{
-	filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+.spectating-boost .boost-ring .boost-num{
+	filter: drop-shadow( calc(var(--one)*3) calc(var(--one)*3) calc(var(--one)*2) rgba(0, 0, 0, .7));
+	font-size:3rem;
+}
+
+.spectating-boost .boost-ring .speed-num{
+	filter: drop-shadow( calc(var(--one)*3) calc(var(--one)*3) calc(var(--one)*2) rgba(0, 0, 0, .7));
+	font-size:2rem;
 }

@@ -56,6 +56,12 @@ class Spectating extends React.PureComponent {
     if(!display)
       return <div><div className="spectating" /><div className='spectating-boost' /></div>;
     
+    let sw = getComputedStyle(document.documentElement).getPropertyValue('--sw').trim();
+    sw = parseInt(sw.substring(0, sw.length - 2));
+    let one = sw / 2560;
+    let x = one * 155;
+    let y = x;
+    
     let circumference = 135 * 2 * Math.PI;
     let offset = circumference - player.boost / 100 * circumference;
     let boost_ring = (<div className="specatating-boost"></div>);
@@ -72,42 +78,30 @@ class Spectating extends React.PureComponent {
                   strokeDashoffset={offset}
                   />
           <circle className="border-outer"/>
-          <text className="boost-num" 
-            fill="white" 
-            x="108" 
-            y="139.671875" 
-            fontSize="60"
-            ref={el => {
-              if (!el) return;
-      
-              let x = 155;
-              let y = 155;
-              let centerX = el.getBoundingClientRect().width / 2;
-              let centerY = el.getBoundingClientRect().height / 4;
-              el.setAttribute('x', x - centerX - 5);
-              el.setAttribute('y', y + centerY - (hasLocalPlayer ? 0 : 35));
-            }}>
-              {player.boost}
-          </text>
-          <text className="speed-num" 
-            fill={player.isSonic ? 'rgba(255, 217, 0,1)' : 'white'} 
-            x="85" 
-            y="178.33984375" 
-            fontSize="30"
-            style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}
-            ref={el => {
-              if (!el) return;
-      
-              let x = 155;
-              let y = 155;
-              let centerX = el.getBoundingClientRect().width / 2;
-              let centerY = el.getBoundingClientRect().height / 4;
-              el.setAttribute('x', x - centerX - 5);
-              el.setAttribute('y', y + centerY + 20);
-            }}>
-              {player.speed} MPH
-          </text>
-          <line x1="80" y1="150" x2="220" y2="150" stroke="white" style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}/>
+            <text className="boost-num" 
+              fill="white" 
+              ref={boostNum => {
+                if (!boostNum) return;
+                let centerX = boostNum.getBoundingClientRect().width / 2;
+                let centerY = boostNum.getBoundingClientRect().height / 4;
+                boostNum.setAttribute('x', x - centerX - 5);
+                boostNum.setAttribute('y', y + centerY - (hasLocalPlayer ? 0 : 35));
+              }}>
+                {player.boost}
+            </text>
+            <text className="speed-num" 
+              fill={player.isSonic ? 'rgba(255, 217, 0,1)' : 'white'} 
+              style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}
+              ref={speedNum => {
+                if (!speedNum) return;
+                let centerX = speedNum.getBoundingClientRect().width / 2;
+                let centerY = speedNum.getBoundingClientRect().height / 4;
+                speedNum.setAttribute('x', x - centerX - 5);
+                speedNum.setAttribute('y', y + centerY + 20);
+              }}>
+                {player.speed} MPH
+            </text>
+          <line x1={one * 80} y1={one * 150} x2={one * 220} y2={one * 150} stroke="white" style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}/>
         </svg>
       </div>);
     }
@@ -115,7 +109,6 @@ class Spectating extends React.PureComponent {
     <div>
       <div className="spectating" style={{backgroundImage:bg_color, left:spectating_left, transition: "400ms"}}>
         <div className="name">{this.truncate(player.name, 14)}</div>
-        <div className="boost"><div className="fill" style={{width: player.boost, transition: "0.25s"}}></div></div>
         <div className="stats">
           <img src={goal_svg} alt=''/><div className="goal">{player.goals}</div>
           <img src={assist_svg} alt=''/><div className="assist">{player.assists}</div>

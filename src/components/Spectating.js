@@ -1,53 +1,51 @@
-import '../css/Spectating.css';
-import assist_svg from '../assets/stat-icons/assist.svg'
-import save_svg from '../assets/stat-icons/save.svg'
-import goal_svg from '../assets/stat-icons/goal.svg'
-import shot_svg from '../assets/stat-icons/shot-on-goal.svg'
-import demo_svg from '../assets/stat-icons/demolition.svg'
-import React from 'react';
+import "../css/spectating.css";
+import assist_svg from "../assets/stat-icons/assist.svg";
+import save_svg from "../assets/stat-icons/save.svg";
+import goal_svg from "../assets/stat-icons/goal.svg";
+import shot_svg from "../assets/stat-icons/shot-on-goal.svg";
+import demo_svg from "../assets/stat-icons/demolition.svg";
+import React from "react";
 
 // eslint-disable-next-line no-unused-vars
-import Match from '../match'
+import Match from "../match";
 
 class Spectating extends React.PureComponent {
-
-    /**
-     * Static method to generate props from match
-     * @param {Match} match
-     */
-    static GetState(match, event, prevState){
-      
-      let spectating_left = 0; 
-      let display_boost_ring = true;
-      if(event === "OnInstantReplayStart")
-      {
-        spectating_left = -1000;
-        display_boost_ring = false;
-      }
-      else if(event === "OnSpecatorUpdated")
-      {
-        spectating_left = prevState.spectating_left;
-        display_boost_ring = prevState.display_boost_ring;
-      }
-
-      return {
-        display: match?.playerTarget === undefined ? false : true,
-        display_boost_ring: display_boost_ring,
-        spectating_left: spectating_left,
-        bg_color: match?.playerTarget?.team === 0 ? 'linear-gradient(to right, rgb(var(--blue)), rgba(var(--blue), 0.4))' : 'linear-gradient(to right, rgb(var(--orange)), rgba(var(--orange), 0.4))',
-        player: match?.playerTarget ?? {
-          team: 0,
-          name: "",
-          boost: 0,
-          saves: 0,
-          goals: 0,
-          assists: 0,
-          demos: 0,
-          shots: 0
-        },
-        hasLocalPlayer: match.localplayer,
-      }
+  /**
+   * Static method to generate props from match
+   * @param {Match} match
+   */
+  static GetState(match, event, prevState) {
+    let spectating_left = 0;
+    let display_boost_ring = true;
+    if (event === "OnInstantReplayStart") {
+      spectating_left = -1000;
+      display_boost_ring = false;
+    } else if (event === "OnSpecatorUpdated") {
+      spectating_left = prevState.spectating_left;
+      display_boost_ring = prevState.display_boost_ring;
     }
+
+    return {
+      display: match?.playerTarget === undefined ? false : true,
+      display_boost_ring: display_boost_ring,
+      spectating_left: spectating_left,
+      bg_color:
+        match?.playerTarget?.team === 0
+          ? "linear-gradient(to right, rgb(var(--blue)), rgba(var(--blue), 0.4))"
+          : "linear-gradient(to right, rgb(var(--orange)), rgba(var(--orange), 0.4))",
+      player: match?.playerTarget ?? {
+        team: 0,
+        name: "",
+        boost: 0,
+        saves: 0,
+        goals: 0,
+        assists: 0,
+        demos: 0,
+        shots: 0,
+      },
+      hasLocalPlayer: match.localplayer,
+    };
+  }
 
   render() {
     
@@ -116,9 +114,8 @@ class Spectating extends React.PureComponent {
           <img src={shot_svg} alt=''/><div className="shots">{player.shots}</div>
           <img src={demo_svg} alt=''/><div className="demo">{player.demos}</div>
         </div>
+        {boost_ring}
       </div>
-      {boost_ring}
-    </div>
     );
   }
 

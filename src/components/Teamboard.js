@@ -27,13 +27,13 @@ class Teamboard extends React.PureComponent {
       <div className='teamboard'>
         <div className='left'>
         {teams[0].map((player, index) => (
-          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} />
+          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} key={index} />
         ))} 
         </div>
 
         <div className='right'>
         {teams[1].map((player, index) => (
-          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} />
+          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} key={index} />
         ))} 
         </div>
       </div>

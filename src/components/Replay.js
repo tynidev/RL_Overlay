@@ -7,7 +7,7 @@ import shot_svg from '../assets/stat-icons/shot-on-goal.svg'
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
 
-class Replay extends React.Component {
+class Replay extends React.PureComponent {
   /**
      * Static method to generate props from match
      * @param {Match} match

@@ -8,8 +8,9 @@ import React from 'react';
 
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
+import PlayerCard from './PlayerCard';
 
-class Teamboard extends React.Component {
+class Teamboard extends React.PureComponent {
   
   /**
      * Static method to generate props from match
@@ -31,41 +32,13 @@ class Teamboard extends React.Component {
       <div className='teamboard'>
         <div className='left'>
         {teams[0].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (playerTarget && playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
-            <div className='name'>{this.truncate(player.name)}</div>
-            <div className="stats">
-              <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>
-              <div className="stat"><div className="assist">{player.assists}</div><img src={assist_svg} alt=''/></div>
-              <div className="stat"><div className="save">{player.saves}</div><img src={save_svg} alt=''/></div>
-              <div className="stat"><div className="shots">{player.shots}</div><img src={shot_svg} alt=''/></div>
-              <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
-            </div>
-            <div className="boost" style={{visibility:!localPlayer ? 'visible' : 'hidden'}}>
-              <div className="fill-bg"></div>
-              <div className="fill" style={{width:player.boost + "%"}}></div>
-              <div className="num">{player.boost}</div>
-            </div>
-          </div>
+          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} />
         ))} 
         </div>
 
         <div className='right'>
         {teams[1].map((player, index) => (
-          <div id={'t0-p' + index +'-board'} key={index} className={'player' + (playerTarget && playerTarget.id === player.id ? ' spectatingTeamBoard' : '')}>
-            <div className='name'>{this.truncate(player.name)}</div>
-            <div className="stats">
-              <div className="stat"><div className="goal">{player.goals}</div><img src={goal_svg} alt=''/></div>
-              <div className="stat"><div className="assist">{player.assists}</div><img src={assist_svg} alt=''/></div>
-              <div className="stat"><div className="save">{player.saves}</div><img src={save_svg} alt=''/></div>
-              <div className="stat"><div className="shots">{player.shots}</div><img src={shot_svg} alt=''/></div>
-              <div className="stat"><div className="demo">{player.demos}</div><img src={demo_svg} alt=''/></div>
-            </div>
-            <div className="boost" style={{visibility:!localPlayer ? 'visible' : 'hidden'}}>
-              <div className="fill-bg"></div>
-              <div className="fill" style={{width:player.boost + "%"}}></div>
-              <div className="num">{player.boost}</div>
-            </div>
-          </div>
+          <PlayerCard player={player} spectating={playerTarget && playerTarget.id === player.id} index={index} showBoost={!localPlayer} />
         ))} 
         </div>
       </div>

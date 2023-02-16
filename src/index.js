@@ -12,6 +12,7 @@ import Match from './match'
 
 import Stream from './routes/Stream';
 import GameStats from "./routes/GameStats";
+import MiniMapRoute from './routes/MiniMapRoute';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: "/game-stats",
     element: <GameStats match={match} width={width}/>,
+  },
+  {
+    path: "/minimap",
+    element: <MiniMapRoute match={match} height={height} width={width}/>,
   },
 ]);
 

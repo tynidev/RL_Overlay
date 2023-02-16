@@ -4,7 +4,7 @@ import React from 'react';
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
 
-class Scoreboard extends React.Component {
+class Scoreboard extends React.PureComponent {
   
   /**
      * Static method to generate props from match

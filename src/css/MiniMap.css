@@ -1,0 +1,56 @@
+#ball{
+    transition: 100ms;
+    transition-timing-function: linear;
+}
+.blue-car{
+    position: absolute;
+    fill: rgb(var(--blue));
+    transition: 100ms;
+    transition-timing-function: linear;
+}
+
+.orng-car{
+    position: absolute;
+    fill: rgb(var(--orange));
+    transition: 100ms;
+    transition-timing-function: linear;
+}
+
+#grass{
+    display: none;
+}
+
+#stripe-ellipse{
+    display: none;
+}
+
+#blue-fill-goalmouth{
+    display: none;
+}
+#blue-fill-centre{
+    display: none;
+}
+
+#orng-fill-goalmouth{
+    display: none;
+}
+#orng-fill-centre{
+    display: none;
+}
+
+#bounds{
+    display: none;
+}
+
+#sidewalls{
+    opacity: 0.4;
+}
+
+#blue-goal{
+    display: none;
+}
+
+#orng-goal{
+    display: none;
+}
+

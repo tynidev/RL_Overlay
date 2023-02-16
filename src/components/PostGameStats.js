@@ -5,7 +5,7 @@ import React from 'react';
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
 
-class PostGameStats extends React.Component {
+class PostGameStats extends React.PureComponent {
 
     /**
      * Static method to generate props from match
@@ -30,8 +30,10 @@ class PostGameStats extends React.Component {
     }
 
   render(){
-
     let {teams, left, right, series, display} = this.props;
+    
+    if(!display)
+        return "";
 
     let [left_team, right_team, stats, mvp] = this.FillTeams(teams, left, right);
 

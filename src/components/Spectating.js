@@ -9,7 +9,7 @@ import React from 'react';
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
 
-class Spectating extends React.Component {
+class Spectating extends React.PureComponent {
 
     /**
      * Static method to generate props from match

@@ -16,15 +16,15 @@ class MiniMap extends React.Component {
    */
   static GetState(match){
       return {
-          ball:GetLocation(match?.game?.ball?.location ?? { X: 0, Y: 0 }),
-          left: match?.left ?? [],
-          right: match?.right ?? [],
+          ball:GetLocation(match?.state?.game?.ball?.location ?? { X: 0, Y: 0 }),
+          left: match?.state?.left ?? [],
+          right: match?.state?.right ?? [],
       };
   }
 
   areLocationsNotEqual(loc1, loc2){
-    return loc1.location.X !== loc2.location.X ||
-           loc1.location.Y !== loc2.location.Y;
+    return loc1.X !== loc2.X ||
+           loc1.Y !== loc2.Y;
   }
   
   areTeamsEqual(oldLeft, oldRight, newLeft, newRight) {

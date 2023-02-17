@@ -1,4 +1,4 @@
-import "../css/spectating.css";
+import "../css/Spectating.css";
 import assist_svg from "../assets/stat-icons/assist.svg";
 import save_svg from "../assets/stat-icons/save.svg";
 import goal_svg from "../assets/stat-icons/goal.svg";
@@ -12,7 +12,6 @@ import Match from "../match";
 class Spectating extends React.PureComponent {
   /**
    * Static method to generate props from match
-   * @param {Match} match
    */
   static GetState(match, event, prevState) {
     let spectating_left = 0;
@@ -48,73 +47,133 @@ class Spectating extends React.PureComponent {
   }
 
   render() {
-    
-    let {display, display_boost_ring, spectating_left, bg_color, player, hasLocalPlayer} = this.props;
+    let {
+      display,
+      display_boost_ring,
+      spectating_left,
+      bg_color,
+      player,
+      hasLocalPlayer,
+    } = this.props;
 
-    if(!display)
-      return <div><div className="spectating" /><div className='spectating-boost' /></div>;
-    
-    let sw = getComputedStyle(document.documentElement).getPropertyValue('--sw').trim();
+    if (!display)
+      return (
+        <div>
+          <div className="spectating" />
+          <div className="spectating-boost" />
+        </div>
+      );
+
+    let sw = getComputedStyle(document.documentElement)
+      .getPropertyValue("--sw")
+      .trim();
     sw = parseInt(sw.substring(0, sw.length - 2));
     let one = sw / 2560;
     let x = one * 155;
     let y = x;
-    
+
     let circumference = 135 * 2 * Math.PI;
-    let offset = circumference - player.boost / 100 * circumference;
-    let boost_ring = (<div className="specatating-boost"></div>);
-    if(display_boost_ring)
-    {
-      boost_ring = (<div className="spectating-boost">
-        <svg className="boost-ring">
-          <circle className="border-inner" style={{stroke:hasLocalPlayer ? 'rgba(0, 0, 0, 1)' : 'rgba(0, 0, 0, 0.4)'}}/>
-          <circle className="inner" style={{fill:hasLocalPlayer ? 'rgba(15, 15, 15, 1)' : 'rgba(0, 0, 0, 0.8)'}}/>
-          <circle className="fill" 
-                  fill="transparent" 
-                  style={{stroke:player.team !== 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))', transition:'100ms'}}
-                  strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                  />
-          <circle className="border-outer"/>
-            <text className="boost-num" 
-              fill="white" 
-              ref={boostNum => {
+    let offset = circumference - (player.boost / 100) * circumference;
+    let boost_ring = <div className="specatating-boost"></div>;
+    if (display_boost_ring) {
+      boost_ring = (
+        <div className="spectating-boost">
+          <svg className="boost-ring">
+            <circle
+              className="border-inner"
+              style={{
+                stroke: hasLocalPlayer
+                  ? "rgba(0, 0, 0, 1)"
+                  : "rgba(0, 0, 0, 0.4)",
+              }}
+            />
+            <circle
+              className="inner"
+              style={{
+                fill: hasLocalPlayer
+                  ? "rgba(15, 15, 15, 1)"
+                  : "rgba(0, 0, 0, 0.8)",
+              }}
+            />
+            <circle
+              className="fill"
+              fill="transparent"
+              style={{
+                stroke:
+                  player.team !== 0 ? "rgb(var(--orange))" : "rgb(var(--blue))",
+                transition: "100ms",
+              }}
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+            />
+            <circle className="border-outer" />
+            <text
+              className="boost-num"
+              fill="white"
+              ref={(boostNum) => {
                 if (!boostNum) return;
                 let centerX = boostNum.getBoundingClientRect().width / 2;
                 let centerY = boostNum.getBoundingClientRect().height / 4;
-                boostNum.setAttribute('x', x - centerX - 5);
-                boostNum.setAttribute('y', y + centerY - (hasLocalPlayer ? 0 : 35));
-              }}>
-                {player.boost}
+                boostNum.setAttribute("x", x - centerX - 5);
+                boostNum.setAttribute(
+                  "y",
+                  y + centerY - (hasLocalPlayer ? 0 : 35)
+                );
+              }}
+            >
+              {player.boost}
             </text>
-            <text className="speed-num" 
-              fill={player.isSonic ? 'rgba(255, 217, 0,1)' : 'white'} 
-              style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}
-              ref={speedNum => {
+            <text
+              className="speed-num"
+              fill={player.isSonic ? "rgba(255, 217, 0,1)" : "white"}
+              style={{ visibility: hasLocalPlayer ? "hidden" : "visible" }}
+              ref={(speedNum) => {
                 if (!speedNum) return;
                 let centerX = speedNum.getBoundingClientRect().width / 2;
                 let centerY = speedNum.getBoundingClientRect().height / 4;
-                speedNum.setAttribute('x', x - centerX - 5);
-                speedNum.setAttribute('y', y + centerY + 20);
-              }}>
-                {player.speed} MPH
+                speedNum.setAttribute("x", x - centerX - 5);
+                speedNum.setAttribute("y", y + centerY + 20);
+              }}
+            >
+              {player.speed} MPH
             </text>
-          <line x1={one * 80} y1={one * 150} x2={one * 220} y2={one * 150} stroke="white" style={{visibility:hasLocalPlayer ? 'hidden' : 'visible'}}/>
-        </svg>
-      </div>);
+            <line
+              x1={one * 80}
+              y1={one * 150}
+              x2={one * 220}
+              y2={one * 150}
+              stroke="white"
+              style={{ visibility: hasLocalPlayer ? "hidden" : "visible" }}
+            />
+          </svg>
+        </div>
+      );
     }
     return (
-    <div>
-      <div className="spectating" style={{backgroundImage:bg_color, left:spectating_left, transition: "400ms"}}>
-        <div className="name">{this.truncate(player.name, 14)}</div>
-        <div className="stats">
-          <img src={goal_svg} alt=''/><div className="goal">{player.goals}</div>
-          <img src={assist_svg} alt=''/><div className="assist">{player.assists}</div>
-          <img src={save_svg} alt=''/><div className="save">{player.saves}</div>
-          <img src={shot_svg} alt=''/><div className="shots">{player.shots}</div>
-          <img src={demo_svg} alt=''/><div className="demo">{player.demos}</div>
+      <div>
+        <div
+          className="spectating"
+          style={{
+            backgroundImage: bg_color,
+            left: spectating_left,
+            transition: "400ms",
+          }}
+        >
+          <div className="name">{this.truncate(player.name, 14)}</div>
+          <div className="stats">
+            <img src={goal_svg} alt="" />
+            <div className="goal">{player.goals}</div>
+            <img src={assist_svg} alt="" />
+            <div className="assist">{player.assists}</div>
+            <img src={save_svg} alt="" />
+            <div className="save">{player.saves}</div>
+            <img src={shot_svg} alt="" />
+            <div className="shots">{player.shots}</div>
+            <img src={demo_svg} alt="" />
+            <div className="demo">{player.demos}</div>
+          </div>
+          {boost_ring}
         </div>
-        {boost_ring}
       </div>
     );
   }

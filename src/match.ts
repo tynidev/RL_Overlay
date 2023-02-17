@@ -1,5 +1,6 @@
 import Stats from "./stats";
 import GameState from "./GameState";
+import { WsSubscribers } from "./ws_subscribers";
 
 function pad(num: number, size: number): string {
   let str = num.toString();
@@ -169,7 +170,7 @@ class Match {
   hiddenUI = false;
 
   constructor(
-    ws,
+    ws: typeof WsSubscribers,
     RCONPASS?: string,
     RCONPORT = 9002,
     localplayer_support = true

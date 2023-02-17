@@ -1,6 +1,6 @@
-type Callback = (...args: unknown[]) => void;
+export type Callback = (...args: any[]) => void;
 
-const WsSubscribers = {
+export const WsSubscribers = {
   __subscribers: {} as Record<string, Record<string, Callback[]>>,
   webSocket: undefined as WebSocket | undefined,
   webSocketConnected: false,
@@ -33,9 +33,7 @@ const WsSubscribers = {
       if (!jEvent.hasOwnProperty("event")) {
         return;
       }
-      let eventSplit = jEvent.event.split(":");
-      let channel = eventSplit[0];
-      let event_event = eventSplit[1];
+      const [channel, event_event] = jEvent.event.split(":");
       if (debug) {
         if (!debugFilters) {
           console.log(channel, event_event, jEvent);
@@ -140,5 +138,3 @@ const WsSubscribers = {
     }
   },
 };
-
-export default WsSubscribers;

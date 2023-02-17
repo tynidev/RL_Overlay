@@ -1,6 +1,8 @@
-import Stats from "./stats";
-import GameState from "./GameState";
 import { Callback, WsSubscribers } from "./wsSubscribers";
+import { Player } from "./types/player";
+import { Game, GameStateData, GameTeam } from "./types/game";
+import { Series } from "./types/series";
+import { GameState, Stats } from "./types/gameState";
 
 function pad(num: number, size: number): string {
   let str = num.toString();
@@ -8,127 +10,26 @@ function pad(num: number, size: number): string {
   return str;
 }
 
-interface GameStateData {
-  game: GameInfo;
-  players: Record<string, PlayerInfo>; // TODO: this is a guess
-}
-
 interface MatchEndData {
   winner_team_num: 0 | 1;
-}
-
-interface TeamInfo {
-  color_primary: string;
-  color_secondary: string;
-  name: string;
-  score: number;
-}
-
-interface GameInfo {
-  arena: string;
-  ball: {
-    location: {
-      X: number;
-      Y: number;
-      Z: number;
-    };
-    speed: number;
-    team: number;
-  };
-  hasTarget: boolean;
-  hasWinner: boolean;
-  isOT: boolean;
-  isReplay: boolean;
-  isSeries: boolean;
-  localplayer: string;
-  seriesLength: number;
-  target: string;
-  teams: [TeamInfo, TeamInfo];
-  time_milliseconds: number;
-  time_seconds: number;
-  winner: string;
-}
-
-interface PlayerInfo {
-  assists: number;
-  attacker: string;
-  boost: number;
-  cartouches: number;
-  demos: number;
-  goals: number;
-  hasCar: boolean;
-  id: string;
-  isDead: boolean;
-  isPowersliding: boolean;
-  isSonic: boolean;
-  location: {
-    X: boolean;
-    Y: boolean;
-    Z: boolean;
-    pitch: number;
-    roll: number;
-    yaw: number;
-  };
-  name: string;
-  onGround: boolean;
-  onWall: boolean;
-  primaryID: string;
-  saves: number;
-  score: number;
-  shortcut: number;
-  shots: number;
-  speed: number;
-  team: number;
-  touches: number;
-}
-
-interface SeriesTeamInfo {
-  team: number;
-  name: string;
-  matches_won: number;
-}
-
-interface SeriesInfo {
-  series_txt: string;
-  length: number;
-  teams: [SeriesTeamInfo, SeriesTeamInfo];
 }
 
 /**
  * Match - Class for handling all state related to a rocket league match
  */
 class Match {
-  /**
-   * Game state received from SOS
-   */
-  game: GameInfo | {} = {};
-
-  /**
-   * Team that appears on left of scoreboard
-   */
-  left: PlayerInfo[] = [];
-
-  /**
-   * Team that appears on right of scoreboard
-   */
-  right: PlayerInfo[] = [];
-
-  /**
-   * Current GameState the match is in
-   * @type GameState
-   */
-  state: GameState = GameState.None;
+  state = new GameState();
 
   localplayer_support = false;
-  localPlayer?: PlayerInfo = undefined;
-  playerTarget?: PlayerInfo = undefined;
+  localPlayer?: Player;
+  playerTarget?: Player;
 
-  stats = new Stats();
+  stats?: Stats;
 
   /**
    * Series information
    */
-  series: SeriesInfo = {
+  series: Series = {
     series_txt: "ROCKET LEAGUE",
     length: 1,
     teams: [
@@ -162,7 +63,7 @@ class Match {
   gameEndCallbacks: Callback[] = [];
   podiumCallbacks: Callback[] = [];
   ballUpdateCallbacks: Callback[] = [];
-  seriesUpdateCallbacks: ((s: SeriesInfo) => void)[] = [];
+  seriesUpdateCallbacks: ((s: Series) => void)[] = [];
 
   RCON?: WebSocket = undefined;
   hiddenUI = false;
@@ -188,11 +89,7 @@ class Match {
 
     // When game is created before everyone has picked sides or specator roles
     ws.subscribe("game", "match_created", () => {
-      this.game = {};
-      this.left = [];
-      this.right = [];
-      this.stats = new Stats();
-      this.state = GameState.PreGameLobby;
+      this.state.setState("pre-game-lobby");
       this.matchCreatedCallbacks.forEach((callback) => {
         callback();
       });
@@ -218,7 +115,7 @@ class Match {
 
     // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
     ws.subscribe("game", "initialized", () => {
-      this.state = GameState.InGame;
+      this.state.setState("in-game");
       this.initializedCallbacks.forEach((callback) => {
         callback();
       });
@@ -226,7 +123,7 @@ class Match {
 
     // Kick off countdown
     ws.subscribe("game", "pre_countdown_begin", () => {
-      this.state = GameState.InGame;
+      this.state.setState("in-game");
       this.preCountDownBeginCallbacks.forEach((callback) => {
         callback();
       });
@@ -246,7 +143,7 @@ class Match {
 
     // Kick off countdown finished and cars are free to GO!!!!
     ws.subscribe("game", "round_started_go", () => {
-      this.state = GameState.InGame;
+      this.state.setState("in-game");
     });
 
     // Occurs when ball is hit
@@ -258,7 +155,7 @@ class Match {
     //ws.subscribe("game", "clock_stopped", (p) => { });
     // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
     ws.subscribe("game", "clock_updated_seconds", () => {
-      this.state = GameState.InGame;
+      this.state.setState("in-game");
     });
 
     // When a goal is scored
@@ -295,7 +192,7 @@ class Match {
 
     // When name of team winner is displayed on screen after game is over
     ws.subscribe("game", "match_ended", (p: MatchEndData) => {
-      this.state = GameState.GameEnded;
+      this.state.setState("game-ended");
       this.series.teams[p.winner_team_num].matches_won += 1;
       for (const cb of this.gameEndCallbacks) {
         cb();
@@ -304,7 +201,7 @@ class Match {
 
     // Celebration screen for winners podium after game ends
     ws.subscribe("game", "podium_start", () => {
-      this.state = GameState.PostGame;
+      this.state.setState("post-game");
       this.podiumCallbacks.forEach((callback) => {
         callback();
       });
@@ -312,11 +209,7 @@ class Match {
 
     // When match OR replay is destroyed
     ws.subscribe("game", "match_destroyed", () => {
-      this.game = {};
-      this.left = [];
-      this.right = [];
-      this.stats = new Stats();
-      this.state = GameState.None;
+      this.state.reset();
       this.matchEndedCallbacks.forEach((callback) => {
         callback();
       });
@@ -341,7 +234,7 @@ class Match {
     //         }
     //     ]
     // }
-    ws.subscribe("game", "series_update", (p: SeriesInfo) => {
+    ws.subscribe("game", "series_update", (p: Series) => {
       this.series = p;
       for (const cb of this.seriesUpdateCallbacks) {
         cb(p);
@@ -479,14 +372,14 @@ class Match {
   /**
    * When a series update is received
    */
-  OnSeriesUpdate(callback: (s: SeriesInfo) => void) {
+  OnSeriesUpdate(callback: (s: Series) => void) {
     return this.handleCallback(callback, (m) => m.seriesUpdateCallbacks);
   }
 
   /** Gets the game time in readable string format
    * @param game
    */
-  static GameTimeString(game: GameInfo) {
+  static GameTimeString(game: Game) {
     let seconds = game.time_seconds % 60;
     let min = Math.floor(game.time_seconds / 60);
     return (game.isOT ? "+" : "") + min + ":" + pad(seconds, 2);
@@ -552,49 +445,28 @@ class Match {
     });
 
     // Has time changed?
-    const prev_time_sec =
-      "time_seconds" in this.game ? this.game.time_seconds : undefined;
+    const prev_time_sec = this.state.game?.time_seconds;
     if (prev_time_sec !== game.time_seconds) {
-      if (prev_time_sec) this.state = GameState.InGame;
+      if (prev_time_sec) this.state.setState("in-game");
       for (const cb of this.timeUpdateCallbacks) {
         cb(Match.GameTimeString(game), game.time_seconds, game.isOT);
       }
     }
 
     // Compare teams
-    var diff = this.ComputeTeamMemberChanges(
-      this.left,
-      this.right,
-      left,
-      right
-    );
+    const diff = this.state.computeTeamMemberChanges(left, right);
+
     if (!diff.equal) {
       // Fire team members changed if teams have changed
-      this.teamsChangedCallbacks.forEach(function (callback, index) {
-        callback(left, right);
-      });
+      for (const cb of this.teamsChangedCallbacks) {
+        cb(left, right);
+      }
     }
 
-    this.stats.Record({
-      prev: {
-        game: this.game,
-        left: this.left,
-        right: this.right,
-      },
-      curr: {
-        game: game,
-        left: left,
-        right: right,
-      },
-    });
-
-    // Replace old state with new state
-    this.game = game;
-    this.left = left;
-    this.right = right;
+    this.state.update(game, left, right);
   }
 
-  TeamsEqual(t1: TeamInfo, t2: TeamInfo) {
+  TeamsEqual(t1: GameTeam, t2: GameTeam) {
     return (
       t1.color_primary === t2.color_primary &&
       t1.color_secondary === t2.color_secondary &&
@@ -603,64 +475,12 @@ class Match {
     );
   }
 
-  HasTeamStateChanged(prevTeams: TeamInfo[], currTeams: TeamInfo[]) {
+  HasTeamStateChanged(prevTeams: GameTeam[], currTeams: GameTeam[]) {
     if (prevTeams === undefined && currTeams !== undefined) return true;
     return (
       !this.TeamsEqual(prevTeams[0], currTeams[0]) ||
       !this.TeamsEqual(prevTeams[1], currTeams[1])
     );
-  }
-
-  ComputeTeamMemberChanges(
-    prevLeft: PlayerInfo[],
-    prevRight: PlayerInfo[],
-    currentLeft: PlayerInfo[],
-    currentRight: PlayerInfo[]
-  ) {
-    var newLeft = currentLeft.filter((p1) => {
-      return (
-        prevLeft.filter((p2) => {
-          return p2.id === p1.id;
-        }).length === 0
-      );
-    });
-    var newRight = currentRight.filter((p1) => {
-      return (
-        prevRight.filter((p2) => {
-          return p2.id === p1.id;
-        }).length === 0
-      );
-    });
-    var removeLeft = prevLeft.filter((p1) => {
-      return (
-        currentLeft.filter((p2) => {
-          return p2.id === p1.id;
-        }).length === 0
-      );
-    });
-    var removeRight = prevRight.filter((p1) => {
-      return (
-        currentRight.filter((p2) => {
-          return p2.id === p1.id;
-        }).length === 0
-      );
-    });
-
-    return {
-      equal:
-        newLeft.length === 0 &&
-        newRight.length === 0 &&
-        removeLeft.length === 0 &&
-        removeRight.length === 0,
-      add: {
-        left: newLeft,
-        right: newRight,
-      },
-      remove: {
-        left: removeLeft,
-        right: removeRight,
-      },
-    };
   }
 }
 

@@ -16,8 +16,16 @@
     transition-timing-function: linear;
 }
 
+#field-inlines{
+    opacity: 0.1;
+    stroke-opacity:1;          
+    stroke: "white";
+    stroke-width: 16;
+}
+
 #grass{
-    display: none;
+    opacity: 0.5;
+    fill:black;
 }
 
 #stripe-ellipse{
@@ -53,4 +61,3 @@
 #orng-goal{
     display: none;
 }
-

@@ -8,21 +8,55 @@ function GetLocation(point){
     return {X: point.X + 4096, Y: point.Y + 6000} 
 }
 
-class MiniMap extends React.PureComponent {
+class MiniMap extends React.Component {
 
-    /**
-     * Static method to generate props from match
-     * @param {Match} match
-     */
-    static GetState(match){
-        return {
-            ball:{
-                location:GetLocation(match?.game?.ball?.location ?? { X: 0, Y: 0 })
-            },
-            left: match?.left ?? [],
-            right: match?.right ?? [],
-        };
-    }
+  /**
+   * Static method to generate props from match
+   * @param {Match} match
+   */
+  static GetState(match){
+      return {
+          ball:GetLocation(match?.state?.game?.ball?.location ?? { X: 0, Y: 0 }),
+          left: match?.state?.left ?? [],
+          right: match?.state?.right ?? [],
+      };
+  }
+
+  areLocationsNotEqual(loc1, loc2){
+    return loc1.X !== loc2.X ||
+           loc1.Y !== loc2.Y;
+  }
+  
+  areTeamsEqual(oldLeft, oldRight, newLeft, newRight) {
+    if(oldLeft.length !== newLeft.length || oldRight.length !== newRight.length)
+      return false;
+
+    const except = (a1, a2) => a1.filter((p1) => !a2.some((p2) => !this.areLocationsNotEqual(p1.location, p2.location)));
+
+    const addLeft = except(newLeft, oldLeft);
+    if(addLeft.length !== 0)
+      return false;
+
+    const addRight = except(newRight, oldRight);
+    if(addRight.length !== 0)
+      return false;
+
+    const removeLeft = except(oldLeft, newLeft);
+    if(removeLeft.length !== 0)
+      return false;
+
+    const removeRight = except(oldRight, newRight);
+    if(removeRight.length !== 0)
+      return false;
+
+    return true;
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return (this.props.height !== nextProps.height ||
+      this.areLocationsNotEqual(this.props.ball, nextProps.ball) ||
+      !this.areTeamsEqual(this.props.left, this.props.right, nextProps.left, nextProps.right));
+  }
 
   render(){
     return (<svg
@@ -246,8 +280,8 @@ class MiniMap extends React.PureComponent {
     })} 
     <circle
       id="ball"
-      cx={this.props.ball.location.X}
-      cy={this.props.ball.location.Y}
+      cx={this.props.ball.X}
+      cy={this.props.ball.Y}
       r={128}
       style={{
         fill: "rgb(230,230,230)",

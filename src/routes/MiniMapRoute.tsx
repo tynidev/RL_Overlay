@@ -11,13 +11,12 @@ interface MiniMapProps {
 const MiniMapRoute: React.FunctionComponent<MiniMapProps> = (props) => {
   const [state, setState] = useState(MiniMap.GetState(props.match));
 
-  useEffect(
-    () => () =>
-      props.match.OnBallMove((ball) => {
-        setState(MiniMap.GetState(props.match));
-      })(props.match),
-    [props.match]
-  );
+  useEffect(() => {
+    const fn = props.match.OnBallMove((ball) => {
+      setState(MiniMap.GetState(props.match));
+    });
+    return () => fn(props.match);
+  }, [props.match]);
 
   return (
     <div className="overlay" style={{ width: props.width }}>

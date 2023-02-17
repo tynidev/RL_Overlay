@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./css/root.css";
 import reportWebVitals from "./reportWebVitals";
 
-import { WsSubscribers } from "./ws_subscribers";
+import { WsSubscribers } from "./wsSubscribers";
 import Match from "./match";
 
 import Stream from "./routes/Stream";

@@ -1,6 +1,6 @@
 import Stats from "./stats";
 import GameState from "./GameState";
-import { WsSubscribers } from "./ws_subscribers";
+import { Callback, WsSubscribers } from "./wsSubscribers";
 
 function pad(num: number, size: number): string {
   let str = num.toString();
@@ -93,8 +93,6 @@ interface SeriesInfo {
   length: number;
   teams: [SeriesTeamInfo, SeriesTeamInfo];
 }
-
-type Callback = (...args: unknown[]) => void;
 
 /**
  * Match - Class for handling all state related to a rocket league match

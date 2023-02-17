@@ -11,9 +11,9 @@ export interface Player {
   isPowersliding: boolean;
   isSonic: boolean;
   location: {
-    X: boolean;
-    Y: boolean;
-    Z: boolean;
+    X: number;
+    Y: number;
+    Z: number;
     pitch: number;
     roll: number;
     yaw: number;

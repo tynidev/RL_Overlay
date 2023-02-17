@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MiniMap from "../components/MiniMap";
+import { MiniMap, getState } from "../components/MiniMap";
 import Match from "../match";
 
 interface MiniMapProps {
@@ -9,11 +9,11 @@ interface MiniMapProps {
 }
 
 const MiniMapRoute: React.FunctionComponent<MiniMapProps> = (props) => {
-  const [state, setState] = useState(MiniMap.GetState(props.match));
+  const [state, setState] = useState(getState(props.match));
 
   useEffect(() => {
     const fn = props.match.OnBallMove((ball) => {
-      setState(MiniMap.GetState(props.match));
+      setState(getState(props.match));
     });
     return () => fn(props.match);
   }, [props.match]);

@@ -1,5 +1,5 @@
 import '../css/Scoreboard.css';
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Match } from '../match';
 import { truncate } from '../util/utils';
 
@@ -35,9 +35,7 @@ export const getState = (match: Match | undefined) => ({
   },
 });
 
-export const Scoreboard: FunctionComponent<ReturnType<typeof getState>> = (
-  props
-) => {
+export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
   const { time, seconds, isOT, teams, series } = props;
   let timeStyle = { color: '#fffbb3' };
   if (!isOT) {

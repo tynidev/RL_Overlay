@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { PostGameStats, getPostGameState } from '../components/PostGameStats';
 import { Match } from '../match';
 
@@ -7,7 +7,7 @@ interface GameStatsProps {
   width: number;
 }
 
-export const GameStats: FunctionComponent<GameStatsProps> = (props) => {
+export const GameStats: FC<GameStatsProps> = (props) => {
   const [state, setState] = useState(getPostGameState(props.match, true));
 
   useEffect(() => {

@@ -27,11 +27,49 @@ interface MiniMapProps {
   height: number;
 }
 
-export const MiniMap: React.FunctionComponent<MiniMapProps> = (props) => {
-  return (
+export class MiniMap extends React.Component<MiniMapProps, {}> {
+
+  areLocationsNotEqual(loc1:Point, loc2:Point){
+    return loc1.X !== loc2.X ||
+           loc1.Y !== loc2.Y;
+  }
+
+  areTeamsEqual(oldLeft:Player[], oldRight:Player[], newLeft:Player[], newRight:Player[]) {
+    if(oldLeft.length !== newLeft.length || oldRight.length !== newRight.length)
+      return false;
+
+    const except = (a1:Player[], a2:Player[]) => a1.filter((p1) => !a2.some((p2) => !this.areLocationsNotEqual(p1.location, p2.location)));
+
+    const addLeft = except(newLeft, oldLeft);
+    if(addLeft.length !== 0)
+      return false;
+
+    const addRight = except(newRight, oldRight);
+    if(addRight.length !== 0)
+      return false;
+
+    const removeLeft = except(oldLeft, newLeft);
+    if(removeLeft.length !== 0)
+      return false;
+
+    const removeRight = except(oldRight, newRight);
+    if(removeRight.length !== 0)
+      return false;
+
+    return true;
+  }
+
+  shouldComponentUpdate(nextProps: MiniMapProps, nextState:{}) {
+    return (this.props.height !== nextProps.height ||
+      this.areLocationsNotEqual(this.props.ballLocation, nextProps.ballLocation) ||
+      !this.areTeamsEqual(this.props.left, this.props.right, nextProps.left, nextProps.right));
+  }
+
+  render() {
+    return (
     <svg
       width="100%"
-      height={props.height}
+      height={this.props.height}
       viewBox="0 0 8192 12000"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
@@ -240,7 +278,7 @@ export const MiniMap: React.FunctionComponent<MiniMapProps> = (props) => {
           }}
         />
       </g>
-      {props.left.map((player, index) => {
+      {this.props.left.map((player, index) => {
         let location = getLocation(player.location);
         return (
           <circle
@@ -252,7 +290,7 @@ export const MiniMap: React.FunctionComponent<MiniMapProps> = (props) => {
           />
         );
       })}
-      {props.right.map((player, index) => {
+      {this.props.right.map((player, index) => {
         let location = getLocation(player.location);
         return (
           <circle
@@ -266,8 +304,8 @@ export const MiniMap: React.FunctionComponent<MiniMapProps> = (props) => {
       })}
       <circle
         id="ball"
-        cx={props.ballLocation.X}
-        cy={props.ballLocation.Y}
+        cx={this.props.ballLocation.X}
+        cy={this.props.ballLocation.Y}
         r={128}
         style={{
           fill: "rgb(230,230,230)",
@@ -278,5 +316,6 @@ export const MiniMap: React.FunctionComponent<MiniMapProps> = (props) => {
         }}
       />
     </svg>
-  );
-};
+    );
+  }
+}

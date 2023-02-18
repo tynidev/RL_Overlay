@@ -1,4 +1,4 @@
-import { Callback } from './utils';
+import { Callback } from './util/utils';
 
 export const WsSubscribers = {
   __subscribers: {} as Record<string, Record<string, Callback[]>>,

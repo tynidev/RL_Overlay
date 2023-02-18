@@ -6,7 +6,7 @@ import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
 import demo_svg from '../assets/stat-icons/demolition.svg';
 import React, { FunctionComponent } from 'react';
 import { Player } from '../types/player';
-import { truncate } from '../utils';
+import { truncate } from '../util/utils';
 
 interface PlayerCardProps {
   player: Player;

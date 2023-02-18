@@ -1,7 +1,7 @@
 import '../css/Scoreboard.css';
 import React, { FunctionComponent } from 'react';
 import { Match } from '../match';
-import { truncate } from '../utils';
+import { truncate } from '../util/utils';
 
 export const getState = (match: Match | undefined) => ({
   time: match?.getGameTimeString() ?? '5:00',

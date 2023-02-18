@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import { PostGameStats, postGameGetState } from '../components/PostGameStats';
+import { PostGameStats, getPostGameState } from '../components/PostGameStats';
 import { Match } from '../match';
 
 interface GameStatsProps {
@@ -8,10 +8,10 @@ interface GameStatsProps {
 }
 
 export const GameStats: FunctionComponent<GameStatsProps> = (props) => {
-  const [state, setState] = useState(postGameGetState(props.match, true));
+  const [state, setState] = useState(getPostGameState(props.match, true));
 
   useEffect(() => {
-    const refreshState = () => setState(postGameGetState(props.match, true));
+    const refreshState = () => setState(getPostGameState(props.match, true));
 
     const unsubscribers = [
       props.match.OnPlayersUpdated(refreshState),

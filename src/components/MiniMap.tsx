@@ -2,11 +2,7 @@ import "../css/MiniMap.css";
 import React from "react";
 import Match from "../match";
 import { Player } from "../types/player";
-
-interface Point {
-  X: number;
-  Y: number;
-}
+import { Point } from "../types/point";
 
 function getLocation(point: Point): Point {
   return { X: point.X + 4096, Y: point.Y + 6000 };
@@ -38,23 +34,15 @@ export class MiniMap extends React.Component<MiniMapProps, {}> {
     if(oldLeft.length !== newLeft.length || oldRight.length !== newRight.length)
       return false;
 
-    const except = (a1:Player[], a2:Player[]) => a1.filter((p1) => !a2.some((p2) => !this.areLocationsNotEqual(p1.location, p2.location)));
+    for (let i = 0; i < oldLeft.length; i++) {
+        if(!this.areLocationsNotEqual(oldLeft[i].location, newLeft[i].location))
+            return false;
+    }
 
-    const addLeft = except(newLeft, oldLeft);
-    if(addLeft.length !== 0)
-      return false;
-
-    const addRight = except(newRight, oldRight);
-    if(addRight.length !== 0)
-      return false;
-
-    const removeLeft = except(oldLeft, newLeft);
-    if(removeLeft.length !== 0)
-      return false;
-
-    const removeRight = except(oldRight, newRight);
-    if(removeRight.length !== 0)
-      return false;
+    for (let i = 0; i < oldRight.length; i++) {
+        if(!this.areLocationsNotEqual(oldRight[i].location, newRight[i].location))
+            return false;
+    }
 
     return true;
   }

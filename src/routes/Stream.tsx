@@ -1,5 +1,5 @@
 import React from "react";
-import PostGameStats from "../components/PostGameStats";
+import {PostGameStats, postGameGetState } from "../components/PostGameStats";
 import Replay from "../components/Replay";
 import Scoreboard from "../components/Scoreboard";
 import Spectating from "../components/Spectating";
@@ -18,7 +18,7 @@ interface StreamState {
   SpectatingState: ReturnType<typeof Spectating.GetState>;
   TeamboardState: ReturnType<typeof Teamboard.GetState>;
   ReplayState: ReturnType<typeof Replay.GetState>;
-  PostGameStatsState: ReturnType<typeof PostGameStats.GetState>;
+  PostGameStatsState: ReturnType<typeof postGameGetState>;
   display: boolean;
 }
 
@@ -35,7 +35,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       SpectatingState: Spectating.GetState(this.match, undefined, undefined),
       TeamboardState: Teamboard.GetState(this.match),
       ReplayState: Replay.GetState(undefined, undefined, undefined),
-      PostGameStatsState: PostGameStats.GetState(this.match),
+      PostGameStatsState: postGameGetState(this.match, false),
       display: true,
     };
   }
@@ -92,7 +92,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       this.match.OnPlayersUpdated((left, right) => {
         this.setState({
           TeamboardState: Teamboard.GetState(this.match),
-          PostGameStatsState: PostGameStats.GetState(this.match),
+          PostGameStatsState: postGameGetState(this.match, false),
         });
       })
     );
@@ -160,7 +160,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       this.match.OnTeamsUpdated((teams) => {
         this.setState({
           ScoreboardState: Scoreboard.GetState(this.match),
-          PostGameStatsState: PostGameStats.GetState(this.match),
+          PostGameStatsState: postGameGetState(this.match, false),
         });
       })
     );
@@ -170,7 +170,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       this.match.OnSeriesUpdate((series) => {
         this.setState({
           ScoreboardState: Scoreboard.GetState(this.match),
-          PostGameStatsState: PostGameStats.GetState(this.match),
+          PostGameStatsState: postGameGetState(this.match, false),
         });
       })
     );
@@ -179,7 +179,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
     this.unsubscribers.push(
       this.match.OnGameEnded(() => {
         this.setState({
-          PostGameStatsState: PostGameStats.GetState(this.match),
+          PostGameStatsState: postGameGetState(this.match, false),
         });
         setTimeout(() => {
           this.setState({
@@ -195,6 +195,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
         setTimeout(() => {
           this.setState({
             gamestate: this.match.state.state,
+            PostGameStatsState: postGameGetState(this.match, true),
           });
         }, 4700);
       })
@@ -234,14 +235,14 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       case "game-ended":
         return (
           <div className="overlay">
-            <PostGameStats {...this.state.PostGameStatsState} display={false} />
+            <PostGameStats {...this.state.PostGameStatsState} />
           </div>
         );
 
       case "post-game":
         return (
           <div className="overlay">
-            <PostGameStats {...this.state.PostGameStatsState} display={true} />
+            <PostGameStats {...this.state.PostGameStatsState} />
           </div>
         );
 

@@ -1,41 +1,102 @@
 import '../css/PostGameStats.css';
-import mvp_svg from '../assets/stat-icons/mvp.svg'
 import React from 'react';
 
 // eslint-disable-next-line no-unused-vars
 import Match from '../match'
+import { Player } from "../types/player";
+import { Team } from '../types/team';
+import { Series } from '../types/series';
+import { GameTeam } from '../types/game';
 
-class PostGameStats extends React.PureComponent {
+const mvp_svg = require('../assets/stat-icons/mvp.svg') as string;
 
-    /**
-     * Static method to generate props from match
-     * @param {Match} match
-     */
-    static GetState(match){
-        return {
-            teams: match?.game?.teams ?? [
-                {
-                    name: "Blue",
-                    score: 0,
-                },
-                {
-                    name: "Orange",
-                    score: 0,
-                }
-                ],
-            left: match?.left ?? [],
-            right: match?.right ?? [],
-            series: match.series,
-        };
+export const postGameGetState = (match:Match, display:boolean):PostGameProps => ({
+    display: display,
+    teams: match?.state?.game?.teams ? [
+        match?.state?.game?.teams[0],
+        match?.state?.game?.teams[1],
+    ] : [{ score: 0, name: '', color_primary: '', color_secondary: '' }, { score: 0, name: '', color_primary: '', color_secondary: '' }],
+    left: match?.state.left ?? [],
+    right: match?.state.right ?? [],
+    series: match.series,
+});
+
+interface PostGameProps {
+    display: boolean,
+    teams: GameTeam[];
+    left: Player[];
+    right: Player[];
+    series: Series;
+}
+
+interface TeamCount{
+    left: number,
+    right: number,
+}
+
+interface Stats {
+    score: TeamCount,
+    goals: TeamCount,
+    assists: TeamCount,
+    shots: TeamCount,
+    saves: TeamCount,
+    demos: TeamCount,
+}
+
+export class PostGameStats extends React.Component<PostGameProps, {}> {
+
+    arePlayersEqual(p1:Player, p2:Player) {
+        return !(
+            p1.name !== p2.name ||
+            p1.score !== p2.score ||
+            p1.goals !== p2.goals ||
+            p1.assists !== p2.assists ||
+            p1.shots !== p2.shots ||
+            p1.saves !== p2.saves ||
+            p1.demos !== p2.demos
+            )
+    }
+
+    areTeamsEqual(oldLeft:Player[], oldRight:Player[], newLeft:Player[], newRight:Player[]) {
+        if(oldLeft.length !== newLeft.length || oldRight.length !== newRight.length)
+            return false;
+
+        for (let i = 0; i < oldLeft.length; i++) {
+            if(!this.arePlayersEqual(oldLeft[i], newLeft[i]))
+                return false;
+        }
+
+        for (let i = 0; i < oldRight.length; i++) {
+            if(!this.arePlayersEqual(oldRight[i], newRight[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    shouldComponentUpdate(nextProps: PostGameProps, nextState:{}) {
+        return (
+            this.props.display !== nextProps.display ||
+            this.props.teams.length !== nextProps.teams.length ||
+            this.props.teams[0].score !== nextProps.teams[0].score ||
+            this.props.teams[1].score !== nextProps.teams[1].score ||
+            !this.areTeamsEqual(this.props.left, this.props.right, nextProps.left, nextProps.right) ||
+            this.props.series.length !== nextProps.series.length ||
+            this.props.series.series_txt !== nextProps.series.series_txt ||
+            this.props.series.teams.length !== nextProps.series.teams.length ||
+            this.props.series.teams[0].name !== nextProps.series.teams[0].name ||
+            this.props.series.teams[1].name !== nextProps.series.teams[1].name ||
+            this.props.series.teams[0].matches_won !== nextProps.series.teams[0].matches_won ||
+            this.props.series.teams[1].matches_won !== nextProps.series.teams[1].matches_won
+            );
     }
 
   render(){
-    let {teams, left, right, series, display} = this.props;
-    
-    if(!display)
+
+    if(!this.props.display)
         return "";
 
-    let [left_team, right_team, stats, mvp] = this.FillTeams(teams, left, right);
+    let [left_team, right_team, stats, mvp] = this.FillTeams(this.props.teams, this.props.left, this.props.right);
 
     let leftStatSliderWidth = {
         score: (360 - 10) * this.GetPercentage(stats.score.left, stats.score.right),
@@ -49,28 +110,28 @@ class PostGameStats extends React.PureComponent {
     let series_txt = "";
     let game_txt = "";
     let best_of = "";
-    if(series.length > 0)
+    if(this.props.series.length > 0)
     {
-        let left_won = series.teams[0].matches_won;
-        let right_won = series.teams[1].matches_won;
-        let games = Math.ceil(series.length / 2);
+        let left_won = this.props.series.teams[0].matches_won;
+        let right_won = this.props.series.teams[1].matches_won;
+        let games = Math.ceil(this.props.series.length / 2);
 
         let games_played = left_won + right_won;
         game_txt = "GAME " + games_played; 
-        best_of = "Best of " + series.length;
+        best_of = "Best of " + this.props.series.length;
         if(left_won > right_won)
         {
             if(left_won === games)
-                series_txt = series.teams[0].name + " wins " + left_won + "-" + right_won;
+                series_txt = this.props.series.teams[0].name + " wins " + left_won + "-" + right_won;
             else
-                series_txt = series.teams[0].name + " leads " + left_won + "-" + right_won;
+                series_txt = this.props.series.teams[0].name + " leads " + left_won + "-" + right_won;
         }
         else if(left_won < right_won)
         {
             if(right_won === games)
-                series_txt = series.teams[1].name + " wins " + right_won + "-" + left_won;
+                series_txt = this.props.series.teams[1].name + " wins " + right_won + "-" + left_won;
             else
-                series_txt = series.teams[1].name + " leads " + right_won + "-" + left_won;
+                series_txt = this.props.series.teams[1].name + " leads " + right_won + "-" + left_won;
         }
         else
         {
@@ -79,10 +140,10 @@ class PostGameStats extends React.PureComponent {
     }
 
     return (
-    <div className="postgame-stats" style={{opacity:display ? "1" : "0", transition:"400ms"}}>
+    <div className="postgame-stats" style={{opacity:this.props.display ? "1" : "0", transition:"400ms"}}>
         <div className="left-team-score-overline"></div>
-        <div className="left-team-score">{teams[0].score}</div>
-        <div className="left-team-name">{series.teams[0].name}</div>
+        <div className="left-team-score">{this.props.teams[0].score}</div>
+        <div className="left-team-name">{this.props.series.teams[0].name}</div>
 
         <div className='seriesBox'> 
             <div className='game_txt'>{game_txt}</div>
@@ -92,8 +153,8 @@ class PostGameStats extends React.PureComponent {
         <div className='series-score'>{series_txt}</div>
 
         <div className="right-team-score-overline"></div>
-        <div className="right-team-score">{teams[1].score}</div>
-        <div className="right-team-name">{series.teams[1].name}</div>
+        <div className="right-team-score">{this.props.teams[1].score}</div>
+        <div className="right-team-name">{this.props.series.teams[1].name}</div>
 
         <div className="bottom-postgame-darken"></div>
 
@@ -202,13 +263,13 @@ class PostGameStats extends React.PureComponent {
     </div>);
   }
 
-  FillTeams(teams, left_orig, right_orig){
+  FillTeams(teams:Team[], left_orig:Player[], right_orig:Player[]): [Player[], Player[], Stats, boolean[]]{
     
     let mvp = [false, false, false, false, false, false];
     let mvp_max = 0;
     let mvp_idx = 0;
     
-    let stats = {
+    let stats:Stats = {
         score: { left: 0, right: 0},
         goals: { left: 0, right: 0},
         assists: { left: 0, right: 0},
@@ -217,7 +278,7 @@ class PostGameStats extends React.PureComponent {
         demos: { left: 0, right: 0},
     };
 
-    let left = [];
+    let left:Player[] = [];
     for(let i = 0; i < 3; i++){
         if(i < left_orig.length){
             let p = left_orig[i];
@@ -237,16 +298,39 @@ class PostGameStats extends React.PureComponent {
         else{
             left.push({
                 name: '',
-                score: '',
-                goals: '',
-                assists: '',
-                shots: '',
-                saves: '',
-                demos: '',
+                score: 0,
+                goals: 0,
+                assists: 0,
+                shots: 0,
+                saves: 0,
+                demos: 0,
+                attacker: '',
+                boost: 0,
+                cartouches: 0,
+                hasCar: false,
+                id: '',
+                isDead: false,
+                isPowersliding: false,
+                isSonic: false,
+                location: {
+                    X: 0,
+                    Y: 0,
+                    Z: 0,
+                    pitch: 0,
+                    roll: 0,
+                    yaw: 0
+                },
+                onGround: false,
+                onWall: false,
+                primaryID: '',
+                shortcut: 0,
+                speed: 0,
+                team: 0,
+                touches: 0
             });
         }
     }
-    let right = [];
+    let right:Player[] = [];
     for(let i = 0; i < 3; i++){
         if(i < right_orig.length){
             let p = right_orig[i];
@@ -264,14 +348,37 @@ class PostGameStats extends React.PureComponent {
             }
         }
         else{
-            right.push({
+            left.push({
                 name: '',
-                score: '',
-                goals: '',
-                assists: '',
-                shots: '',
-                saves: '',
-                demos: '',
+                score: 0,
+                goals: 0,
+                assists: 0,
+                shots: 0,
+                saves: 0,
+                demos: 0,
+                attacker: '',
+                boost: 0,
+                cartouches: 0,
+                hasCar: false,
+                id: '',
+                isDead: false,
+                isPowersliding: false,
+                isSonic: false,
+                location: {
+                    X: 0,
+                    Y: 0,
+                    Z: 0,
+                    pitch: 0,
+                    roll: 0,
+                    yaw: 0
+                },
+                onGround: false,
+                onWall: false,
+                primaryID: '',
+                shortcut: 0,
+                speed: 0,
+                team: 0,
+                touches: 0
             });
         }
     }
@@ -281,7 +388,7 @@ class PostGameStats extends React.PureComponent {
     return [left, right, stats, mvp];
   } 
 
-  GetPercentage(left, right){
+  GetPercentage(left:number, right:number){
     if(left + right === 0)
         return 0.5;
     var num = (left / (left + right));

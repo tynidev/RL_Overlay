@@ -16,8 +16,8 @@ export const postGameGetState = (match:Match, display:boolean):PostGameProps => 
         match?.state?.game?.teams[0],
         match?.state?.game?.teams[1],
     ] : [{ score: 0, name: '', color_primary: '', color_secondary: '' }, { score: 0, name: '', color_primary: '', color_secondary: '' }],
-    left: match?.state.left ?? [],
-    right: match?.state.right ?? [],
+    left: (match?.state.left.length ?? 0) > 0 ? match?.state.left : [],
+    right: (match?.state.right.length ?? 0) > 0 ? match?.state.right : [],
     series: match.series,
 });
 
@@ -348,7 +348,7 @@ export class PostGameStats extends React.Component<PostGameProps, {}> {
             }
         }
         else{
-            left.push({
+            right.push({
                 name: '',
                 score: 0,
                 goals: 0,

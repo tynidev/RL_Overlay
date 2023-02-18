@@ -1,5 +1,5 @@
-import { Game } from "./game";
-import { Player } from "./player";
+import { Game } from './game';
+import { Player } from './player';
 
 export interface Stats {
   game?: Game;
@@ -8,14 +8,14 @@ export interface Stats {
 }
 
 export type GameStates =
-  | "none"
-  | "pre-game-lobby"
-  | "in-game"
-  | "game-ended"
-  | "post-game";
+  | 'none'
+  | 'pre-game-lobby'
+  | 'in-game'
+  | 'game-ended'
+  | 'post-game';
 
 export class GameState {
-  private _state: GameStates = "none";
+  private _state: GameStates = 'none';
   public get state(): GameStates {
     return this._state;
   }
@@ -23,13 +23,13 @@ export class GameState {
   private prev?: Stats;
   private curr?: Stats;
 
-  public get game(): Stats["game"] {
+  public get game(): Stats['game'] {
     return this.curr?.game;
   }
-  public get left(): Stats["left"] {
+  public get left(): Stats['left'] {
     return this.curr?.left ?? [];
   }
-  public get right(): Stats["right"] {
+  public get right(): Stats['right'] {
     return this.curr?.right ?? [];
   }
   public get stats() {
@@ -39,12 +39,12 @@ export class GameState {
     };
   }
 
-  public setState(state: Exclude<GameStates, "none">) {
+  public setState(state: Exclude<GameStates, 'none'>) {
     this._state = state;
   }
 
   public reset() {
-    this._state = "none";
+    this._state = 'none';
     this.prev = undefined;
     this.curr = undefined;
   }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { MiniMap, getState } from "../components/MiniMap";
-import Match from "../match";
+import React, { useEffect, useState } from 'react';
+import { MiniMap, getState } from '../components/MiniMap';
+import Match from '../match';
 
 interface MiniMapProps {
   match: Match;

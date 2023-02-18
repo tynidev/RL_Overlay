@@ -1,12 +1,12 @@
-import React from "react";
-import {PostGameStats, postGameGetState } from "../components/PostGameStats";
-import Replay from "../components/Replay";
-import Scoreboard from "../components/Scoreboard";
-import Spectating from "../components/Spectating";
-import Teamboard from "../components/Teamboard";
-import Match from "../match";
-import { GameStates } from "../types/gameState";
-import { Callback } from "../wsSubscribers";
+import React from 'react';
+import { PostGameStats, postGameGetState } from '../components/PostGameStats';
+import Replay from '../components/Replay';
+import Scoreboard from '../components/Scoreboard';
+import Spectating from '../components/Spectating';
+import Teamboard from '../components/Teamboard';
+import Match from '../match';
+import { GameStates } from '../types/gameState';
+import { Callback } from '../wsSubscribers';
 
 interface StreamProps {
   match: Match;
@@ -65,7 +65,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
         this.setState({
           SpectatingState: Spectating.GetState(
             this.match,
-            "OnCountdown",
+            'OnCountdown',
             this.state.SpectatingState
           ),
         });
@@ -76,7 +76,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
     this.unsubscribers.push(
       this.match.OnTimeUpdated(() => {
         // If we join in the middle of the match show the overlay
-        if (this.match.state.state === "in-game" && !this.state.display) {
+        if (this.match.state.state === 'in-game' && !this.state.display) {
           this.setState({
             gamestate: this.match.state.state,
             ScoreboardState: Scoreboard.GetState(this.match),
@@ -104,7 +104,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
           TeamboardState: Teamboard.GetState(this.match),
           SpectatingState: Spectating.GetState(
             this.match,
-            "OnSpecatorUpdated",
+            'OnSpecatorUpdated',
             this.state.SpectatingState
           ),
         });
@@ -117,11 +117,11 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
         this.setState({
           SpectatingState: Spectating.GetState(
             this.match,
-            "OnInstantReplayStart",
+            'OnInstantReplayStart',
             this.state.SpectatingState
           ),
           ReplayState: Replay.GetState(
-            "OnInstantReplayStart",
+            'OnInstantReplayStart',
             undefined,
             this.state.ReplayState
           ),
@@ -134,7 +134,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       this.match.OnInstantReplayEnd(() => {
         this.setState({
           ReplayState: Replay.GetState(
-            "OnInstantReplayEnd",
+            'OnInstantReplayEnd',
             undefined,
             this.state.ReplayState
           ),
@@ -147,7 +147,7 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
       this.match.OnGoalScored((data) => {
         this.setState({
           ReplayState: Replay.GetState(
-            "OnGoalScored",
+            'OnGoalScored',
             data,
             this.state.ReplayState
           ),
@@ -218,11 +218,11 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
 
   render() {
     switch (this.state.gamestate) {
-      case "none":
-      case "pre-game-lobby":
+      case 'none':
+      case 'pre-game-lobby':
         return <div className="overlay"></div>;
 
-      case "in-game":
+      case 'in-game':
         return (
           <div className="overlay">
             <Scoreboard {...this.state.ScoreboardState} />
@@ -232,14 +232,14 @@ class Stream extends React.PureComponent<StreamProps, StreamState> {
           </div>
         );
 
-      case "game-ended":
+      case 'game-ended':
         return (
           <div className="overlay">
             <PostGameStats {...this.state.PostGameStatsState} />
           </div>
         );
 
-      case "post-game":
+      case 'post-game':
         return (
           <div className="overlay">
             <PostGameStats {...this.state.PostGameStatsState} />

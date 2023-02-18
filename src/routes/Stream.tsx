@@ -1,6 +1,6 @@
-import React from 'react';
-import { PostGameStats, postGameGetState } from '../components/PostGameStats';
-import { getState, Replay, ReplayState } from '../components/Replay';
+import React, { FC, useEffect, useState } from 'react';
+import { PostGameStats, getPostGameState } from '../components/PostGameStats';
+import { getState as getReplayState, Replay } from '../components/Replay';
 import {
   getState as getScoreboardState,
   Scoreboard,
@@ -14,251 +14,143 @@ import {
   TeamBoard,
 } from '../components/Teamboard';
 import { Match } from '../match';
-import { GameStates } from '../types/gameState';
-import { Callback } from '../utils';
 
-interface StreamProps {
-  match: Match;
-}
+export const Stream: FC<{ match: Match }> = (props) => {
+  const [gameState, setGameState] = useState(props.match.state.state);
+  const [scoreboardState, setScoreboardState] = useState(
+    getScoreboardState(props.match)
+  );
+  const [spectatingState, setSpectatingState] = useState(
+    getSpectatingState(props.match, undefined, undefined)
+  );
+  const [teamBoardState, setTeamBoardState] = useState(
+    getTeamBoardState(props.match)
+  );
+  const [replayState, setReplayState] = useState(getReplayState(undefined));
+  const [postGameStatsState, setPostGameStatsState] = useState(
+    getPostGameState(props.match, false)
+  );
 
-interface StreamState {
-  gamestate: GameStates;
-  ScoreboardState: ReturnType<typeof getScoreboardState>;
-  SpectatingState: ReturnType<typeof getSpectatingState>;
-  TeamboardState: ReturnType<typeof getTeamBoardState>;
-  ReplayState: ReplayState;
-  PostGameStatsState: ReturnType<typeof postGameGetState>;
-  display: boolean;
-}
-
-export class Stream extends React.PureComponent<StreamProps, StreamState> {
-  match: Match;
-  unsubscribers: Callback[] = [];
-
-  constructor(props: StreamProps) {
-    super(props);
-    this.match = props.match;
-    this.state = {
-      gamestate: this.match.state.state,
-      ScoreboardState: getScoreboardState(this.match),
-      SpectatingState: getSpectatingState(this.match, undefined, undefined),
-      TeamboardState: getTeamBoardState(this.match),
-      ReplayState: getState(undefined),
-      PostGameStatsState: postGameGetState(this.match, false),
-      display: true,
-    };
-  }
-
-  componentDidMount() {
-    // Match Created - When game is created before everyone has picked sides or specator roles
-    this.unsubscribers.push(
-      this.match.OnMatchCreated(() => {
-        this.setState({
-          gamestate: this.match.state.state,
-        });
-      })
-    );
-
-    // OnFirstCountdown - When the first kick off of the game occurs
-    this.unsubscribers.push(
-      this.match.OnFirstCountdown(() => {
-        this.setState({
-          gamestate: this.match.state.state,
-        });
-      })
-    );
-
-    // OnCountdown - When a kickoff countdown occurs
-    this.unsubscribers.push(
-      this.match.OnCountdown(() => {
-        this.setState({
-          SpectatingState: getSpectatingState(
-            this.match,
-            'OnCountdown',
-            this.state.SpectatingState
-          ),
-        });
-      })
-    );
-
-    // OnTimeUpdated - When a time update is recieved
-    this.unsubscribers.push(
-      this.match.OnTimeUpdated(() => {
-        // If we join in the middle of the match show the overlay
-        if (this.match.state.state === 'in-game' && !this.state.display) {
-          this.setState({
-            gamestate: this.match.state.state,
-            ScoreboardState: getScoreboardState(this.match),
-          });
-        } else {
-          this.setState({ ScoreboardState: getScoreboardState(this.match) });
-        }
-      })
-    );
-
-    // OnPlayersUpdated - When players stats/properties have changed
-    this.unsubscribers.push(
-      this.match.OnPlayersUpdated((left, right) => {
-        this.setState({
-          TeamboardState: getTeamBoardState(this.match),
-          PostGameStatsState: postGameGetState(this.match, false),
-        });
-      })
-    );
-
-    // OnSpecatorUpdated - When the spectated player changes
-    this.unsubscribers.push(
-      this.match.OnSpecatorUpdated((hasTarget, player) => {
-        this.setState({
-          TeamboardState: getTeamBoardState(this.match),
-          SpectatingState: getSpectatingState(
-            this.match,
-            'OnSpecatorUpdated',
-            this.state.SpectatingState
-          ),
-        });
-      })
-    );
-
-    // OnInstantReplayStart - When an in game instant replay is started after a goal
-    this.unsubscribers.push(
-      this.match.OnInstantReplayStart(() => {
-        this.setState({
-          SpectatingState: getSpectatingState(
-            this.match,
-            'OnInstantReplayStart',
-            this.state.SpectatingState
-          ),
-          ReplayState: getState({
+  useEffect(() => {
+    const unsubscribers = [
+      // Match Created - When game is created before everyone has picked sides or specator roles
+      props.match.OnMatchCreated(() => setGameState(props.match.state.state)),
+      // OnFirstCountdown - When the first kick off of the game occurs
+      props.match.OnFirstCountdown(() => setGameState(props.match.state.state)),
+      // OnCountdown - When a kickoff countdown occurs
+      props.match.OnCountdown(() =>
+        setSpectatingState((prevState) =>
+          getSpectatingState(props.match, 'OnCountdown', prevState)
+        )
+      ),
+      // OnTimeUpdated - When a time update is recieved
+      props.match.OnTimeUpdated(() => {
+        setScoreboardState(getScoreboardState(props.match));
+      }),
+      // OnPlayersUpdated - When players stats/properties have changed
+      props.match.OnPlayersUpdated(() => {
+        setTeamBoardState(getTeamBoardState(props.match));
+        setPostGameStatsState(getPostGameState(props.match, false));
+      }),
+      // OnSpecatorUpdated - When the spectated player changes
+      props.match.OnSpecatorUpdated(() => {
+        setTeamBoardState(getTeamBoardState(props.match));
+        setSpectatingState((prevState) =>
+          getSpectatingState(props.match, 'OnSpecatorUpdated', prevState)
+        );
+      }),
+      // OnInstantReplayStart - When an in game instant replay is started after a goal
+      props.match.OnInstantReplayStart(() => {
+        setSpectatingState((prevState) =>
+          getSpectatingState(props.match, 'OnInstantReplayStart', prevState)
+        );
+        setReplayState((prevState) =>
+          getReplayState({
             event: 'OnInstantReplayStart',
-            prevState: this.state.ReplayState,
-          }),
-        });
-      })
-    );
-
-    // OnInstantReplayEnd - When an in game instant replay is ended
-    this.unsubscribers.push(
-      this.match.OnInstantReplayEnd(() => {
-        this.setState({
-          ReplayState: getState({
+            prevState,
+          })
+        );
+      }),
+      // OnInstantReplayEnd - When an in game instant replay is ended
+      props.match.OnInstantReplayEnd(() =>
+        setReplayState((prevState) =>
+          getReplayState({
             event: 'OnInstantReplayEnd',
-            prevState: this.state.ReplayState,
-          }),
-        });
-      })
-    );
-
-    // OnGoalScored - When a goal is scored
-    this.unsubscribers.push(
-      this.match.OnGoalScored((data) => {
-        this.setState({
-          ReplayState: getState({
+            prevState,
+          })
+        )
+      ),
+      // OnGoalScored - When a goal is scored
+      props.match.OnGoalScored((data) =>
+        setReplayState((prevState) =>
+          getReplayState({
             event: 'OnGoalScored',
             data,
-            prevState: this.state.ReplayState,
-          }),
-        });
-      })
-    );
-
-    // OnTeamsUpdated - When Team scores/names/colors are updated
-    this.unsubscribers.push(
-      this.match.OnTeamsUpdated((teams) => {
-        this.setState({
-          ScoreboardState: getScoreboardState(this.match),
-          PostGameStatsState: postGameGetState(this.match, false),
-        });
-      })
-    );
-
-    // OnSeriesUpdate
-    this.unsubscribers.push(
-      this.match.OnSeriesUpdate((series) => {
-        this.setState({
-          ScoreboardState: getScoreboardState(this.match),
-          PostGameStatsState: postGameGetState(this.match, false),
-        });
-      })
-    );
-
-    // OnGameEnded - When name of team winner is displayed on screen after game is over
-    this.unsubscribers.push(
-      this.match.OnGameEnded(() => {
-        this.setState({
-          PostGameStatsState: postGameGetState(this.match, false),
-        });
+            prevState,
+          })
+        )
+      ),
+      // OnTeamsUpdated - When Team scores/names/colors are updated
+      props.match.OnTeamsUpdated(() => {
+        setScoreboardState(getScoreboardState(props.match));
+        setPostGameStatsState(getPostGameState(props.match, false));
+      }),
+      // OnSeriesUpdate
+      props.match.OnSeriesUpdate(() => {
+        setScoreboardState(getScoreboardState(props.match));
+        setPostGameStatsState(getPostGameState(props.match, false));
+      }),
+      // OnGameEnded - When name of team winner is displayed on screen after game is over
+      props.match.OnGameEnded(() => {
+        setPostGameStatsState(getPostGameState(props.match, false));
+        setTimeout(() => setGameState(props.match.state.state), 2990);
+      }),
+      // OnPodiumStart - Celebration screen for winners podium after game ends
+      props.match.OnPodiumStart(() =>
         setTimeout(() => {
-          this.setState({
-            gamestate: this.match.state.state,
-          });
-        }, 2990);
-      })
-    );
+          setGameState(props.match.state.state);
+          setPostGameStatsState(getPostGameState(props.match, true));
+        }, 4700)
+      ),
+      // OnMatchEnded - When match is destroyed
+      props.match.OnMatchEnded(() => setGameState(props.match.state.state)),
+    ];
 
-    // OnPodiumStart - Celebration screen for winners podium after game ends
-    this.unsubscribers.push(
-      this.match.OnPodiumStart(() => {
-        setTimeout(() => {
-          this.setState({
-            gamestate: this.match.state.state,
-            PostGameStatsState: postGameGetState(this.match, true),
-          });
-        }, 4700);
-      })
-    );
+    return () => unsubscribers.forEach((u) => u(props.match));
+  }, [props.match]);
 
-    // OnMatchEnded - When match is destroyed
-    this.unsubscribers.push(
-      this.match.OnMatchEnded(() => {
-        this.setState({
-          gamestate: this.match.state.state,
-        });
-      })
-    );
+  switch (gameState) {
+    case 'none':
+    case 'pre-game-lobby':
+      return <div className="overlay"></div>;
+
+    case 'in-game':
+      return (
+        <div className="overlay">
+          <Scoreboard {...scoreboardState} />
+          <TeamBoard {...teamBoardState} />
+          <Spectating {...spectatingState} />
+          <Replay {...replayState} />
+        </div>
+      );
+
+    case 'game-ended':
+      return (
+        <div className="overlay">
+          <PostGameStats {...postGameStatsState} />
+        </div>
+      );
+
+    case 'post-game':
+      return (
+        <div className="overlay">
+          <PostGameStats {...postGameStatsState} />
+        </div>
+      );
+
+    default:
+      return (
+        <div className="overlay">Game State not recognized: {gameState}</div>
+      );
   }
-
-  componentWillUnmount() {
-    this.unsubscribers.forEach((unsubscribe) => unsubscribe(this.match));
-    this.unsubscribers = [];
-  }
-
-  render() {
-    switch (this.state.gamestate) {
-      case 'none':
-      case 'pre-game-lobby':
-        return <div className="overlay"></div>;
-
-      case 'in-game':
-        return (
-          <div className="overlay">
-            <Scoreboard {...this.state.ScoreboardState} />
-            <TeamBoard {...this.state.TeamboardState} />
-            <Spectating {...this.state.SpectatingState} />
-            <Replay {...this.state.ReplayState} />
-          </div>
-        );
-
-      case 'game-ended':
-        return (
-          <div className="overlay">
-            <PostGameStats {...this.state.PostGameStatsState} />
-          </div>
-        );
-
-      case 'post-game':
-        return (
-          <div className="overlay">
-            <PostGameStats {...this.state.PostGameStatsState} />
-          </div>
-        );
-
-      default:
-        return (
-          <div className="overlay">
-            Display State not recognized: {this.state.display}
-          </div>
-        );
-    }
-  }
-}
+};

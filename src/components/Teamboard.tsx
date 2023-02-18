@@ -1,5 +1,5 @@
 import '../css/Teamboard.css';
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Match } from '../match';
 import { PlayerCard } from './PlayerCard';
 
@@ -10,9 +10,7 @@ export const getState = (match: Match) => ({
   localPlayer: match?.localPlayer ?? undefined,
 });
 
-export const TeamBoard: FunctionComponent<ReturnType<typeof getState>> = (
-  props
-) => {
+export const TeamBoard: FC<ReturnType<typeof getState>> = (props) => {
   const { playerTarget, localPlayer } = props;
   const getTeam = (side: 'left' | 'right') => (
     <div className={side}>

@@ -3,13 +3,8 @@ import { Player } from './types/player';
 import { Game, GameStateData, GameTeam } from './types/game';
 import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
-import { Callback } from './utils';
-
-function pad(num: number, size: number): string {
-  let str = num.toString();
-  while (str.length < size) str = '0' + str;
-  return str;
-}
+import { Callback, pad } from './util/utils';
+import { areTeamsEqual } from './util/game';
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
@@ -469,20 +464,11 @@ export class Match {
     this.state.update(game, left, right);
   }
 
-  TeamsEqual(t1: GameTeam, t2: GameTeam) {
-    return (
-      t1.color_primary === t2.color_primary &&
-      t1.color_secondary === t2.color_secondary &&
-      t1.name === t2.name &&
-      t1.score === t2.score
-    );
-  }
-
-  HasTeamStateChanged(prevTeams: GameTeam[], currTeams: GameTeam[]) {
+  hasTeamStateChanged(prevTeams: GameTeam[], currTeams: GameTeam[]) {
     if (prevTeams === undefined && currTeams !== undefined) return true;
     return (
-      !this.TeamsEqual(prevTeams[0], currTeams[0]) ||
-      !this.TeamsEqual(prevTeams[1], currTeams[1])
+      !areTeamsEqual(prevTeams[0], currTeams[0]) ||
+      !areTeamsEqual(prevTeams[1], currTeams[1])
     );
   }
 }

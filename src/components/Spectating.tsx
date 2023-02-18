@@ -4,9 +4,9 @@ import save_svg from '../assets/stat-icons/save.svg';
 import goal_svg from '../assets/stat-icons/goal.svg';
 import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
 import demo_svg from '../assets/stat-icons/demolition.svg';
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Match } from '../match';
-import { truncate } from '../utils';
+import { truncate } from '../util/utils';
 
 export const getState = (
   match: Match,
@@ -51,9 +51,7 @@ export const getState = (
   };
 };
 
-export const Spectating: FunctionComponent<ReturnType<typeof getState>> = (
-  props
-) => {
+export const Spectating: FC<ReturnType<typeof getState>> = (props) => {
   const {
     display,
     display_boost_ring,

@@ -4,9 +4,9 @@ import save_svg from '../assets/stat-icons/save.svg';
 import goal_svg from '../assets/stat-icons/goal.svg';
 import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
 import demo_svg from '../assets/stat-icons/demolition.svg';
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Player } from '../types/player';
-import { truncate } from '../utils';
+import { truncate } from '../util/utils';
 
 interface PlayerCardProps {
   player: Player;
@@ -15,7 +15,7 @@ interface PlayerCardProps {
   showBoost: boolean;
 }
 
-export const PlayerCard: FunctionComponent<PlayerCardProps> = (props) => {
+export const PlayerCard: FC<PlayerCardProps> = (props) => {
   const { player, spectating, index, showBoost } = props;
   return (
     <div

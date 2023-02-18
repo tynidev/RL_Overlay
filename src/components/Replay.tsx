@@ -1,5 +1,5 @@
 import '../css/Replay.css';
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import assist_svg from '../assets/stat-icons/assist.svg';
 import goal_svg from '../assets/stat-icons/goal.svg';
 import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
@@ -64,7 +64,7 @@ export const getState = (eventData: GoalEventData): ReplayState =>
       }
     : defaultReplayState();
 
-export const Replay: FunctionComponent<ReplayState> = (props) => {
+export const Replay: FC<ReplayState> = (props) => {
   const { display, assister, goalspeed, scorer } = props;
   return (
     <div

@@ -1,15 +1,15 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./css/root.css";
-import { reportWebVitals } from "./reportWebVitals";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import './css/root.css';
+import { reportWebVitals } from './reportWebVitals';
 
-import { WsSubscribers } from "./wsSubscribers";
-import Match from "./match";
+import { WsSubscribers } from './wsSubscribers';
+import { Match } from './match';
 
-import Stream from "./routes/Stream";
-import GameStats from "./routes/GameStats";
-import MiniMapRoute from "./routes/MiniMapRoute";
+import { Stream } from './routes/Stream';
+import { GameStats } from './routes/GameStats';
+import { MiniMapRoute } from './routes/MiniMapRoute';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -33,20 +33,20 @@ const match = new Match(WsSubscribers, process.env.REACT_APP_RCONN_PASS);
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Stream match={match} />,
   },
   {
-    path: "/game-stats",
+    path: '/game-stats',
     element: <GameStats match={match} width={width} />,
   },
   {
-    path: "/minimap",
+    path: '/minimap',
     element: <MiniMapRoute match={match} height={height} width={width} />,
   },
 ]);
 
-const root = ReactDOM.createRoot(document.getElementById("root")!);
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />

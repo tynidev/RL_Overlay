@@ -1,4 +1,4 @@
-import { Player } from "./player";
+import { Player } from './player';
 
 export interface GameTeam {
   color_primary: string;

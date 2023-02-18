@@ -1,4 +1,4 @@
-export type Callback = (...args: any[]) => void;
+import { Callback } from './utils';
 
 export const WsSubscribers = {
   __subscribers: {} as Record<string, Record<string, Callback[]>>,
@@ -11,16 +11,16 @@ export const WsSubscribers = {
     debug?: string,
     debugFilters?: unknown[]
   ) => {
-    host = host || "localhost";
+    host = host || 'localhost';
     port = port || 49322;
     if (debug) {
       if (debugFilters !== undefined) {
         console.warn(
-          "WebSocket Debug Mode enabled with filtering. Only events not in the filter list will be dumped"
+          'WebSocket Debug Mode enabled with filtering. Only events not in the filter list will be dumped'
         );
       } else {
         console.warn(
-          "WebSocket Debug Mode enabled without filters applied. All events will be dumped to console"
+          'WebSocket Debug Mode enabled without filters applied. All events will be dumped to console'
         );
         console.warn(
           "To use filters, pass in an array of 'channel:event' strings to the second parameter of the init function"
@@ -30,10 +30,10 @@ export const WsSubscribers = {
     WsSubscribers.webSocket = new WebSocket(`ws://${host}:${port}`);
     WsSubscribers.webSocket.onmessage = (event) => {
       let jEvent = JSON.parse(event.data);
-      if (!jEvent.hasOwnProperty("event")) {
+      if (!jEvent.hasOwnProperty('event')) {
         return;
       }
-      const [channel, event_event] = jEvent.event.split(":");
+      const [channel, event_event] = jEvent.event.split(':');
       if (debug) {
         if (!debugFilters) {
           console.log(channel, event_event, jEvent);
@@ -44,19 +44,19 @@ export const WsSubscribers = {
       WsSubscribers.triggerSubscribers(channel, event_event, jEvent.data);
     };
     WsSubscribers.webSocket.onopen = function () {
-      WsSubscribers.triggerSubscribers("ws", "open");
+      WsSubscribers.triggerSubscribers('ws', 'open');
       WsSubscribers.webSocketConnected = true;
       WsSubscribers.registerQueue.forEach((r) => {
-        WsSubscribers.send("wsRelay", "register", r);
+        WsSubscribers.send('wsRelay', 'register', r);
       });
       WsSubscribers.registerQueue = [];
     };
     WsSubscribers.webSocket.onerror = function () {
-      WsSubscribers.triggerSubscribers("ws", "error");
+      WsSubscribers.triggerSubscribers('ws', 'error');
       WsSubscribers.webSocketConnected = false;
     };
     WsSubscribers.webSocket.onclose = function () {
-      WsSubscribers.triggerSubscribers("ws", "close");
+      WsSubscribers.triggerSubscribers('ws', 'close');
       WsSubscribers.webSocketConnected = false;
     };
   },
@@ -72,10 +72,10 @@ export const WsSubscribers = {
     events: string | string[],
     callback: Callback
   ) => {
-    if (typeof channels === "string") {
+    if (typeof channels === 'string') {
       channels = [channels];
     }
-    const eventsArray = typeof events === "string" ? [events] : events;
+    const eventsArray = typeof events === 'string' ? [events] : events;
     for (const c of channels) {
       for (const e of eventsArray) {
         if (!WsSubscribers.__subscribers.hasOwnProperty(c)) {
@@ -84,7 +84,7 @@ export const WsSubscribers = {
         if (!WsSubscribers.__subscribers[c].hasOwnProperty(e)) {
           WsSubscribers.__subscribers[c][e] = [];
           if (WsSubscribers.webSocketConnected) {
-            WsSubscribers.send("wsRelay", "register", `${c}:${e}`);
+            WsSubscribers.send('wsRelay', 'register', `${c}:${e}`);
           } else {
             WsSubscribers.registerQueue.push(`${c}:${e}`);
           }
@@ -114,19 +114,19 @@ export const WsSubscribers = {
     }
   },
   send: function (channel: string, event: string, data?: unknown) {
-    if (typeof channel !== "string") {
-      console.error("Channel must be a string");
+    if (typeof channel !== 'string') {
+      console.error('Channel must be a string');
       return;
     }
-    if (typeof event !== "string") {
-      console.error("Event must be a string");
+    if (typeof event !== 'string') {
+      console.error('Event must be a string');
       return;
     }
-    if (channel === "local") {
+    if (channel === 'local') {
       this.triggerSubscribers(channel, event, data);
     } else {
       if (WsSubscribers.webSocket === undefined) {
-        console.error("WsSubscribers.webSocket not yet set");
+        console.error('WsSubscribers.webSocket not yet set');
         return;
       }
       WsSubscribers.webSocket.send(

@@ -1,12 +1,13 @@
-import { Callback, WsSubscribers } from "./wsSubscribers";
-import { Player } from "./types/player";
-import { Game, GameStateData, GameTeam } from "./types/game";
-import { Series } from "./types/series";
-import { GameState, Stats } from "./types/gameState";
+import { WsSubscribers } from './wsSubscribers';
+import { Player } from './types/player';
+import { Game, GameStateData, GameTeam } from './types/game';
+import { Series } from './types/series';
+import { GameState, Stats } from './types/gameState';
+import { Callback } from './utils';
 
 function pad(num: number, size: number): string {
   let str = num.toString();
-  while (str.length < size) str = "0" + str;
+  while (str.length < size) str = '0' + str;
   return str;
 }
 
@@ -17,7 +18,7 @@ interface MatchEndData {
 /**
  * Match - Class for handling all state related to a rocket league match
  */
-class Match {
+export class Match {
   state = new GameState();
 
   localplayer_support = false;
@@ -30,17 +31,17 @@ class Match {
    * Series information
    */
   series: Series = {
-    series_txt: "ROCKET LEAGUE",
+    series_txt: 'ROCKET LEAGUE',
     length: 1,
     teams: [
       {
         team: 0,
-        name: "Blue",
+        name: 'Blue',
         matches_won: 0,
       },
       {
         team: 1,
-        name: "Orange",
+        name: 'Orange',
         matches_won: 0,
       },
     ],
@@ -81,15 +82,15 @@ class Match {
       const r = new WebSocket(`ws://localhost:${RCONPORT}`);
       r.onopen = () => {
         r.send(`rcon_password ${RCONPASS}`);
-        r.send("rcon_refresh_allowed");
-        r.send("replay_gui hud 0");
+        r.send('rcon_refresh_allowed');
+        r.send('replay_gui hud 0');
       };
       this.RCON = r;
     }
 
     // When game is created before everyone has picked sides or specator roles
-    ws.subscribe("game", "match_created", () => {
-      this.state.setState("pre-game-lobby");
+    ws.subscribe('game', 'match_created', () => {
+      this.state.setState('pre-game-lobby');
       this.matchCreatedCallbacks.forEach((callback) => {
         callback();
       });
@@ -109,41 +110,41 @@ class Match {
     // Game state updates happens as soon as match_created is fired and until match_destroyed is called.
     // How often this fires depends on the hook rate in the SOS plugin in bakkesmod
     // NOTE: Players are added/removed dynamically throughout game
-    ws.subscribe("game", "update_state", (p: GameStateData) => {
+    ws.subscribe('game', 'update_state', (p: GameStateData) => {
       this.HandleStateChange(p);
     });
 
     // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
-    ws.subscribe("game", "initialized", () => {
-      this.state.setState("in-game");
+    ws.subscribe('game', 'initialized', () => {
+      this.state.setState('in-game');
       this.initializedCallbacks.forEach((callback) => {
         callback();
       });
     });
 
     // Kick off countdown
-    ws.subscribe("game", "pre_countdown_begin", () => {
-      this.state.setState("in-game");
+    ws.subscribe('game', 'pre_countdown_begin', () => {
+      this.state.setState('in-game');
       this.preCountDownBeginCallbacks.forEach((callback) => {
         callback();
       });
     });
-    ws.subscribe("game", "post_countdown_begin", () => {
+    ws.subscribe('game', 'post_countdown_begin', () => {
       if (this.RCON && !this.hiddenUI) {
-        this.RCON.send("replay_gui hud 1");
-        this.RCON.send("replay_gui matchinfo 1");
+        this.RCON.send('replay_gui hud 1');
+        this.RCON.send('replay_gui matchinfo 1');
         let r = this.RCON;
         setTimeout(() => {
-          r.send("replay_gui hud 0");
-          r.send("replay_gui matchinfo 0");
+          r.send('replay_gui hud 0');
+          r.send('replay_gui matchinfo 0');
         }, 250);
         this.hiddenUI = true;
       }
     });
 
     // Kick off countdown finished and cars are free to GO!!!!
-    ws.subscribe("game", "round_started_go", () => {
-      this.state.setState("in-game");
+    ws.subscribe('game', 'round_started_go', () => {
+      this.state.setState('in-game');
     });
 
     // Occurs when ball is hit
@@ -154,21 +155,21 @@ class Match {
     // Fired when the clock ends NOTE: this fires many times in a row so you will receive duplicates
     //ws.subscribe("game", "clock_stopped", (p) => { });
     // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
-    ws.subscribe("game", "clock_updated_seconds", () => {
-      this.state.setState("in-game");
+    ws.subscribe('game', 'clock_updated_seconds', () => {
+      this.state.setState('in-game');
     });
 
     // When a goal is scored
-    ws.subscribe("game", "goal_scored", (p: unknown) => {
+    ws.subscribe('game', 'goal_scored', (p: unknown) => {
       this.onGoalScoredCallbacks.forEach((callback) => {
         callback(p);
       });
     });
 
     // When an in game replay from a goal is started
-    ws.subscribe("game", "replay_start", (p: unknown) => {
+    ws.subscribe('game', 'replay_start', (p: unknown) => {
       // replay_start is sent twice one with json and one with plain text
-      if (p === "game_replay_start")
+      if (p === 'game_replay_start')
         // skip plain text
         return;
       for (const cb of this.replayStartCallbacks) {
@@ -177,22 +178,22 @@ class Match {
     });
 
     // When an in game replay from a goal is about to end
-    ws.subscribe("game", "replay_will_end", () => {
+    ws.subscribe('game', 'replay_will_end', () => {
       for (const cb of this.replayWillEndCallbacks) {
         cb();
       }
     });
 
     // When an in game replay from a goal ends
-    ws.subscribe("game", "replay_end", () => {
+    ws.subscribe('game', 'replay_end', () => {
       for (const cb of this.replayEndCallbacks) {
         cb();
       }
     });
 
     // When name of team winner is displayed on screen after game is over
-    ws.subscribe("game", "match_ended", (p: MatchEndData) => {
-      this.state.setState("game-ended");
+    ws.subscribe('game', 'match_ended', (p: MatchEndData) => {
+      this.state.setState('game-ended');
       this.series.teams[p.winner_team_num].matches_won += 1;
       for (const cb of this.gameEndCallbacks) {
         cb();
@@ -200,15 +201,15 @@ class Match {
     });
 
     // Celebration screen for winners podium after game ends
-    ws.subscribe("game", "podium_start", () => {
-      this.state.setState("post-game");
+    ws.subscribe('game', 'podium_start', () => {
+      this.state.setState('post-game');
       this.podiumCallbacks.forEach((callback) => {
         callback();
       });
     });
 
     // When match OR replay is destroyed
-    ws.subscribe("game", "match_destroyed", () => {
+    ws.subscribe('game', 'match_destroyed', () => {
       this.state.reset();
       this.matchEndedCallbacks.forEach((callback) => {
         callback();
@@ -234,7 +235,7 @@ class Match {
     //         }
     //     ]
     // }
-    ws.subscribe("game", "series_update", (p: Series) => {
+    ws.subscribe('game', 'series_update', (p: Series) => {
       this.series = p;
       for (const cb of this.seriesUpdateCallbacks) {
         cb(p);
@@ -376,13 +377,15 @@ class Match {
     return this.handleCallback(callback, (m) => m.seriesUpdateCallbacks);
   }
 
-  /** Gets the game time in readable string format
-   * @param game
-   */
-  static GameTimeString(game: Game) {
-    let seconds = game.time_seconds % 60;
-    let min = Math.floor(game.time_seconds / 60);
-    return (game.isOT ? "+" : "") + min + ":" + pad(seconds, 2);
+  public getGameTimeString(game?: Game): string {
+    game ??= this.state.game;
+    if (game === undefined) {
+      return '5:00';
+    }
+    const prefix = game.isOT ? '+' : '';
+    const sec = game.time_seconds % 60;
+    const min = Math.floor(game.time_seconds / 60);
+    return `${prefix}${min}:${pad(sec, 2)}`;
   }
 
   /***************************/
@@ -447,9 +450,9 @@ class Match {
     // Has time changed?
     const prev_time_sec = this.state.game?.time_seconds;
     if (prev_time_sec !== game.time_seconds) {
-      if (prev_time_sec) this.state.setState("in-game");
+      if (prev_time_sec) this.state.setState('in-game');
       for (const cb of this.timeUpdateCallbacks) {
-        cb(Match.GameTimeString(game), game.time_seconds, game.isOT);
+        cb(this.getGameTimeString(game), game.time_seconds, game.isOT);
       }
     }
 
@@ -483,5 +486,3 @@ class Match {
     );
   }
 }
-
-export default Match;

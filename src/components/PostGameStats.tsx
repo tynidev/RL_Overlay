@@ -1,8 +1,6 @@
 import '../css/PostGameStats.css';
 import React from 'react';
-
-// eslint-disable-next-line no-unused-vars
-import Match from '../match';
+import { Match } from '../match';
 import { Player } from '../types/player';
 import { Team } from '../types/team';
 import { Series } from '../types/series';

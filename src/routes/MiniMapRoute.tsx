@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { MiniMap, getState } from '../components/MiniMap';
-import Match from '../match';
+import { Match } from '../match';
 
 interface MiniMapProps {
   match: Match;
@@ -8,7 +8,7 @@ interface MiniMapProps {
   height: number;
 }
 
-const MiniMapRoute: React.FunctionComponent<MiniMapProps> = (props) => {
+export const MiniMapRoute: React.FunctionComponent<MiniMapProps> = (props) => {
   const [state, setState] = useState(getState(props.match));
 
   useEffect(() => {
@@ -24,5 +24,3 @@ const MiniMapRoute: React.FunctionComponent<MiniMapProps> = (props) => {
     </div>
   );
 };
-
-export default MiniMapRoute;

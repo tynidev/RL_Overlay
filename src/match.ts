@@ -1,8 +1,9 @@
-import { Callback, WsSubscribers } from './wsSubscribers';
+import { WsSubscribers } from './wsSubscribers';
 import { Player } from './types/player';
 import { Game, GameStateData, GameTeam } from './types/game';
 import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
+import { Callback } from './utils';
 
 function pad(num: number, size: number): string {
   let str = num.toString();
@@ -17,7 +18,7 @@ interface MatchEndData {
 /**
  * Match - Class for handling all state related to a rocket league match
  */
-class Match {
+export class Match {
   state = new GameState();
 
   localplayer_support = false;
@@ -376,13 +377,15 @@ class Match {
     return this.handleCallback(callback, (m) => m.seriesUpdateCallbacks);
   }
 
-  /** Gets the game time in readable string format
-   * @param game
-   */
-  static GameTimeString(game: Game) {
-    let seconds = game.time_seconds % 60;
-    let min = Math.floor(game.time_seconds / 60);
-    return (game.isOT ? '+' : '') + min + ':' + pad(seconds, 2);
+  public getGameTimeString(game?: Game): string {
+    game ??= this.state.game;
+    if (game === undefined) {
+      return '5:00';
+    }
+    const prefix = game.isOT ? '+' : '';
+    const sec = game.time_seconds % 60;
+    const min = Math.floor(game.time_seconds / 60);
+    return `${prefix}${min}:${pad(sec, 2)}`;
   }
 
   /***************************/
@@ -449,7 +452,7 @@ class Match {
     if (prev_time_sec !== game.time_seconds) {
       if (prev_time_sec) this.state.setState('in-game');
       for (const cb of this.timeUpdateCallbacks) {
-        cb(Match.GameTimeString(game), game.time_seconds, game.isOT);
+        cb(this.getGameTimeString(game), game.time_seconds, game.isOT);
       }
     }
 
@@ -483,5 +486,3 @@ class Match {
     );
   }
 }
-
-export default Match;

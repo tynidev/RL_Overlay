@@ -1,6 +1,6 @@
 import '../css/MiniMap.css';
 import React from 'react';
-import Match from '../match';
+import { Match } from '../match';
 import { Player } from '../types/player';
 import { Point } from '../types/point';
 

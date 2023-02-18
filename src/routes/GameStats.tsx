@@ -1,13 +1,13 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { PostGameStats, postGameGetState } from '../components/PostGameStats';
-import Match from '../match';
+import { Match } from '../match';
 
 interface GameStatsProps {
   match: Match;
   width: number;
 }
 
-const GameStats: FunctionComponent<GameStatsProps> = (props) => {
+export const GameStats: FunctionComponent<GameStatsProps> = (props) => {
   const [state, setState] = useState(postGameGetState(props.match, true));
 
   useEffect(() => {
@@ -35,5 +35,3 @@ const GameStats: FunctionComponent<GameStatsProps> = (props) => {
     </div>
   );
 };
-
-export default GameStats;

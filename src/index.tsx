@@ -5,11 +5,11 @@ import './css/root.css';
 import { reportWebVitals } from './reportWebVitals';
 
 import { WsSubscribers } from './wsSubscribers';
-import Match from './match';
+import { Match } from './match';
 
-import Stream from './routes/Stream';
-import GameStats from './routes/GameStats';
-import MiniMapRoute from './routes/MiniMapRoute';
+import { Stream } from './routes/Stream';
+import { GameStats } from './routes/GameStats';
+import { MiniMapRoute } from './routes/MiniMapRoute';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;

@@ -1,4 +1,4 @@
-export type Callback = (...args: any[]) => void;
+import { Callback } from './utils';
 
 export const WsSubscribers = {
   __subscribers: {} as Record<string, Record<string, Callback[]>>,

@@ -4,3 +4,7 @@ export interface Team {
   name: string;
   score: number;
 }
+
+export function NewTeam():Team{
+  return { score: 0, name: '', color_primary: '', color_secondary: '' };
+}

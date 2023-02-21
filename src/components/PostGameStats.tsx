@@ -1,8 +1,8 @@
 import '../css/PostGameStats.css';
 import React, { FC } from 'react';
 import { Match } from '../match';
-import { Player } from '../types/player';
-import { Team } from '../types/team';
+import { NewPlayer, Player } from '../types/player';
+import { NewTeam, Team } from '../types/team';
 import { Series } from '../types/series';
 import { GameTeam } from '../types/game';
 import mvp_svg from '../assets/stat-icons/mvp.svg';
@@ -27,10 +27,7 @@ export const getPostGameState = (
   display: display,
   teams: match?.state?.game?.teams
     ? [match?.state?.game?.teams[0], match?.state?.game?.teams[1]]
-    : [
-        { score: 0, name: '', color_primary: '', color_secondary: '' },
-        { score: 0, name: '', color_primary: '', color_secondary: '' },
-      ],
+    : [NewTeam(),NewTeam(),],
   left: (match?.state.left.length ?? 0) > 0 ? match?.state.left : [],
   right: (match?.state.right.length ?? 0) > 0 ? match?.state.right : [],
   series: match.series,
@@ -92,38 +89,7 @@ function fillTeams(
         mvp_max = p.score;
       }
     } else {
-      left.push({
-        name: '',
-        score: 0,
-        goals: 0,
-        assists: 0,
-        shots: 0,
-        saves: 0,
-        demos: 0,
-        attacker: '',
-        boost: 0,
-        cartouches: 0,
-        hasCar: false,
-        id: '',
-        isDead: false,
-        isPowersliding: false,
-        isSonic: false,
-        location: {
-          X: 0,
-          Y: 0,
-          Z: 0,
-          pitch: 0,
-          roll: 0,
-          yaw: 0,
-        },
-        onGround: false,
-        onWall: false,
-        primaryID: '',
-        shortcut: 0,
-        speed: 0,
-        team: 0,
-        touches: 0,
-      });
+      left.push(NewPlayer());
     }
   }
   const right: Player[] = [];
@@ -142,38 +108,7 @@ function fillTeams(
         mvp_max = p.score;
       }
     } else {
-      right.push({
-        name: '',
-        score: 0,
-        goals: 0,
-        assists: 0,
-        shots: 0,
-        saves: 0,
-        demos: 0,
-        attacker: '',
-        boost: 0,
-        cartouches: 0,
-        hasCar: false,
-        id: '',
-        isDead: false,
-        isPowersliding: false,
-        isSonic: false,
-        location: {
-          X: 0,
-          Y: 0,
-          Z: 0,
-          pitch: 0,
-          roll: 0,
-          yaw: 0,
-        },
-        onGround: false,
-        onWall: false,
-        primaryID: '',
-        shortcut: 0,
-        speed: 0,
-        team: 0,
-        touches: 0,
-      });
+      right.push(NewPlayer());
     }
   }
 
@@ -188,8 +123,7 @@ function calcPct({ left, right }: TeamCount): number {
 }
 
 const PostGameStatsCore: FC<PostGameProps> = (props) => {
-  if (!props.display) return <></>;
-
+ 
   const [left_team, right_team, stats, mvp] = fillTeams(
     props.teams,
     props.left,
@@ -283,34 +217,34 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
         </thead>
         <tbody>
           <tr className="score">
-            <td>{left_team[2].score}</td>
-            <td>{left_team[0].score}</td>
-            <td>{left_team[1].score}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].score : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].score : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].score : ''}</td>
           </tr>
           <tr className="goals">
-            <td>{left_team[2].goals}</td>
-            <td>{left_team[0].goals}</td>
-            <td>{left_team[1].goals}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].goals : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].goals : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].goals : ''}</td>
           </tr>
           <tr className="assists">
-            <td>{left_team[2].assists}</td>
-            <td>{left_team[0].assists}</td>
-            <td>{left_team[1].assists}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].assists : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].assists : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].assists : ''}</td>
           </tr>
           <tr className="shots">
-            <td>{left_team[2].shots}</td>
-            <td>{left_team[0].shots}</td>
-            <td>{left_team[1].shots}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].shots : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].shots : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].shots : ''}</td>
           </tr>
           <tr className="saves">
-            <td>{left_team[2].saves}</td>
-            <td>{left_team[0].saves}</td>
-            <td>{left_team[1].saves}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].saves : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].saves : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].saves : ''}</td>
           </tr>
           <tr className="demos">
-            <td>{left_team[2].demos}</td>
-            <td>{left_team[0].demos}</td>
-            <td>{left_team[1].demos}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].demos : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].demos : ''}</td>
+            <td>{left_team[1].name !== '' ? left_team[1].demos : ''}</td>
           </tr>
         </tbody>
       </table>
@@ -452,34 +386,34 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
         </thead>
         <tbody>
           <tr className="score">
-            <td>{right_team[2].score}</td>
-            <td>{right_team[0].score}</td>
-            <td>{right_team[1].score}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].score : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].score : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].score : ''}</td>
           </tr>
           <tr className="goals">
-            <td>{right_team[2].goals}</td>
-            <td>{right_team[0].goals}</td>
-            <td>{right_team[1].goals}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].goals : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].goals : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].goals : ''}</td>
           </tr>
           <tr className="assists">
-            <td>{right_team[2].assists}</td>
-            <td>{right_team[0].assists}</td>
-            <td>{right_team[1].assists}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].assists : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].assists : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].assists : ''}</td>
           </tr>
           <tr className="shots">
-            <td>{right_team[2].shots}</td>
-            <td>{right_team[0].shots}</td>
-            <td>{right_team[1].shots}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].shots : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].shots : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].shots : ''}</td>
           </tr>
           <tr className="saves">
-            <td>{right_team[2].saves}</td>
-            <td>{right_team[0].saves}</td>
-            <td>{right_team[1].saves}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].saves : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].saves : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].saves : ''}</td>
           </tr>
           <tr className="demos">
-            <td>{right_team[2].demos}</td>
-            <td>{right_team[0].demos}</td>
-            <td>{right_team[1].demos}</td>
+            <td>{right_team[2].name !== '' ? right_team[2].demos : ''}</td>
+            <td>{right_team[0].name !== '' ? right_team[0].demos : ''}</td>
+            <td>{right_team[1].name !== '' ? right_team[1].demos : ''}</td>
           </tr>
         </tbody>
       </table>

@@ -37,7 +37,7 @@ const router = createBrowserRouter([
     element: <Stream match={match} />,
   },
   {
-    path: '/game-stats',
+    path: '/stats',
     element: <GameStats match={match} width={width} />,
   },
   {

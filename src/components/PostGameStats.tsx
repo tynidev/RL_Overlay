@@ -7,7 +7,18 @@ import { Series } from '../types/series';
 import { GameTeam } from '../types/game';
 import mvp_svg from '../assets/stat-icons/mvp.svg';
 import { areEqual } from '../util/utils';
-import { arePlayersEqual } from '../util/game';
+
+function arePlayersEqual(p1: Player, p2: Player): boolean{
+  return !(
+    p1.name !== p2.name ||
+    p1.score !== p2.score ||
+    p1.goals !== p2.goals ||
+    p1.assists !== p2.assists ||
+    p1.shots !== p2.shots ||
+    p1.saves !== p2.saves ||
+    p1.demos !== p2.demos
+  );
+}
 
 export const getPostGameState = (
   match: Match,
@@ -25,7 +36,7 @@ export const getPostGameState = (
   series: match.series,
 });
 
-interface PostGameProps {
+export interface PostGameProps {
   display: boolean;
   teams: GameTeam[];
   left: Player[];
@@ -478,9 +489,8 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
   );
 };
 
-export const PostGameStats = React.memo(
-  PostGameStatsCore,
-  (prevProps, nextProps) =>
+function ShouldUpdate(prevProps:PostGameProps, nextProps:PostGameProps): boolean{
+  return!(
     prevProps.display !== nextProps.display ||
     prevProps.teams.length !== nextProps.teams.length ||
     prevProps.teams[0].score !== nextProps.teams[0].score ||
@@ -495,7 +505,9 @@ export const PostGameStats = React.memo(
     prevProps.series.teams[0].matches_won !==
       nextProps.series.teams[0].matches_won ||
     prevProps.series.teams[1].matches_won !==
-      nextProps.series.teams[1].matches_won
+      nextProps.series.teams[1].matches_won);
+}
+export const PostGameStats = React.memo(
+  PostGameStatsCore,
+  ShouldUpdate
 );
-
-export default PostGameStats;

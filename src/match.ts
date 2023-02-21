@@ -4,10 +4,16 @@ import { Game, GameStateData, GameTeam } from './types/game';
 import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
 import { Callback, pad } from './util/utils';
-import { areTeamsEqual } from './util/game';
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
+}
+
+function areTeamsEqual(t1: GameTeam, t2: GameTeam): boolean{
+  return (t1.color_primary === t2.color_primary &&
+  t1.color_secondary === t2.color_secondary &&
+  t1.name === t2.name &&
+  t1.score === t2.score);
 }
 
 /**

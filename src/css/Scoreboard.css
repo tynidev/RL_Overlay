@@ -47,7 +47,7 @@
   width:20%;
   left:80%;
   top: 10%;
-  font-size: 4.1rem;
+  font-size: 5rem;
   text-align: center;
 }
 .scoreboard .right .name {
@@ -69,7 +69,7 @@
   line-height: calc(var(--scoreboard-h) * 0.9);
   width:20%;
   top: 10%;
-  font-size: 4.1rem;
+  font-size: 5rem;
   text-align: center;
 }
 .scoreboard .center .box {
@@ -80,7 +80,7 @@
 	height: var(--scoreboard-h);
 	text-align: center;
 	line-height: var(--scoreboard-h);
-	font-size: 3.8rem;
+	font-size: 4rem;
 	background-color: rgb(var(--base-color));
 }
 

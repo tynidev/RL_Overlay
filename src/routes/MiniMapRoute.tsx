@@ -1,26 +1,49 @@
-import React, { FC, useEffect, useState } from 'react';
+import React from 'react';
 import { MiniMap, getState } from '../components/MiniMap';
 import { Match } from '../match';
+import { Player } from '../types/player';
+import { Point } from '../types/point';
+import { Callback } from '../util/utils';
 
-interface MiniMapProps {
+interface MiniMapRouteProps {
   match: Match;
   width: number;
   height: number;
 }
 
-export const MiniMapRoute: FC<MiniMapProps> = (props) => {
-  const [state, setState] = useState(getState(props.match));
+interface MiniMapProps {
+  ballLocation: Point;
+  left: Player[];
+  right: Player[];
+}
 
-  useEffect(() => {
-    const fn = props.match.OnBallMove((ball) => {
-      setState(getState(props.match));
-    });
-    return () => fn(props.match);
-  }, [props.match]);
+export class MiniMapRoute extends React.Component<MiniMapRouteProps, MiniMapProps> {
+  match: Match;
+  unsubscribers: Callback[] = [];
 
-  return (
-    <div className="overlay" style={{ width: props.width }}>
-      <MiniMap {...state} height={props.height} />
-    </div>
-  );
-};
+  constructor(props: MiniMapRouteProps) {
+    super(props);
+    this.match = props.match;
+    this.state = getState(this.match);
+  }
+  
+  componentDidMount() {
+    this.unsubscribers.push(
+      this.match.OnPlayersUpdated(() => {
+        this.setState(getState(this.match));
+      })
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribers.forEach((unsubscribe) => unsubscribe(this.match));
+    this.unsubscribers = [];
+  }
+  render() {
+    return (
+      <div className="overlay" style={{ width: this.props.width }}>
+        <MiniMap {...this.state} height={this.props.height} />
+      </div>
+    );
+  }
+}

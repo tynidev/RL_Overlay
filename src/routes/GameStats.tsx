@@ -1,37 +1,56 @@
-import React, { FC, useEffect, useState } from 'react';
-import { PostGameStats, getPostGameState } from '../components/PostGameStats';
+import React from 'react';
+import { PostGameStats, getPostGameState, PostGameProps } from '../components/PostGameStats';
 import { Match } from '../match';
+import { Callback } from '../util/utils';
 
 interface GameStatsProps {
   match: Match;
   width: number;
 }
 
-export const GameStats: FC<GameStatsProps> = (props) => {
-  const [state, setState] = useState(getPostGameState(props.match, true));
+export class GameStats extends React.Component<GameStatsProps, PostGameProps> {
+  match: Match;
+  unsubscribers: Callback[] = [];
 
-  useEffect(() => {
-    const refreshState = () => setState(getPostGameState(props.match, true));
+  constructor(props: GameStatsProps) {
+    super(props);
+    this.match = props.match;
+    this.state = getPostGameState(this.match, true);
+  }
 
-    const unsubscribers = [
-      props.match.OnPlayersUpdated(refreshState),
-      props.match.OnTeamsUpdated(refreshState),
-      props.match.OnSeriesUpdate(refreshState),
-      props.match.OnGameEnded(refreshState),
+  componentDidMount() {
+    this.unsubscribers = [
+      this.match.OnPlayersUpdated(() => {
+        this.setState(getPostGameState(this.match, true));
+      }),
+      this.match.OnTeamsUpdated(() => {
+        this.setState(getPostGameState(this.match, true));
+      }),
+      this.match.OnSeriesUpdate(() => {
+        this.setState(getPostGameState(this.match, true));
+      }),
+      this.match.OnGameEnded(() => {
+        this.setState(getPostGameState(this.match, true));
+      }),
     ];
+  }
 
-    return () => unsubscribers.forEach((u) => u(props.match));
-  }, [props.match]);
+  componentWillUnmount() {
+    this.unsubscribers.forEach((unsubscribe) => unsubscribe(this.match));
+    this.unsubscribers = [];
+  }
 
-  return (
-    <div
-      className="overlay"
-      style={{
-        transformOrigin: 'left',
-        transform: `scale(${props.width / 2560})`,
-      }}
-    >
-      <PostGameStats {...state} />
-    </div>
-  );
+  render(): React.ReactNode {
+    return (
+      <div
+        className="overlay"
+        style={{
+          transformOrigin: 'left',
+          transform: `scale(${this.props.width / 2560})`,
+        }}
+      >
+        <PostGameStats {...this.state} />
+      </div>
+    );
+  }
 };

@@ -26,13 +26,13 @@ const areTeamsEqual = (
   }
 
   for (let i = 0; i < oldLeft.length; i++) {
-    if (areLocationsEqual(oldLeft[i].location, newLeft[i].location)) {
+    if (!areLocationsEqual(oldLeft[i].location, newLeft[i].location)) {
       return false;
     }
   }
 
   for (let i = 0; i < oldRight.length; i++) {
-    if (areLocationsEqual(oldRight[i].location, newRight[i].location)) {
+    if (!areLocationsEqual(oldRight[i].location, newRight[i].location)) {
       return false;
     }
   }
@@ -312,12 +312,12 @@ const MiniMapCore: FC<MiniMapProps> = (props) => {
 export const MiniMap = React.memo(
   MiniMapCore,
   (prevProps, nextProps) =>
-    prevProps.height === nextProps.height &&
-    areLocationsEqual(prevProps.ballLocation, nextProps.ballLocation) &&
-    areTeamsEqual(
+    !(prevProps.height !== nextProps.height ||
+    !areLocationsEqual(prevProps.ballLocation, nextProps.ballLocation) ||
+    !areTeamsEqual(
       prevProps.left,
       prevProps.right,
       nextProps.left,
       nextProps.right
-    )
+    ))
 );

@@ -119,7 +119,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
     return () => unsubscribers.forEach((u) => u(props.match));
   }, [props.match]);
 
-  switch (gameState) {
+  switch (props.match.state.state) {
     case 'none':
     case 'pre-game-lobby':
       return <div className="overlay"></div>;
@@ -150,7 +150,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
 
     default:
       return (
-        <div className="overlay">Game State not recognized: {gameState}</div>
+        <div className="overlay">Game State not recognized: {props.match.state.state}</div>
       );
   }
 };

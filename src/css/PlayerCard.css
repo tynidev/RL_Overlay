@@ -1,11 +1,15 @@
 .teamboard .player {
   --padding: calc(var(--sw) / 256);
   padding: 0 var(--padding) var(--padding) var(--padding);
-  font-size: 1.4rem;
-  line-height: calc(var(--padding) * 3.2);
+  font-size: 1.5rem;
+  line-height: calc(var(--padding) * 3);
   display: block;
   margin: calc(var(--padding) / 2) 0 calc(var(--sw) / 320) 0;
   background-color: rgb(var(--base-color));
+}
+
+.teamboard .player .name{
+  padding-top:calc(var(--one)* 2);
 }
 
 .teamboard .player .boost{
@@ -42,11 +46,11 @@
 }
 .teamboard .left .player .boost .num{
   text-align: right;
-  top: calc(var(--sw) / 320 * -4.5);
+  top: calc(var(--sw) / 320 * -4.6);
 }
 .teamboard .right .player .boost .num{
   text-align: left;
-  top: calc(var(--sw) / 320 * -4.5);
+  top: calc(var(--sw) / 320 * -4.6);
 }
 
 .teamboard .left .player.spectatingTeamBoard{

@@ -17,13 +17,17 @@ interface PlayerCardProps {
 
 export const PlayerCard: FC<PlayerCardProps> = (props) => {
   const { player, spectating, index, showBoost } = props;
+
+  let name = truncate(player.name, 25);
+  let fontSize = name.length <= 17 ? "1.5rem" : (name.length <= 20 ? "1.25rem" : "1rem");
+
   return (
     <div
       id={'t0-p' + index + '-board'}
       key={index}
       className={'player' + (spectating ? ' spectatingTeamBoard' : '')}
     >
-      <div className="name">{truncate(player.name, 19)}</div>
+      <div className="name" style={{fontSize:fontSize}}>{name}</div>
       <div className="stats">
         <div className="stat">
           <div className="goal">{player.goals}</div>

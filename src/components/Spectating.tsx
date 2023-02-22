@@ -7,6 +7,7 @@ import demo_svg from '../assets/stat-icons/demolition.svg';
 import React, { FC } from 'react';
 import { Match } from '../match';
 import { truncate } from '../util/utils';
+import { NewPlayer, Player } from '../types/player';
 
 export const getState = (
   match: Match,
@@ -35,23 +36,12 @@ export const getState = (
       match?.playerTarget?.team === 0
         ? 'linear-gradient(to right, rgb(var(--blue)), rgba(var(--blue), 0.4))'
         : 'linear-gradient(to right, rgb(var(--orange)), rgba(var(--orange), 0.4))',
-    player: match?.playerTarget ?? {
-      team: 0,
-      name: '',
-      boost: 0,
-      saves: 0,
-      goals: 0,
-      assists: 0,
-      demos: 0,
-      shots: 0,
-      speed: 0,
-      isSonic: false,
-    },
+    player: match?.playerTarget ?? NewPlayer(),
     hasLocalPlayer: match.localPlayer,
   };
 };
 
-export const Spectating: FC<ReturnType<typeof getState>> = (props) => {
+export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
   const {
     display,
     display_boost_ring,
@@ -70,91 +60,6 @@ export const Spectating: FC<ReturnType<typeof getState>> = (props) => {
     );
   }
 
-  const swRaw = getComputedStyle(document.documentElement)
-    .getPropertyValue('--sw')
-    .trim();
-  const sw = parseInt(swRaw.substring(0, swRaw.length - 2));
-  const one = sw / 2560;
-  const x = one * 155;
-  const y = x;
-
-  let circumference = 135 * 2 * Math.PI;
-  let offset = circumference - (player.boost / 100) * circumference;
-  let boost_ring = <div className="specatating-boost"></div>;
-  if (display_boost_ring) {
-    boost_ring = (
-      <div className="spectating-boost">
-        <svg className="boost-ring">
-          <circle
-            className="border-inner"
-            style={{
-              stroke: hasLocalPlayer
-                ? 'rgba(0, 0, 0, 1)'
-                : 'rgba(0, 0, 0, 0.4)',
-            }}
-          />
-          <circle
-            className="inner"
-            style={{
-              fill: hasLocalPlayer
-                ? 'rgba(15, 15, 15, 1)'
-                : 'rgba(0, 0, 0, 0.8)',
-            }}
-          />
-          <circle
-            className="fill"
-            fill="transparent"
-            style={{
-              stroke:
-                player.team !== 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))',
-              transition: '100ms',
-            }}
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-          />
-          <circle className="border-outer" />
-          <text
-            className="boost-num"
-            fill="white"
-            ref={(boostNum) => {
-              if (!boostNum) return;
-              let centerX = boostNum.getBoundingClientRect().width / 2;
-              let centerY = boostNum.getBoundingClientRect().height / 4;
-              boostNum.setAttribute('x', `${x - centerX - 5}`);
-              boostNum.setAttribute(
-                'y',
-                `${y + centerY - (hasLocalPlayer ? 0 : 35)}`
-              );
-            }}
-          >
-            {player.boost}
-          </text>
-          <text
-            className="speed-num"
-            fill={player.isSonic ? 'rgba(255, 217, 0,1)' : 'white'}
-            style={{ visibility: hasLocalPlayer ? 'hidden' : 'visible' }}
-            ref={(speedNum) => {
-              if (!speedNum) return;
-              let centerX = speedNum.getBoundingClientRect().width / 2;
-              let centerY = speedNum.getBoundingClientRect().height / 4;
-              speedNum.setAttribute('x', `${x - centerX - 5}`);
-              speedNum.setAttribute('y', `${y + centerY + 20}`);
-            }}
-          >
-            {player.speed} MPH
-          </text>
-          <line
-            x1={one * 80}
-            y1={one * 150}
-            x2={one * 220}
-            y2={one * 150}
-            stroke="white"
-            style={{ visibility: hasLocalPlayer ? 'hidden' : 'visible' }}
-          />
-        </svg>
-      </div>
-    );
-  }
   return (
     <div>
       <div
@@ -178,8 +83,124 @@ export const Spectating: FC<ReturnType<typeof getState>> = (props) => {
           <img src={demo_svg} alt="" />
           <div className="demo">{player.demos}</div>
         </div>
-        {boost_ring}
+        {BoostRing(display_boost_ring, hasLocalPlayer, player)}
       </div>
     </div>
   );
 };
+
+export const Spectating = React.memo(
+  SpectatingCore,
+  ShouldUpdate
+);
+
+function ShouldUpdate(prevProps:ReturnType<typeof getState>, nextProps:ReturnType<typeof getState>): boolean{
+  return!(
+    prevProps.display !== nextProps.display ||
+    prevProps.bg_color !== nextProps.bg_color ||
+    prevProps.display_boost_ring !== nextProps.display_boost_ring ||
+    prevProps.spectating_left !== nextProps.spectating_left ||
+    (prevProps.hasLocalPlayer === undefined && nextProps.hasLocalPlayer !== undefined) ||
+    (prevProps.hasLocalPlayer !== undefined && nextProps.hasLocalPlayer === undefined) ||
+    prevProps.player.name !== nextProps.player.name ||
+    prevProps.player.team !== nextProps.player.team ||
+    prevProps.player.goals !== nextProps.player.goals ||
+    prevProps.player.assists !== nextProps.player.assists ||
+    prevProps.player.saves !== nextProps.player.saves ||
+    prevProps.player.shots !== nextProps.player.shots ||
+    prevProps.player.assists !== nextProps.player.assists ||
+    prevProps.player.boost !== nextProps.player.boost ||
+    prevProps.player.isSonic !== nextProps.player.isSonic ||
+    prevProps.player.speed !== nextProps.player.speed
+  );
+}
+
+function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, player: Player):JSX.Element{
+
+  if (!display_boost_ring)
+    return <div className="specatating-boost"></div>;
+
+  let circumference = 135 * 2 * Math.PI;
+  let offset = circumference - (player.boost / 100) * circumference;
+
+  const swRaw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--sw')
+    .trim();
+  const sw = parseInt(swRaw.substring(0, swRaw.length - 2));
+  const one = sw / 2560;
+  const x = one * 155;
+  const y = x;
+  
+  return (
+    <div className="spectating-boost">
+      <svg className="boost-ring">
+        <circle
+          className="border-inner"
+          style={{
+            stroke: hasLocalPlayer
+              ? 'rgba(0, 0, 0, 1)'
+              : 'rgba(0, 0, 0, 0.4)',
+          }}
+        />
+        <circle
+          className="inner"
+          style={{
+            fill: hasLocalPlayer
+              ? 'rgba(15, 15, 15, 1)'
+              : 'rgba(0, 0, 0, 0.8)',
+          }}
+        />
+        <circle
+          className="fill"
+          fill="transparent"
+          style={{
+            stroke:
+              player.team !== 0 ? 'rgb(var(--orange))' : 'rgb(var(--blue))',
+            transition: '100ms',
+          }}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+        <circle className="border-outer" />
+        <text
+          className="boost-num"
+          fill="white"
+          ref={(boostNum) => {
+            if (!boostNum) return;
+            let centerX = boostNum.getBoundingClientRect().width / 2;
+            let centerY = boostNum.getBoundingClientRect().height / 4;
+            boostNum.setAttribute('x', `${x - centerX - 5}`);
+            boostNum.setAttribute(
+              'y',
+              `${y + centerY - (hasLocalPlayer ? 0 : 35)}`
+            );
+          }}
+        >
+          {player.boost}
+        </text>
+        <text
+          className="speed-num"
+          fill={player.isSonic ? 'rgba(255, 217, 0,1)' : 'white'}
+          style={{ visibility: hasLocalPlayer ? 'hidden' : 'visible' }}
+          ref={(speedNum) => {
+            if (!speedNum) return;
+            let centerX = speedNum.getBoundingClientRect().width / 2;
+            let centerY = speedNum.getBoundingClientRect().height / 4;
+            speedNum.setAttribute('x', `${x - centerX - 5}`);
+            speedNum.setAttribute('y', `${y + centerY + 20}`);
+          }}
+        >
+          {player.speed} MPH
+        </text>
+        <line
+          x1={one * 80}
+          y1={one * 150}
+          x2={one * 220}
+          y2={one * 150}
+          stroke="white"
+          style={{ visibility: hasLocalPlayer ? 'hidden' : 'visible' }}
+        />
+      </svg>
+    </div>
+  );
+}

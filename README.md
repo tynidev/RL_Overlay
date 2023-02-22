@@ -32,7 +32,7 @@ https://www.youtube.com/watch?v=QE816DBuwI4
 
 To build run Step 1-3 in terminal.
 1. `cd \<ws-relay root\>`
-2. npm install websocket
+2. `npm install websocket`
 3. `npm install`
 
 To run ws-ovleray complete step 4 in terminal.

@@ -1,7 +1,7 @@
 import '../css/PostGameStats.css';
 import React, { FC } from 'react';
 import { Match } from '../match';
-import { NewPlayer, Player } from '../types/player';
+import { Player } from '../types/player';
 import { NewTeam, Team } from '../types/team';
 import { Series } from '../types/series';
 import { GameTeam } from '../types/game';

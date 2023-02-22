@@ -46,5 +46,7 @@ In terminal:
 ### 5. Add Browser source to OBS
 1. Add new source of type Browser to OBS Scene
 2. Configure source as follows:
+
 ![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
+
 3. Size Source to OBS canvas

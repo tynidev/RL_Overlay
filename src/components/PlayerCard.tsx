@@ -1,9 +1,9 @@
 import '../css/PlayerCard.css';
-import assist_svg from '../assets/stat-icons/assist.svg';
-import save_svg from '../assets/stat-icons/save.svg';
-import goal_svg from '../assets/stat-icons/goal.svg';
-import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
-import demo_svg from '../assets/stat-icons/demolition.svg';
+// import assist_svg from '../assets/stat-icons/assist.svg';
+// import save_svg from '../assets/stat-icons/save.svg';
+// import goal_svg from '../assets/stat-icons/goal.svg';
+// import shot_svg from '../assets/stat-icons/shot-on-goal.svg';
+// import demo_svg from '../assets/stat-icons/demolition.svg';
 import React, { FC } from 'react';
 import { Player } from '../types/player';
 import { truncate } from '../util/utils';
@@ -15,7 +15,7 @@ interface PlayerCardProps {
   showBoost: boolean;
 }
 
-export const PlayerCard: FC<PlayerCardProps> = (props) => {
+export const PlayerCardCore: FC<PlayerCardProps> = (props) => {
   const { player, spectating, index, showBoost } = props;
 
   let name = truncate(player.name, 25);
@@ -28,7 +28,7 @@ export const PlayerCard: FC<PlayerCardProps> = (props) => {
       className={'player' + (spectating ? ' spectatingTeamBoard' : '')}
     >
       <div className="name" style={{fontSize:fontSize}}>{name}</div>
-      <div className="stats">
+      {/* <div className="stats">
         <div className="stat">
           <div className="goal">{player.goals}</div>
           <img src={goal_svg} alt="" />
@@ -49,7 +49,7 @@ export const PlayerCard: FC<PlayerCardProps> = (props) => {
           <div className="demo">{player.demos}</div>
           <img src={demo_svg} alt="" />
         </div>
-      </div>
+      </div> */}
       <div
         className="boost"
         style={{ visibility: showBoost ? 'visible' : 'hidden' }}
@@ -61,3 +61,18 @@ export const PlayerCard: FC<PlayerCardProps> = (props) => {
     </div>
   );
 };
+
+export const PlayerCard = React.memo(
+  PlayerCardCore,
+  ShouldUpdate
+);
+
+function ShouldUpdate(prevProps:PlayerCardProps, nextProps:PlayerCardProps): boolean{
+  return!(
+    prevProps.index !== nextProps.index ||
+    prevProps.showBoost !== nextProps.showBoost ||
+    prevProps.spectating !== nextProps.spectating ||
+    prevProps.player.name !== nextProps.player.name ||
+    prevProps.player.boost !== nextProps.player.boost
+  );
+}

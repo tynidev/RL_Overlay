@@ -12,6 +12,7 @@ download from link and install then configure to stream rocket league
 
 ## HowTo Run Overlay
 ### 1. Build Overlay Server (only need once OR on any changes)
+In terminal:
 1. `cd <project root>`
 2. `npm install`
 3. `npm run build`

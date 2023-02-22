@@ -12,7 +12,7 @@ download from link and install then configure to stream rocket league
 
 ## HowTo Run Overlay
 ### 1. Build Overlay Server (only need once OR on any changes)
-1. `cd \<project root\>`
+1. `cd <project root>`
 2. `npm install`
 3. `npm run build`
 4. `npm install -g serve` (only need step 4 once to install serve command for later)
@@ -34,7 +34,7 @@ https://www.youtube.com/watch?v=QE816DBuwI4
 [Original Documentation](https://gitlab.com/bakkesplugins/sos/sos-ws-relay/-/blob/master/README.md)
 
 To build run Step 1-3 in terminal.
-1. `cd \<ws-relay root\>`
+1. `cd <ws-relay root>`
 2. `npm install websocket`
 3. `npm install`
 
@@ -44,7 +44,7 @@ To run ws-ovleray complete step 4 in terminal.
 
 ### 4. Run Overlay Server
 In terminal:
-1. `cd \<project root\>`
+1. `cd <project root>`
 2. `serve -s build`
 
 ### 5. Add Browser source to OBS

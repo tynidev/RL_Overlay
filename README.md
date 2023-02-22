@@ -18,10 +18,13 @@ download from link and install then configure to stream rocket league
 4. `npm install -g serve` (only need step 4 once to install serve command for later)
 
 ### 2. Install SOS plugin & Run Rocket League
-Steps 1-3 only needed once. In the future just open Rocket League.
+Steps 1-3 only needed once.
 1. Copy `SOS.dll` to `%appdata%\bakkesmod\bakkesmod\plugins`
 2. Copy `sos.set` to `%appdata%\bakkesmod\bakkesmod\plugins\settings`
 3. Add new line `plugin load sos` to BakkesMod plugin load cfg at `%appdata%\bakkesmod\bakkesmod\cfg\plugins.cfg`
+
+In the future just open Rocket League.
+
 4. Run Rocket League
 
 Video showing how to get SOS running 

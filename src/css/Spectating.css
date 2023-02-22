@@ -36,8 +36,8 @@
 	--cr: calc(var(--one)*150);
 	height: var(--rh);
 	width: var(--rw);
-	top: calc(var(--sh) - calc(var(--rh) + calc(var(--one) * 40)));
-	left: calc(var(--sw) - calc(var(--rw) + calc(var(--one) * 30)));
+	top: calc(var(--one) * -95);
+	left: calc(var(--sw) - calc(var(--rw) + calc(var(--one) * 70)));
 }
 
 .spectating-boost .boost-ring{

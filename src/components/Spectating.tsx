@@ -47,7 +47,7 @@ export const getState = (
       speed: 0,
       isSonic: false,
     },
-    hasLocalPlayer: !!match.localPlayer,
+    hasLocalPlayer: match.localPlayer,
   };
 };
 

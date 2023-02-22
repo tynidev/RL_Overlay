@@ -30,3 +30,38 @@ export interface Player {
   team: number;
   touches: number;
 }
+
+export function NewPlayer(): Player {
+  return {
+    name: '',
+    score: 0,
+    goals: 0,
+    assists: 0,
+    shots: 0,
+    saves: 0,
+    demos: 0,
+    attacker: '',
+    boost: 0,
+    cartouches: 0,
+    hasCar: false,
+    id: '',
+    isDead: false,
+    isPowersliding: false,
+    isSonic: false,
+    location: {
+      X: 0,
+      Y: 0,
+      Z: 0,
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+    },
+    onGround: false,
+    onWall: false,
+    primaryID: '',
+    shortcut: 0,
+    speed: 0,
+    team: 0,
+    touches: 0,
+  };
+}

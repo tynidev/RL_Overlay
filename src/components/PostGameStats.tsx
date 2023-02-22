@@ -8,208 +8,7 @@ import { GameTeam } from '../types/game';
 import mvp_svg from '../assets/stat-icons/mvp.svg';
 import { areEqual } from '../util/utils';
 
-function arePlayersEqual(p1: Player, p2: Player): boolean{
-  return !(
-    p1.name !== p2.name ||
-    p1.score !== p2.score ||
-    p1.goals !== p2.goals ||
-    p1.assists !== p2.assists ||
-    p1.shots !== p2.shots ||
-    p1.saves !== p2.saves ||
-    p1.demos !== p2.demos
-  );
-}
-
-export const getPostGameState = (
-  match: Match,
-  display: boolean
-): PostGameProps => ({
-  display: display,
-  teams: match?.state?.game?.teams
-    ? [match?.state?.game?.teams[0], match?.state?.game?.teams[1]]
-    : [NewTeam(),NewTeam(),],
-  left: (match?.state.left.length ?? 0) > 0 ? match?.state.left : [],
-  right: (match?.state.right.length ?? 0) > 0 ? match?.state.right : [],
-  series: match.series,
-});
-
-export interface PostGameProps {
-  display: boolean;
-  teams: GameTeam[];
-  left: Player[];
-  right: Player[];
-  series: Series;
-}
-
-interface TeamCount {
-  left: number;
-  right: number;
-}
-
-interface Stats {
-  score: TeamCount;
-  goals: TeamCount;
-  assists: TeamCount;
-  shots: TeamCount;
-  saves: TeamCount;
-  demos: TeamCount;
-}
-
-interface TeamTable {
-  mvpHeader:Array<boolean>;
-  nameHeader:Array<string>; 
-  statsRows:Array<Array<string>>;
-}
-
-function FillTeams_AggregateStats_GetMVP(
-  teams: Team[],
-  left_orig: Player[],
-  right_orig: Player[]
-): [TeamTable, TeamTable, Stats] {
-
-  let leftTable:TeamTable = {mvpHeader:[], nameHeader:[], statsRows:[[],[],[],[],[],[]]};
-  let rightTable:TeamTable = {mvpHeader:[], nameHeader:[], statsRows:[[],[],[],[],[],[]]};
-
-  let mvp_max = 0;
-  let mvp_idx = 0;
-
-  let stats: Stats = {
-    score: { left: 0, right: 0 },
-    goals: { left: 0, right: 0 },
-    assists: { left: 0, right: 0 },
-    shots: { left: 0, right: 0 },
-    saves: { left: 0, right: 0 },
-    demos: { left: 0, right: 0 },
-  };
-
-  for (let i = 0; i < 3; i++) {
-    if (i < left_orig.length) {
-      // Fill Team with player
-      let p = left_orig[i];
-      leftTable.mvpHeader.push(false);
-      leftTable.nameHeader.push(p.name);
-      leftTable.statsRows[0].push(p.score.toString());
-      leftTable.statsRows[1].push(p.goals.toString());
-      leftTable.statsRows[2].push(p.assists.toString());
-      leftTable.statsRows[3].push(p.shots.toString());
-      leftTable.statsRows[4].push(p.saves.toString());
-      leftTable.statsRows[5].push(p.demos.toString());
-
-      // Aggregate Stats
-      stats.score.left += p.score;
-      stats.goals.left += p.goals;
-      stats.assists.left += p.assists;
-      stats.shots.left += p.shots;
-      stats.saves.left += p.saves;
-      stats.demos.left += p.demos;
-
-      // Calculate MVP
-      if (teams[0].score >= teams[1].score && p.score >= mvp_max) {
-        mvp_idx = i;
-        mvp_max = p.score;
-      }
-    } else {
-      // Fill Team empty player
-      leftTable.mvpHeader.push(false);
-      leftTable.nameHeader.push('');
-      leftTable.statsRows[0].push('');
-      leftTable.statsRows[1].push('');
-      leftTable.statsRows[2].push('');
-      leftTable.statsRows[3].push('');
-      leftTable.statsRows[4].push('');
-      leftTable.statsRows[5].push('');
-    }
-  }
-
-  for (let i = 0; i < 3; i++) {
-    if (i < right_orig.length) {
-      // Fill Team with player
-      let p = right_orig[i];
-      rightTable.mvpHeader.push(false);
-      rightTable.nameHeader.push(p.name);
-      rightTable.statsRows[0].push(p.score.toString());
-      rightTable.statsRows[1].push(p.goals.toString());
-      rightTable.statsRows[2].push(p.assists.toString());
-      rightTable.statsRows[3].push(p.shots.toString());
-      rightTable.statsRows[4].push(p.saves.toString());
-      rightTable.statsRows[5].push(p.demos.toString());
-
-      // Aggregate Stats
-      stats.score.right += p.score;
-      stats.goals.right += p.goals;
-      stats.assists.right += p.assists;
-      stats.shots.right += p.shots;
-      stats.saves.right += p.saves;
-      stats.demos.right += p.demos;
-
-      // Calculate MVP
-      if (teams[1].score >= teams[0].score && p.score >= mvp_max) {
-        mvp_idx = i + 3;
-        mvp_max = p.score;
-      }
-    } else {
-      // Fill Team empty player
-      rightTable.mvpHeader.push(false);
-      rightTable.nameHeader.push('');
-      rightTable.statsRows[0].push('');
-      rightTable.statsRows[1].push('');
-      rightTable.statsRows[2].push('');
-      rightTable.statsRows[3].push('');
-      rightTable.statsRows[4].push('');
-      rightTable.statsRows[5].push('');
-    }
-  }
-
-  if(mvp_idx < 3)
-    leftTable.mvpHeader[mvp_idx] = true;
-  else
-    rightTable.mvpHeader[mvp_idx - 3] = true;
-  
-  const swapElement = (array:Array<any>, indexA:number, indexB:number) => {
-    var tmp = array[indexA];
-    array[indexA] = array[indexB];
-    array[indexB] = tmp;
-  }
-  
-  [leftTable.mvpHeader, leftTable.nameHeader].forEach(element => {
-    swapElement(element, 0, 1);
-    swapElement(element, 0, 2);
-  });
-  leftTable.statsRows.forEach(element => {
-    swapElement(element, 0, 1);
-    swapElement(element, 0, 2);
-  });
-
-  swapElement(rightTable.mvpHeader, 0, 1);
-  swapElement(rightTable.nameHeader, 0, 1);
-  rightTable.statsRows.forEach(element => {
-    swapElement(element, 0, 1);
-  });
-
-  return [leftTable, rightTable, stats];
-}
-
-function calcPct({ left, right }: TeamCount): number {
-  const num = left + right === 0 ? 0.5 : left / (left + right);
-  return (360 - 10) * num;
-}
-
 const PostGameStatsCore: FC<PostGameProps> = (props) => {
- 
-  const [leftTable, rightTable, stats] = FillTeams_AggregateStats_GetMVP(
-    props.teams,
-    props.left,
-    props.right
-  );
-
-  const leftStatSliderWidth = {
-    'score': calcPct(stats.score),
-    'goals': calcPct(stats.goals),
-    'assists': calcPct(stats.assists),
-    'shots': calcPct(stats.shots),
-    'saves': calcPct(stats.saves),
-    'demos': calcPct(stats.demos),
-  };
 
   let series_txt = '';
   let game_txt = '';
@@ -230,48 +29,16 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
         ? formText(props.series.teams[1].name, right_won, left_won)
         : `series tied ${left_won}-${right_won}`;
   }
-
-  const TeamStatTable = (className:any, team:TeamTable):JSX.Element => {
-    return (<table className={className}>
-    <thead>
-      <tr className="mvp-row">
-        {team.mvpHeader.map((value, index) => {
-          return <th><img className="mvp" src={mvp_svg} alt="" style={{ visibility: value ? 'visible' : 'hidden' }} key={index}/></th>
-        })}
-      </tr>
-      <tr className="name">
-        {team.nameHeader.map((value, index) => {
-          return <th key={index}>{value}</th>
-        })}
-      </tr>
-    </thead>
-    <tbody>
-      {team.statsRows.map((stats, statIdx):JSX.Element => {
-        return <tr key={statIdx}>{stats.map((playerStat, playerStatIdx):JSX.Element =>{
-          return <td key={playerStatIdx}>{playerStat}</td>;
-        })}</tr>
-      })}
-    </tbody>
-  </table>);
-  };
-
-  let sliders:JSX.Element[] = [];
-  Object.keys(leftStatSliderWidth).forEach((sliderStat, idx) => {
-    let value = leftStatSliderWidth[sliderStat as keyof typeof leftStatSliderWidth];
-    sliders.push(<div className="stat-slider" key={idx}>
-      <div className="stat-slider-name">{sliderStat}</div>
-      <div className="stat-slider-box">
-        <div className="stat-slider-left" style={{ width: value }} />
-        <div className="stat-slider-right"style={{ width: 360 - 10 - value, left: value + 5 }} />
-      </div>
-    </div>);
-  });
+ 
+  const [leftTable, rightTable, aggregatedStats] = GetTeamTables_AggregateStats(
+    props.teams,
+    props.left,
+    props.right
+  );
 
   return (
-    <div
-      className="postgame-stats"
-      style={{ opacity: props.display ? '1' : '0', transition: '400ms' }}
-    >
+    <div className="postgame-stats" style={{ opacity: props.display ? '1' : '0', transition: '400ms' }}>
+
       <div className="left-team-score-overline"></div>
       <div className="left-team-score">{props.teams[0].score}</div>
       <div className="left-team-name">{props.series.teams[0].name}</div>
@@ -292,16 +59,22 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
       {TeamStatTable("left-team-stats", leftTable)}
 
       <div className="stat-sliders">
-        {sliders}
+        {StatSliders(aggregatedStats)}
       </div>
 
       {TeamStatTable("right-team-stats", rightTable)}
 
       <div className="left-player-names-underline"></div>
       <div className="right-player-names-underline"></div>
+
     </div>
   );
 };
+
+export const PostGameStats = React.memo(
+  PostGameStatsCore,
+  ShouldUpdate
+);
 
 function ShouldUpdate(prevProps:PostGameProps, nextProps:PostGameProps): boolean{
   return!(
@@ -322,7 +95,238 @@ function ShouldUpdate(prevProps:PostGameProps, nextProps:PostGameProps): boolean
     !areEqual(prevProps.left, nextProps.left, arePlayersEqual) ||
     !areEqual(prevProps.right, nextProps.right, arePlayersEqual));
 }
-export const PostGameStats = React.memo(
-  PostGameStatsCore,
-  ShouldUpdate
-);
+
+function arePlayersEqual(p1: Player, p2: Player): boolean{
+  return !(
+    p1.name !== p2.name ||
+    p1.score !== p2.score ||
+    p1.goals !== p2.goals ||
+    p1.assists !== p2.assists ||
+    p1.shots !== p2.shots ||
+    p1.saves !== p2.saves ||
+    p1.demos !== p2.demos
+  );
+}
+
+export function getPostGameState(match: Match, display: boolean): PostGameProps {
+  return {
+    display: display,
+    teams: match?.state?.game?.teams
+      ? [match?.state?.game?.teams[0], match?.state?.game?.teams[1]]
+      : [NewTeam(),NewTeam(),],
+    left: (match?.state.left.length ?? 0) > 0 ? match?.state.left : [],
+    right: (match?.state.right.length ?? 0) > 0 ? match?.state.right : [],
+    series: match.series,
+  };
+}
+
+export interface PostGameProps {
+  display: boolean;
+  teams: GameTeam[];
+  left: Player[];
+  right: Player[];
+  series: Series;
+}
+
+interface TeamCount {
+  left: number;
+  right: number;
+}
+
+interface AggregatedTeamStats {
+  score: TeamCount;
+  goals: TeamCount;
+  assists: TeamCount;
+  shots: TeamCount;
+  saves: TeamCount;
+  demos: TeamCount;
+}
+
+interface TeamTable {
+  mvpHeader:Array<boolean>;
+  nameHeader:Array<string>; 
+  statRows:Array<Array<string>>;
+}
+
+function StatSliders(stats:AggregatedTeamStats):JSX.Element[]{
+  const leftStatSliderWidth = {
+    'score': calcSliderPosition(stats.score),
+    'goals': calcSliderPosition(stats.goals),
+    'assists': calcSliderPosition(stats.assists),
+    'shots': calcSliderPosition(stats.shots),
+    'saves': calcSliderPosition(stats.saves),
+    'demos': calcSliderPosition(stats.demos),
+  };
+  let sliders:JSX.Element[] =  [];
+  Object.keys(leftStatSliderWidth).forEach((sliderStat, idx) => {
+    let value = leftStatSliderWidth[sliderStat as keyof typeof leftStatSliderWidth];
+    sliders.push(<div className="stat-slider" key={idx}>
+      <div className="stat-slider-name">{sliderStat}</div>
+      <div className="stat-slider-box">
+        <div className="stat-slider-left" style={{ width: value }} />
+        <div className="stat-slider-right"style={{ width: 360 - 10 - value, left: value + 5 /* no idea why I need these offset values */}} />
+      </div>
+    </div>);
+  });
+  return sliders;
+}
+
+function TeamStatTable(className:any, team:TeamTable):JSX.Element{
+  return (<table className={className}>
+  <thead>
+    <tr className="mvp-row">
+      {team.mvpHeader.map((value, index):JSX.Element => {
+        return <th><img className="mvp" src={mvp_svg} alt="" style={{ visibility: value ? 'visible' : 'hidden' }} key={index}/></th>
+      })}
+    </tr>
+    <tr className="name">
+      {team.nameHeader.map((value, index):JSX.Element => {
+        return <th key={index}>{value}</th>
+      })}
+    </tr>
+  </thead>
+  <tbody>
+    {team.statRows.map((stats, statIdx):JSX.Element => {
+      return <tr key={statIdx}>{stats.map((playerStat, playerStatIdx):JSX.Element =>{
+        return <td key={playerStatIdx}>{playerStat}</td>;
+      })}</tr>
+    })}
+  </tbody>
+</table>);
+};
+
+function GetTeamTables_AggregateStats(
+  teams: Team[],
+  left_orig: Player[],
+  right_orig: Player[]
+): [TeamTable, TeamTable, AggregatedTeamStats] {
+
+  let leftTable:TeamTable = {mvpHeader:[], nameHeader:[], statRows:[[],[],[],[],[],[]]};
+  let rightTable:TeamTable = {mvpHeader:[], nameHeader:[], statRows:[[],[],[],[],[],[]]};
+
+  let mvp_max = 0;
+  let mvp_idx = 0;
+
+  let stats: AggregatedTeamStats = {
+    score: { left: 0, right: 0 },
+    goals: { left: 0, right: 0 },
+    assists: { left: 0, right: 0 },
+    shots: { left: 0, right: 0 },
+    saves: { left: 0, right: 0 },
+    demos: { left: 0, right: 0 },
+  };
+
+  for (let i = 0; i < 3; i++) {
+    if (i < left_orig.length) {
+      // Fill Team with player
+      let p = left_orig[i];
+      leftTable.mvpHeader.push(false);
+      leftTable.nameHeader.push(p.name);
+      leftTable.statRows[0].push(p.score.toString());
+      leftTable.statRows[1].push(p.goals.toString());
+      leftTable.statRows[2].push(p.assists.toString());
+      leftTable.statRows[3].push(p.shots.toString());
+      leftTable.statRows[4].push(p.saves.toString());
+      leftTable.statRows[5].push(p.demos.toString());
+
+      // Aggregate Stats
+      stats.score.left += p.score;
+      stats.goals.left += p.goals;
+      stats.assists.left += p.assists;
+      stats.shots.left += p.shots;
+      stats.saves.left += p.saves;
+      stats.demos.left += p.demos;
+
+      // Calculate MVP
+      if (teams[0].score >= teams[1].score && p.score >= mvp_max) {
+        mvp_idx = i;
+        mvp_max = p.score;
+      }
+    } else {
+      // Fill Team empty player
+      leftTable.mvpHeader.push(false);
+      leftTable.nameHeader.push('');
+      leftTable.statRows[0].push('');
+      leftTable.statRows[1].push('');
+      leftTable.statRows[2].push('');
+      leftTable.statRows[3].push('');
+      leftTable.statRows[4].push('');
+      leftTable.statRows[5].push('');
+    }
+  }
+
+  for (let i = 0; i < 3; i++) {
+    if (i < right_orig.length) {
+      // Fill Team with player
+      let p = right_orig[i];
+      rightTable.mvpHeader.push(false);
+      rightTable.nameHeader.push(p.name);
+      rightTable.statRows[0].push(p.score.toString());
+      rightTable.statRows[1].push(p.goals.toString());
+      rightTable.statRows[2].push(p.assists.toString());
+      rightTable.statRows[3].push(p.shots.toString());
+      rightTable.statRows[4].push(p.saves.toString());
+      rightTable.statRows[5].push(p.demos.toString());
+
+      // Aggregate Stats
+      stats.score.right += p.score;
+      stats.goals.right += p.goals;
+      stats.assists.right += p.assists;
+      stats.shots.right += p.shots;
+      stats.saves.right += p.saves;
+      stats.demos.right += p.demos;
+
+      // Calculate MVP
+      if (teams[1].score >= teams[0].score && p.score >= mvp_max) {
+        mvp_idx = i + 3;
+        mvp_max = p.score;
+      }
+    } else {
+      // Fill Team empty player
+      rightTable.mvpHeader.push(false);
+      rightTable.nameHeader.push('');
+      rightTable.statRows[0].push('');
+      rightTable.statRows[1].push('');
+      rightTable.statRows[2].push('');
+      rightTable.statRows[3].push('');
+      rightTable.statRows[4].push('');
+      rightTable.statRows[5].push('');
+    }
+  }
+
+  // Set MVP
+  if(mvp_idx < 3)
+    leftTable.mvpHeader[mvp_idx] = true;
+  else
+    rightTable.mvpHeader[mvp_idx - 3] = true;
+  
+  const swapElement = (array:Array<any>, indexA:number, indexB:number) => {
+    var tmp = array[indexA];
+    array[indexA] = array[indexB];
+    array[indexB] = tmp;
+  }
+  
+  // Order left table so first player is in middle, 2nd player is on right, and 3rd player is on left
+  [leftTable.mvpHeader, leftTable.nameHeader].forEach(element => {
+    swapElement(element, 0, 1);
+    swapElement(element, 0, 2);
+  });
+  leftTable.statRows.forEach(element => {
+    swapElement(element, 0, 1);
+    swapElement(element, 0, 2);
+  });
+
+  // Order left table so first player is in middle, 2nd player is on left, and 3rd player is on right
+  swapElement(rightTable.mvpHeader, 0, 1);
+  swapElement(rightTable.nameHeader, 0, 1);
+  rightTable.statRows.forEach(element => {
+    swapElement(element, 0, 1);
+  });
+
+  return [leftTable, rightTable, stats];
+}
+
+function calcSliderPosition({ left, right }: TeamCount): number {
+  const num = left + right === 0 ? 0.5 : left / (left + right);
+  return (360 - 10) * num;
+}

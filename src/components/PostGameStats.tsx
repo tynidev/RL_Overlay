@@ -210,41 +210,41 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
             </th>
           </tr>
           <tr className="name">
-            <th>{left_team[2].name}</th>
-            <th>{left_team[0].name}</th>
             <th>{left_team[1].name}</th>
+            <th>{left_team[0].name}</th>
+            <th>{left_team[2].name}</th>
           </tr>
         </thead>
         <tbody>
           <tr className="score">
-            <td>{left_team[2].name !== '' ? left_team[2].score : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].score : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].score : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].score : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].score : ''}</td>
           </tr>
           <tr className="goals">
-            <td>{left_team[2].name !== '' ? left_team[2].goals : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].goals : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].goals : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].goals : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].goals : ''}</td>
           </tr>
           <tr className="assists">
-            <td>{left_team[2].name !== '' ? left_team[2].assists : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].assists : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].assists : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].assists : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].assists : ''}</td>
           </tr>
           <tr className="shots">
-            <td>{left_team[2].name !== '' ? left_team[2].shots : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].shots : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].shots : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].shots : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].shots : ''}</td>
           </tr>
           <tr className="saves">
-            <td>{left_team[2].name !== '' ? left_team[2].saves : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].saves : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].saves : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].saves : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].saves : ''}</td>
           </tr>
           <tr className="demos">
-            <td>{left_team[2].name !== '' ? left_team[2].demos : ''}</td>
-            <td>{left_team[0].name !== '' ? left_team[0].demos : ''}</td>
             <td>{left_team[1].name !== '' ? left_team[1].demos : ''}</td>
+            <td>{left_team[0].name !== '' ? left_team[0].demos : ''}</td>
+            <td>{left_team[2].name !== '' ? left_team[2].demos : ''}</td>
           </tr>
         </tbody>
       </table>

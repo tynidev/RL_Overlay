@@ -20,8 +20,9 @@
 ### 2. Install SOS plugin & Run Rocket League
 Steps 1-2 only needed once. In the future just open Rocket League.
 1. Copy `SOS.dll` to BakkesMod plugin directory
-2. Add SOS to BakkesMod plugin load cfg
-3. Run Rocket League
+2. Copy `sos.set` to BakkesMod plugin settings directory
+3. Add SOS to BakkesMod plugin load cfg
+4. Run Rocket League
 
 Video showing how to get SOS running 
 https://www.youtube.com/watch?v=QE816DBuwI4

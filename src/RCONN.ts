@@ -8,7 +8,7 @@ export class RCONN{
   ws:WebSocket;
 
   constructor(RCONPASS?:string, RCONHOST?:string, RCONPORT?:number){
-    this.RCONPASS = RCONPASS || this.findRCONNPASS();
+    this.RCONPASS = RCONPASS || this.FindRCONNPASS();
     this.RCONHOST = RCONHOST || this.RCONHOST;
     this.RCONPORT = RCONPORT || this.RCONPORT;
 
@@ -16,20 +16,30 @@ export class RCONN{
     this.ws.onopen = this.onopen;
   };
 
-  findRCONNPASS():string{
+  FindRCONNPASS():string{
+    let cfg = this.ReadBakkesCfg();
+    let pass = cfg["rcon_password"];
+    if(pass === undefined)
+        throw "Bakkes config file did not contain configuration for rcon_password";
+    return pass;
+  }
+
+  ReadBakkesCfg():{ [key: string]: string }{
+    let cfg:{ [key: string]: string } = {};
+
     let file = `${process.env.APPDATA}/${this.BAKKESMOD_DIR}/cfg/config.cfg`;
     try {
       const contents = fs.readFileSync(file, {encoding:'utf8', flag:'r'});
       contents.split(/\r?\n/).forEach(line =>  {
         let pieces = line.split(' ');
-        let cfg_param = pieces[0];
-        if(cfg_param === 'rcon_password')
-          return pieces[1].replace(/['"]+/g, '');
+        if(pieces.length >= 2)
+            cfg[pieces[0]] = pieces[1].replace(/['"]+/g, '');
       });
+      return cfg;
     } catch (err) {
-      throw `Failed to read RCONN password from ${file} with error:\n\n${err}`;
+      throw `Failed to read bakkes config from ${file} with error:\n\n${err}`;
     }
-    throw `Failed to read RCONN password from ${file} with unknown error`;
+    throw `Failed to read bakkes config from ${file} with unknown error`;
   }
 
   onopen():void{

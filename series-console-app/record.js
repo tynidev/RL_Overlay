@@ -1,11 +1,9 @@
-import * as readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
 import WebSocket from 'ws';
 import fs from 'fs'
 
 let eventNum = 0;
 let webSocket = new WebSocket(`ws://localhost:49322`);
-const rl = readline.createInterface({ input, output });
+let recording = false;
 
 webSocket.onopen = (event) => {
     console.count("WebSocket:OnOpen");
@@ -32,9 +30,23 @@ webSocket.onclose  = (event) => {
 
 webSocket.onmessage = (event) => {
     console.count("WebSocket:OnMessage");
-    fs.writeFile("./testdata/" + (++eventNum) + ".json", event.data, (err) => {
-        if (err) console.log(err);
-    });
+
+    let jEvent = JSON.parse(event.data);
+    if (!jEvent.hasOwnProperty('event')) {
+        return;
+    }
+    const [channel, event_event] = jEvent.event.split(':');
+    if(channel === "game" && event_event === "match_created")
+        recording = true;
+
+    if(recording){
+        fs.writeFile("./testdata/" + (++eventNum) + ".json", event.data, (err) => {
+            if (err) console.log(err);
+        });
+    }
+
+    if(channel === "game" && event_event === "match_destroyed")
+        process.exit(0);
 };
 
 webSocket.onerror  = (event) => {
@@ -49,6 +61,3 @@ function register(channel, event){
         })
     );
 }
-
-await rl.question('Stop? ');
-process.exit()

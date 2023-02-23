@@ -21,14 +21,14 @@ function send(eventNum, webSocket){
 async function replay(eventStart, eventEnd, webSocket){
     while(eventStart <= eventEnd){
         send(eventStart++, webSocket);
-        await sleep(100);
+        await sleep(50);
     }
     process.exit();
 }
 
 webSocket.onopen = (event) => {
     console.count("WebSocket:OnOpen");
-    replay(82, 400, webSocket);
+    replay(1, 800, webSocket);
 };
 
 webSocket.onclose  = (event) => {

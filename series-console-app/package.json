@@ -1,10 +1,13 @@
 {
   "name": "series-console-appp",
+  "type": "module",
   "version": "1.0.0",
   "description": "Rocket League Overlay Series App",
   "main": "series.js",
   "scripts": {
-    "relay": "node series.js"
+    "series": "node series.js",
+    "record": "node record.js",
+    "replay": "node replay.js"
   },
   "author": "",
   "license": "MIT",

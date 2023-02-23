@@ -24,9 +24,7 @@ console.log(`WS_RELAY_PORT:${process.env.REACT_APP_WS_RELAY_PORT}`);
 console.log(`WS_RELAY_DEBUG:${process.env.REACT_APP_WS_RELAY_DEBUG}`);
 
 WsSubscribers.init(
-  process.env.REACT_APP_WS_RELAY_HOST,
-  process.env.REACT_APP_WS_RELAY_PORT,
-  process.env.REACT_APP_WS_RELAY_DEBUG
+  process.env.REACT_APP_WS_RELAY_HOST
 );
 
 const match = new Match(WsSubscribers, process.env.REACT_APP_RCONN_PASS);

@@ -1,5 +1,5 @@
-const WebSocket = require('ws');
-var prompt = require('prompt');
+import WebSocket from 'ws';
+import prompt from 'prompt';
 
 const WsSubscribers = {
     __subscribers: {},
@@ -178,14 +178,14 @@ prompt.get([
     ]
     });
 
-    left_score = 0;
-    right_score = 0;
-    left_team = r.left_team;
-    right_team = r.right_team;
+    let left_score = 0;
+    let right_score = 0;
+    let left_team = r.left_team;
+    let right_team = r.right_team;
 
     while(true)
     {
-        recieved_prompt = false;
+        let recieved_prompt = false;
 
         prompt.get([        
             {

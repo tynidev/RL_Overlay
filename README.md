@@ -7,10 +7,19 @@
 
 - [Node.js](https://nodejs.org/en/) 
 on windows in terminal run: `winget install OpenJS.NodeJS`
+- [SOS-WS-Relay](https://gitlab.com/bakkesplugins/sos/sos-ws-relay/-/tree/master)
+Download repo and follow readme instructions to build/run
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
 
-## HowTo Run Overlay
+## Architecture
+OBS must be run on the same machine as Rocket League in order to catpure the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
+
+![image](https://user-images.githubusercontent.com/118381/221242728-42a86089-7e9a-43d0-945e-c946259baac5.png)
+
+*NOTE: Overlay App is hosted by the Overlay Web Server which isn't shown in this diagram*
+
+## HowTo Run Overlay App
 ### 1. Build Overlay Server (only need once OR on any changes)
 In terminal:
 1. `cd <project root>`
@@ -48,10 +57,21 @@ In terminal:
 1. `cd <project root>`
 2. `serve -s build`
 
-### 5. Add Browser source to OBS
+### 5. Add Overlay App as Browser source to OBS
 1. Add new source of type Browser to OBS Scene
 2. Configure source as follows:
 
 ![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
 
 3. Size Source to OBS canvas
+
+## Extras
+### ButtonMash.dll
+This is a BakkesMod plugin that automatically joins matches as specator.  Install following the same steps as the SOS plugin and then enable in game in the BakkesMod settings UI accesible via F2.
+
+### RCONN connection to Rocket League
+The Overlay App can be configured to connect to Rocket League through a remote connection or RCONN plugin in BakkesMod and execute commands to automatically hide the UI elements when a match starts.
+
+Steps to configure:
+1. Get RCONN password located in file `%appdata%\bakkesmod\bakkesmod\cfg\config.cfg`. Look for line that starts with `rcon_password` and take the following value.
+2. Add `.env` file at `<project root>` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.

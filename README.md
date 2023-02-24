@@ -88,3 +88,6 @@ The Overlay App can be configured to connect to Rocket League through a remote c
 Steps to configure:
 1. Get RCONN password located in file `%appdata%\bakkesmod\bakkesmod\cfg\config.cfg`. Look for line that starts with `rcon_password` and take the following value.
 2. Add `.env` file at `<project root>\overlay-app` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.
+3. Add the following commands ro rcon allowed list in file `%appdata%\bakkesmod\bakkesmod\data\rcon_commands.cfg`
+  - `replay_gui`
+  - `rcon_refresh_allowed`

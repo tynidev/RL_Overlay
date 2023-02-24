@@ -64,3 +64,14 @@ In terminal:
 ![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
 
 3. Size Source to OBS canvas
+
+## Extras
+### ButtonMash.dll
+This is a BakkesMod plugin that automatically joins matches as specator.  Install following the same steps as the SOS plugin and then enable in game in the BakkesMod settings UI accesible via F2.
+
+### RCONN connection to Rocket League
+The Overlay App can be configured to connect to Rocket League through a remote connection or RCONN plugin in BakkesMod and execute commands to automatically hide the UI elements when a match starts.
+
+Steps to configure:
+1. Get RCONN password located in file `%appdata%\bakkesmod\bakkesmod\cfg\config.cfg`. Look for line that starts with `rcon_password` and take the following value.
+2. Add `.env` file at `<project root>` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.

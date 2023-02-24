@@ -6,7 +6,7 @@ import { NewTeam, Team } from '../types/team';
 import { Series } from '../types/series';
 import { GameTeam } from '../types/game';
 import mvp_svg from '../assets/stat-icons/mvp.svg';
-import { areEqual } from '../util/utils';
+import { areEqual, truncate } from '../util/utils';
 
 const PostGameStatsCore: FC<PostGameProps> = (props) => {
 
@@ -221,7 +221,7 @@ function GetTeamTables_AggregateStats(
       // Fill Team with player
       let p = left_orig[i];
       leftTable.mvpHeader.push(false);
-      leftTable.nameHeader.push(p.name);
+      leftTable.nameHeader.push(truncate(p.name, 13));
       leftTable.statRows[0].push(p.score.toString());
       leftTable.statRows[1].push(p.goals.toString());
       leftTable.statRows[2].push(p.assists.toString());
@@ -260,7 +260,7 @@ function GetTeamTables_AggregateStats(
       // Fill Team with player
       let p = right_orig[i];
       rightTable.mvpHeader.push(false);
-      rightTable.nameHeader.push(p.name);
+      rightTable.nameHeader.push(truncate(p.name, 13));
       rightTable.statRows[0].push(p.score.toString());
       rightTable.statRows[1].push(p.goals.toString());
       rightTable.statRows[2].push(p.assists.toString());

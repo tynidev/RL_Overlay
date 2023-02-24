@@ -37,7 +37,7 @@ Make sure BakkesMod is installed then in powershell window run:
 5. Size Source to OBS canvas
 6. Double click shortcut `Test-Game`
 
-In the future you can start RocketLeague then run steps 1 and 2 to setup your stream.
+If test is successful then in the future you only need to start RocketLeague and run steps 1 and 2 to setup your stream.
 
 ## Manual Instructions (Case you like to do it yourself)
 ### 1. Build Overlay Server (only need once OR on any changes)
@@ -63,14 +63,13 @@ https://www.youtube.com/watch?v=QE816DBuwI4
 ### 3. Build & Run ws-relay
 [Original Documentation](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md)
 
-To build run Step 1-3 in terminal.
+To build run Step 1-2 in terminal.
 1. `cd <project root>\sos-ws-relay`
-2. `npm install websocket`
-3. `npm install`
+2. `npm install`
 
-To run ws-ovleray complete step 4 in terminal.
+To run ws-ovleray complete step 3 in terminal.
 
-4. `node ws-relay.js`
+3. `node ws-relay.js`
 
 ### 4. Run Overlay Server
 In terminal:

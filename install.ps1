@@ -42,6 +42,7 @@ function build-overlay-app {
     cd $root/overlay-app
     npm install
     npm run build
+    npm install -g serve
     cd $root
 
     $WshShell = New-Object -comObject WScript.Shell

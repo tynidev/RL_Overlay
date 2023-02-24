@@ -13,8 +13,6 @@ export class RCONN{
     this.RCONHOST = RCONHOST || this.RCONHOST;
     this.RCONPORT = RCONPORT || this.RCONPORT;
 
-    console.log(`Opening RCONN to: ws://${this.RCONHOST}:${this.RCONPORT} with pass: ${this.RCONPASS}`);
-
     const onopen = ():void => {
       this.sendNoWait(`rcon_password ${this.RCONPASS}`);
       this.sendNoWait('rcon_refresh_allowed');
@@ -26,6 +24,7 @@ export class RCONN{
     }
     this.sendNoWait = sendNoWait;
 
+    console.log(`Connecting RocketLeague.RCONN: ws://${this.RCONHOST}:${this.RCONPORT} with pass: ${this.RCONPASS}`);
     this.ws = new WebSocket(`ws://${this.RCONHOST}:${this.RCONPORT}`);
     this.ws.onopen = onopen;
   };

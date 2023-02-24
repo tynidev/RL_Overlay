@@ -73,25 +73,12 @@ export class Match {
 
   constructor(
     ws: typeof WsSubscribers,
-    RCONNPASS?: string,
-    RCONNHOST?: string,
-    RCONNPORT?: number|string,
+    RCONN?: RCONN,
     localplayer_support?: boolean
   ) {
     this.localplayer_support = localplayer_support || true;
-
-    if(RCONNPASS){
-      try{
-        this.RCONN = new RCONN(RCONNPASS, RCONNHOST, RCONNPORT);
-        this.RCONN.send('replay_gui hud 0');
-        this.RCONN.send('replay_gui matchinfo 0');
-      }
-      catch(err){
-        console.error(err);
-        this.RCONN = undefined;
-      }
-    }
-
+    this.RCONN = RCONN || undefined;
+    
     // When game is created before everyone has picked sides or specator roles
     ws.subscribe('game', 'match_created', () => {
       this.state.setState('pre-game-lobby');

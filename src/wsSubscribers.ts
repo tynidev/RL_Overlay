@@ -13,6 +13,7 @@ export const WsSubscribers = {
   ) => {
     host = host || 'localhost';
     port = port || 49322;
+    console.log(`Connecting ws-relay ws://${host}:${port}`);
     if (debug) {
       if (debugFilters !== undefined) {
         console.warn(

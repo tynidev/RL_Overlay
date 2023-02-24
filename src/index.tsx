@@ -10,10 +10,31 @@ import { Match } from './match';
 import { Stream } from './routes/Stream';
 import { GameStats } from './routes/GameStats';
 import { MiniMapRoute } from './routes/MiniMapRoute';
+import { RCONN } from './RCONN';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
   return { width, height };
+}
+
+function tryStartRconn():RCONN | undefined{
+  if(process.env.REACT_APP_RCONN_PASS){
+    try{
+      let r = new RCONN(
+        process.env.REACT_APP_RCONN_PASS, 
+        process.env.REACT_APP_RCONN_HOST, 
+        process.env.REACT_APP_RCONN_PORT
+        );
+    
+      r.send('replay_gui hud 0');
+      r.send('replay_gui matchinfo 0');
+      return r;
+    }
+    catch(err){
+      console.log(err);
+    }
+    return undefined;
+  }
 }
 
 const { height, width } = getWindowDimensions();
@@ -24,15 +45,17 @@ console.log(`WS_RELAY_PORT:${process.env.REACT_APP_WS_RELAY_PORT}`);
 console.log(`WS_RELAY_DEBUG:${process.env.REACT_APP_WS_RELAY_DEBUG}`);
 
 WsSubscribers.init(
-  process.env.REACT_APP_WS_RELAY_HOST
+  process.env.REACT_APP_WS_RELAY_HOST,
+  process.env.REACT_APP_WS_RELAY_PORT,
+  process.env.REACT_APP_WS_RELAY_DEBUG
 );
 
+const rconn = tryStartRconn(); // try to open remote connection to Rocket league to hide UI on match startup
+
 const match = new Match(
-  WsSubscribers, 
-  process.env.REACT_APP_RCONN_PASS, 
-  process.env.REACT_APP_RCONN_HOST, 
-  process.env.REACT_APP_RCONN_PORT
-  );
+  WsSubscribers,   
+  rconn
+);
 
 const router = createBrowserRouter([
   {

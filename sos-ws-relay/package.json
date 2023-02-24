@@ -1,0 +1,18 @@
+{
+  "name": "sos-ws-relay",
+  "version": "1.0.0",
+  "description": "Websocket Relay. Very lightweight",
+  "main": "ws-relay.js",
+  "scripts": {
+    "relay": "node ws-relay.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "atob": "^2.1.2",
+    "cli-msg": "^1.0.0",
+    "minimist": "^1.2.5",
+    "prompt": "^1.1.0",
+    "ws": "^7.4.3"
+  }
+}

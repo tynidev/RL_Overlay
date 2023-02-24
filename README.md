@@ -13,7 +13,11 @@ Download repo and follow readme instructions to build/run
 download from link and install then configure to stream rocket league
 
 ## Architecture
+OBS must be run on the same machine as Rocket League in order to catpure the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
+
 ![image](https://user-images.githubusercontent.com/118381/221242728-42a86089-7e9a-43d0-945e-c946259baac5.png)
+
+*NOTE: Overlay App is hosted by the Overlay Web Server which isn't shown in this diagram*
 
 ## HowTo Run Overlay App
 ### 1. Build Overlay Server (only need once OR on any changes)

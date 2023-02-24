@@ -15,7 +15,7 @@ Note: The following pre-reqs are installed via the `install.ps1` script
 
 
 ## Architecture
-OBS must be run on the same machine as Rocket League in order to catpure the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
+OBS must be run on the same machine as Rocket League in order to capture the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
 
 ![image](https://user-images.githubusercontent.com/118381/221242728-42a86089-7e9a-43d0-945e-c946259baac5.png)
 
@@ -69,7 +69,7 @@ To build run Step 1-2 in terminal.
 1. `cd <project root>\sos-ws-relay`
 2. `npm install`
 
-To run ws-ovleray complete step 3 in terminal.
+To run ws-overlay complete step 3 in terminal.
 
 3. `node ws-relay.js`
 

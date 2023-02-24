@@ -35,7 +35,7 @@ Make sure BakkesMod is installed then in powershell window run:
 ![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
 
 5. Size Source to OBS canvas
-6. Double click shortcut 'Test-Game'
+6. Double click shortcut `Test-Game`
 
 In the future you can start RocketLeague then run steps 1 and 2 to setup your stream.
 

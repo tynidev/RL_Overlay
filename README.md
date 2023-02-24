@@ -7,10 +7,15 @@
 
 - [Node.js](https://nodejs.org/en/) 
 on windows in terminal run: `winget install OpenJS.NodeJS`
+- [SOS-WS-Relay](https://gitlab.com/bakkesplugins/sos/sos-ws-relay/-/tree/master)
+Download repo and follow readme instructions to build/run
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
 
-## HowTo Run Overlay
+## Architecture
+![image](https://user-images.githubusercontent.com/118381/221242728-42a86089-7e9a-43d0-945e-c946259baac5.png)
+
+## HowTo Run Overlay App
 ### 1. Build Overlay Server (only need once OR on any changes)
 In terminal:
 1. `cd <project root>`
@@ -48,7 +53,7 @@ In terminal:
 1. `cd <project root>`
 2. `serve -s build`
 
-### 5. Add Browser source to OBS
+### 5. Add Overlay App as Browser source to OBS
 1. Add new source of type Browser to OBS Scene
 2. Configure source as follows:
 

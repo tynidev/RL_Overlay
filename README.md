@@ -15,7 +15,7 @@ Note: The following pre-reqs are installed via the `install.ps1` script
 
 
 ## Architecture
-OBS must be run on the same machine as Rocket League in order to catpure the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
+OBS must be run on the same machine as Rocket League in order to capture the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.
 
 ![image](https://user-images.githubusercontent.com/118381/221242728-42a86089-7e9a-43d0-945e-c946259baac5.png)
 
@@ -69,7 +69,7 @@ To build run Step 1-2 in terminal.
 1. `cd <project root>\sos-ws-relay`
 2. `npm install`
 
-To run ws-ovleray complete step 3 in terminal.
+To run ws-overlay complete step 3 in terminal.
 
 3. `node ws-relay.js`
 
@@ -88,3 +88,6 @@ The Overlay App can be configured to connect to Rocket League through a remote c
 Steps to configure:
 1. Get RCONN password located in file `%appdata%\bakkesmod\bakkesmod\cfg\config.cfg`. Look for line that starts with `rcon_password` and take the following value.
 2. Add `.env` file at `<project root>\overlay-app` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.
+3. Add the following commands ro rcon allowed list in file `%appdata%\bakkesmod\bakkesmod\data\rcon_commands.cfg`
+  - `replay_gui`
+  - `rcon_refresh_allowed`

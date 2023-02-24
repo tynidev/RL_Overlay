@@ -221,7 +221,7 @@ function GetTeamTables_AggregateStats(
       // Fill Team with player
       let p = left_orig[i];
       leftTable.mvpHeader.push(false);
-      leftTable.nameHeader.push(truncate(p.name, 13));
+      leftTable.nameHeader.push(truncate(p.name, 12));
       leftTable.statRows[0].push(p.score.toString());
       leftTable.statRows[1].push(p.goals.toString());
       leftTable.statRows[2].push(p.assists.toString());
@@ -260,7 +260,7 @@ function GetTeamTables_AggregateStats(
       // Fill Team with player
       let p = right_orig[i];
       rightTable.mvpHeader.push(false);
-      rightTable.nameHeader.push(truncate(p.name, 13));
+      rightTable.nameHeader.push(truncate(p.name, 12));
       rightTable.statRows[0].push(p.score.toString());
       rightTable.statRows[1].push(p.goals.toString());
       rightTable.statRows[2].push(p.assists.toString());

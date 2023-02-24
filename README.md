@@ -22,15 +22,15 @@ OBS must be run on the same machine as Rocket League in order to catpure the gam
 ## HowTo Run Overlay App
 ### 1. Build Overlay Server (only need once OR on any changes)
 In terminal:
-1. `cd <project root>`
+1. `cd <project root>\overlay-app`
 2. `npm install`
 3. `npm run build`
 4. `npm install -g serve` (only need step 4 once to install serve command for later)
 
 ### 2. Install SOS plugin & Run Rocket League
 Steps 1-3 only needed once.
-1. Copy `SOS.dll` to `%appdata%\bakkesmod\bakkesmod\plugins`
-2. Copy `sos.set` to `%appdata%\bakkesmod\bakkesmod\plugins\settings`
+1. Copy `<project root>\bakkes-plugins\SOS.dll` to `%appdata%\bakkesmod\bakkesmod\plugins`
+2. Copy `<project root>\bakkes-plugins\sos.set` to `%appdata%\bakkesmod\bakkesmod\plugins\settings`
 3. Add new line `plugin load sos` to BakkesMod plugin load cfg at `%appdata%\bakkesmod\bakkesmod\cfg\plugins.cfg`
 
 In the future just open Rocket League.
@@ -54,7 +54,7 @@ To run ws-ovleray complete step 4 in terminal.
 
 ### 4. Run Overlay Server
 In terminal:
-1. `cd <project root>`
+1. `cd <project root>\overlay-app`
 2. `serve -s build`
 
 ### 5. Add Overlay App as Browser source to OBS
@@ -67,11 +67,11 @@ In terminal:
 
 ## Extras
 ### ButtonMash.dll
-This is a BakkesMod plugin that automatically joins matches as specator.  Install following the same steps as the SOS plugin and then enable in game in the BakkesMod settings UI accesible via F2.
+The file `<project root>\bakkes-plugins\ButtonMash.dll` is a BakkesMod plugin that automatically joins matches as specator.  Install following the same steps as the SOS plugin and then enable in game in the BakkesMod settings UI accesible via F2.
 
 ### RCONN connection to Rocket League
 The Overlay App can be configured to connect to Rocket League through a remote connection or RCONN plugin in BakkesMod and execute commands to automatically hide the UI elements when a match starts.
 
 Steps to configure:
 1. Get RCONN password located in file `%appdata%\bakkesmod\bakkesmod\cfg\config.cfg`. Look for line that starts with `rcon_password` and take the following value.
-2. Add `.env` file at `<project root>` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.
+2. Add `.env` file at `<project root>\overlay-app` and add text `REACT_APP_RCONN_PASS = <rconn password from step 1>`  to the file on its own line.

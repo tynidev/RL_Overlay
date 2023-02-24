@@ -6,9 +6,9 @@
 ## Pre-requisites
 
 - [Node.js](https://nodejs.org/en/) 
-on windows in terminal run: `winget install OpenJS.NodeJS`
-- [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md)
-Follow readme instructions to build/run
+- [BakkesMod](https://bakkesmod.com/)
+- SOS Bakkes Plugin - sends game data out on websocket
+- [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md) - recieves and relays game data
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
 
@@ -19,7 +19,27 @@ OBS must be run on the same machine as Rocket League in order to catpure the gam
 
 *NOTE: Overlay App is hosted by the Overlay Web Server which isn't shown in this diagram*
 
-## HowTo Run Overlay App
+## How to Install\Build
+
+Make sure BakkesMod is installed then in powershell window run:
+1. `cd <project root>`
+2. `.\install.ps1` - will also create shortcuts for next steps
+
+## How to Setup and run Test
+
+1. Double click shortcut `SOS-WS-Relay` and follow prompts entering default values
+2. Double click shortcut `Overlay-Server`
+3. In OBS add new source of type Browser to OBS Scene
+4. Configure source as follows:
+
+![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
+
+5. Size Source to OBS canvas
+6. Double click shortcut 'Test-Game'
+
+In the future you can start RocketLeague then follow these steps and skip step 6.
+
+## Manual Instructions (Case you like to do it yourself)
 ### 1. Build Overlay Server (only need once OR on any changes)
 In terminal:
 1. `cd <project root>\overlay-app`
@@ -56,14 +76,6 @@ To run ws-ovleray complete step 4 in terminal.
 In terminal:
 1. `cd <project root>\overlay-app`
 2. `serve -s build`
-
-### 5. Add Overlay App as Browser source to OBS
-1. Add new source of type Browser to OBS Scene
-2. Configure source as follows:
-
-![image](https://user-images.githubusercontent.com/118381/220740126-cbef0e81-4d6f-45be-90e4-c4cd0cf7b544.png)
-
-3. Size Source to OBS canvas
 
 ## Extras
 ### ButtonMash.dll

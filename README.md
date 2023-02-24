@@ -8,7 +8,7 @@
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
 
-Note: The following pre-reqs are installed via the install.ps1 script
+Note: The following pre-reqs are installed via the `install.ps1` script
 - [Node.js](https://nodejs.org/en/) 
 - SOS Bakkes Plugin - sends game data out on websocket
 - [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md) - recieves and relays game data

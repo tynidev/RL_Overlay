@@ -7,8 +7,8 @@
 
 - [Node.js](https://nodejs.org/en/) 
 on windows in terminal run: `winget install OpenJS.NodeJS`
-- [SOS-WS-Relay](https://gitlab.com/bakkesplugins/sos/sos-ws-relay/-/tree/master)
-Download repo and follow readme instructions to build/run
+- [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md)
+Follow readme instructions to build/run
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
 
@@ -41,10 +41,10 @@ Video showing how to get SOS running
 https://www.youtube.com/watch?v=QE816DBuwI4
 
 ### 3. Build & Run ws-relay
-[Original Documentation](https://gitlab.com/bakkesplugins/sos/sos-ws-relay/-/blob/master/README.md)
+[Original Documentation](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md)
 
 To build run Step 1-3 in terminal.
-1. `cd <ws-relay root>`
+1. `cd <project root>\sos-ws-relay`
 2. `npm install websocket`
 3. `npm install`
 

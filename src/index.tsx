@@ -27,7 +27,12 @@ WsSubscribers.init(
   process.env.REACT_APP_WS_RELAY_HOST
 );
 
-const match = new Match(WsSubscribers, process.env.REACT_APP_RCONN_PASS);
+const match = new Match(
+  WsSubscribers, 
+  process.env.REACT_APP_RCONN_PASS, 
+  process.env.REACT_APP_RCONN_HOST, 
+  process.env.REACT_APP_RCONN_PORT
+  );
 
 const router = createBrowserRouter([
   {

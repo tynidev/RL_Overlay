@@ -1,53 +1,47 @@
-import fs from 'fs';
+import { Callback } from "./util/utils";
 
 export class RCONN{
   BAKKESMOD_DIR:string = 'bakkesmod/bakkesmod';
   RCONPASS:string = '';
   RCONHOST:string = 'localhost';
-  RCONPORT:number = 9002;
+  RCONPORT:number|string = 9002;
   ws:WebSocket;
+  sendNoWait: (command:string) => void;
 
-  constructor(RCONPASS?:string, RCONHOST?:string, RCONPORT?:number){
-    this.RCONPASS = RCONPASS || this.FindRCONNPASS();
+  constructor(RCONPASS:string, RCONHOST?:string, RCONPORT?:number|string){
+    this.RCONPASS = RCONPASS;
     this.RCONHOST = RCONHOST || this.RCONHOST;
     this.RCONPORT = RCONPORT || this.RCONPORT;
 
-    this.ws = new WebSocket(`ws://${RCONHOST}:${RCONPORT}`);
-    this.ws.onopen = this.onopen;
+    console.log(`Opening RCONN to: ws://${this.RCONHOST}:${this.RCONPORT} with pass: ${this.RCONPASS}`);
+
+    const onopen = ():void => {
+      this.sendNoWait(`rcon_password ${this.RCONPASS}`);
+      this.sendNoWait('rcon_refresh_allowed');
+    };
+
+    const sendNoWait = (command:string):void =>{
+      console.log(`Sending RCONN command: ${command}`);
+      this.ws.send(command);
+    }
+    this.sendNoWait = sendNoWait;
+
+    this.ws = new WebSocket(`ws://${this.RCONHOST}:${this.RCONPORT}`);
+    this.ws.onopen = onopen;
   };
 
-  FindRCONNPASS():string{
-    let cfg = this.ReadBakkesCfg();
-    let pass = cfg["rcon_password"];
-    if(pass === undefined)
-        throw "Bakkes config file did not contain configuration for rcon_password";
-    return pass;
-  }
-
-  ReadBakkesCfg():{ [key: string]: string }{
-    let cfg:{ [key: string]: string } = {};
-
-    let file = `${process.env.APPDATA}/${this.BAKKESMOD_DIR}/cfg/config.cfg`;
-    try {
-      const contents = fs.readFileSync(file, {encoding:'utf8', flag:'r'});
-      contents.split(/\r?\n/).forEach(line =>  {
-        let pieces = line.split(' ');
-        if(pieces.length >= 2)
-            cfg[pieces[0]] = pieces[1].replace(/['"]+/g, '');
-      });
-      return cfg;
-    } catch (err) {
-      throw `Failed to read bakkes config from ${file} with error:\n\n${err}`;
-    }
-    throw `Failed to read bakkes config from ${file} with unknown error`;
-  }
-
-  onopen():void{
-    this.ws.send(`rcon_password ${this.RCONPASS}`);
-    this.ws.send('rcon_refresh_allowed');
-  }
-
   send(command:string):void{
-    this.ws.send(command);
+    this.waitForConnection(this.sendNoWait, command, 1000);
+  }
+
+  waitForConnection(callback:Callback, command:string, interval:number):void {
+    if (this.ws.readyState === 1) {
+        callback(command);
+    } else {
+        var that = this;
+        setTimeout(function () {
+            that.waitForConnection(callback, command, interval);
+        }, interval);
+    }
   }
 }

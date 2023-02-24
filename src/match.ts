@@ -4,6 +4,7 @@ import { Game, GameStateData, GameTeam } from './types/game';
 import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
 import { Callback, pad } from './util/utils';
+import { RCONN } from './RCONN';
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
@@ -67,26 +68,28 @@ export class Match {
   ballUpdateCallbacks: Callback[] = [];
   seriesUpdateCallbacks: ((s: Series) => void)[] = [];
 
-  RCON?: WebSocket = undefined;
+  RCONN?: RCONN = undefined;
   hiddenUI = false;
 
   constructor(
     ws: typeof WsSubscribers,
-    RCONPASS?: string,
-    RCONPORT = 9002,
-    localplayer_support = true
+    RCONNPASS?: string,
+    RCONNHOST?: string,
+    RCONNPORT?: number|string,
+    localplayer_support?: boolean
   ) {
-    this.localplayer_support = localplayer_support;
+    this.localplayer_support = localplayer_support || true;
 
-    if (RCONPASS) {
-      // Hook up remote connection to bakkes console
-      const r = new WebSocket(`ws://localhost:${RCONPORT}`);
-      r.onopen = () => {
-        r.send(`rcon_password ${RCONPASS}`);
-        r.send('rcon_refresh_allowed');
-        r.send('replay_gui hud 0');
-      };
-      this.RCON = r;
+    if(RCONNPASS){
+      try{
+        this.RCONN = new RCONN(RCONNPASS, RCONNHOST, RCONNPORT);
+        this.RCONN.send('replay_gui hud 0');
+        this.RCONN.send('replay_gui matchinfo 0');
+      }
+      catch(err){
+        console.error(err);
+        this.RCONN = undefined;
+      }
     }
 
     // When game is created before everyone has picked sides or specator roles
@@ -131,14 +134,14 @@ export class Match {
       });
     });
     ws.subscribe('game', 'post_countdown_begin', () => {
-      if (this.RCON && !this.hiddenUI) {
-        this.RCON.send('replay_gui hud 1');
-        this.RCON.send('replay_gui matchinfo 1');
-        let r = this.RCON;
+      if (this.RCONN !== undefined && !this.hiddenUI) {
+        this.RCONN.send('replay_gui hud 1');
+        this.RCONN.send('replay_gui matchinfo 1');
+        let r = this.RCONN;
         setTimeout(() => {
           r.send('replay_gui hud 0');
           r.send('replay_gui matchinfo 0');
-        }, 250);
+        }, 500);
         this.hiddenUI = true;
       }
     });

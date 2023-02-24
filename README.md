@@ -75,7 +75,7 @@ To run ws-ovleray complete step 4 in terminal.
 ### 4. Run Overlay Server
 In terminal:
 1. `cd <project root>\overlay-app`
-2. `serve -s build`
+2. For production run: `serve -s build` OR for testing/developing run: `npm start`
 
 ## Extras
 ### ButtonMash.dll

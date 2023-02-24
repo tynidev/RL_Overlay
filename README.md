@@ -4,13 +4,15 @@
 ![image](https://user-images.githubusercontent.com/118381/221255286-2634bf16-71b2-445c-9756-69698ab924ab.png)
 
 ## Pre-requisites
-
-- [Node.js](https://nodejs.org/en/) 
 - [BakkesMod](https://bakkesmod.com/)
-- SOS Bakkes Plugin - sends game data out on websocket
-- [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md) - recieves and relays game data
 - [OBS](https://obsproject.com/download)
 download from link and install then configure to stream rocket league
+
+Note: The following pre-reqs are installed via the install.ps1 script
+- [Node.js](https://nodejs.org/en/) 
+- SOS Bakkes Plugin - sends game data out on websocket
+- [SOS-WS-Relay](https://github.com/tynidev/RL_Overlay/blob/main/sos-ws-relay/README.md) - recieves and relays game data
+
 
 ## Architecture
 OBS must be run on the same machine as Rocket League in order to catpure the game but everything else (WS-Relay, Overlay Web Server, Overlay App) can be run on separate machines if preferred.

@@ -1,7 +1,7 @@
 # RL_Overlay
  Broadcasting overlay to use for streaming rocket league games.
 
-![screen shot](/screenshot.png?raw=true "Overlay Example")
+![image](https://user-images.githubusercontent.com/118381/221255286-2634bf16-71b2-445c-9756-69698ab924ab.png)
 
 ## Pre-requisites
 

@@ -30,6 +30,12 @@ function build-ws-relay {
     cd $root/sos-ws-relay
     npm install
     cd $root
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/SOS-WS-Relay.lnk")
+    $Shortcut.TargetPath = "npm"
+    $Shortcut.Arguments = "run relay"
+    $Shortcut.WorkingDirectory = "$root/sos-ws-relay"
+    $Shortcut.Save()
 }
 
 function build-overlay-app {
@@ -37,10 +43,53 @@ function build-overlay-app {
     npm install
     npm run build
     cd $root
+
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Overlay-Server.lnk")
+    $Shortcut.TargetPath = "serve"
+    $Shortcut.Arguments = "-s build"
+    $Shortcut.WorkingDirectory = "$root/overlay-app"
+    $Shortcut.Save()
+    
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Mini-Map.lnk")
+    $Shortcut.TargetPath = "http://localhost:3000/minimap"
+    $Shortcut.Save()
+    
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Game-Stats.lnk")
+    $Shortcut.TargetPath = "http://localhost:3000/stats"
+    $Shortcut.Save()
+    
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Overlay.lnk")
+    $Shortcut.TargetPath = "http://localhost:3000"
+    $Shortcut.Save()
+}
+
+function build-series-app {
+    cd $root/console-apps
+    npm install
+    cd $root
+
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Series.lnk")
+    $Shortcut.TargetPath = "npm"
+    $Shortcut.Arguments = "run series"
+    $Shortcut.WorkingDirectory = "$root/console-apps"
+    $Shortcut.Save()
+
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$root/Test-Game.lnk")
+    $Shortcut.TargetPath = "npm"
+    $Shortcut.Arguments = "run replay"
+    $Shortcut.WorkingDirectory = "$root/console-apps"
+    $Shortcut.Save()
 }
 
 install-node-js
 build-ws-relay
 build-overlay-app
+build-series-app
 install-sos-plugin
 exit 0

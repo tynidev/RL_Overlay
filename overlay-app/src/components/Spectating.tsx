@@ -70,7 +70,7 @@ export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
           transition: '400ms',
         }}
       >
-        <div className="name">{truncate(player.name, 14)}</div>
+        <div className="name">{truncate(player.name, 10)}</div>
         <div className="stats">
           <img src={goal_svg} alt="" />
           <div className="goal">{player.goals}</div>

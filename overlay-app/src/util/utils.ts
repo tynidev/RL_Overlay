@@ -24,3 +24,24 @@ export const areEqual = <T>(
   }
   return true;
 };
+
+export function scaleText(text:string, sizes:Array<[number,string]>):[string, string]{
+  
+  sizes.sort((a:[number,string], b:[number,string]) => {
+    return a[0] - b[0];
+  });
+  
+  let biggestSize = sizes[sizes.length - 1];
+  text = truncate(text, biggestSize[0]); // truncate to the longest size
+
+  let fontSize:string = biggestSize[1];
+  for (let i = 0; i < sizes.length; i++) {
+    let size = sizes[i];
+    if(text.length <= size[0]){
+      fontSize = size[1];
+      break;
+    }
+  }
+
+  return [text, fontSize];
+}

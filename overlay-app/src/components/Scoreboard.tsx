@@ -1,7 +1,7 @@
 import '../css/Scoreboard.css';
 import React, { FC } from 'react';
 import { Match } from '../match';
-import { truncate } from '../util/utils';
+import { scaleText } from '../util/utils';
 
 export const getState = (match: Match | undefined) => ({
   time: match?.getGameTimeString() ?? '5:00',
@@ -79,13 +79,15 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
     rightMarks = <div className="right">{rightRows}</div>;
   }
 
-  let leftFontSize = leftTeamName.length <= 13 ? "2.5rem" : (leftTeamName.length <= 16 ? "2rem" : "1.5rem");
-  let rightFontSize = rightTeamName.length <= 13 ? "2.5rem" : (rightTeamName.length <= 16 ? "2rem" : "1.5rem");
+  let sizes:Array<[number, string]> = [[13, "2.5rem"], [16, "2rem"], [23, "1.5rem"]];
+  let leftFontSize, rightFontSize = "1.5rem";
+  [leftTeamName, leftFontSize] = scaleText(leftTeamName, sizes);
+  [rightTeamName, rightFontSize] = scaleText(rightTeamName, sizes);
 
   return (
     <div className="scoreboard">
       <div className="left">
-        <div className="name" style={{fontSize:leftFontSize}}>{truncate(leftTeamName, 23)}</div>
+        <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
         <div className="score">{teams[0].score}</div>
       </div>
 
@@ -98,7 +100,7 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
       </div>
 
       <div className="right">
-        <div className="name" style={{fontSize:rightFontSize}}>{truncate(rightTeamName, 23)}</div>
+        <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
         <div className="score">{teams[1].score}</div>
       </div>
 

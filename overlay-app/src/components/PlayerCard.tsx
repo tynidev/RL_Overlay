@@ -6,7 +6,7 @@ import '../css/PlayerCard.css';
 // import demo_svg from '../assets/stat-icons/demolition.svg';
 import React, { FC } from 'react';
 import { Player } from '../types/player';
-import { truncate } from '../util/utils';
+import { scaleText } from '../util/utils';
 
 interface PlayerCardProps {
   player: Player;
@@ -18,8 +18,7 @@ interface PlayerCardProps {
 export const PlayerCardCore: FC<PlayerCardProps> = (props) => {
   const { player, spectating, index, showBoost } = props;
 
-  let name = truncate(player.name, 25);
-  let fontSize = name.length <= 17 ? "1.5rem" : (name.length <= 20 ? "1.25rem" : "1rem");
+   let [name, fontSize] = scaleText(player.name, [[17, "1.5rem"], [20, "1.25rem"], [23, "1rem"]]);
 
   return (
     <div

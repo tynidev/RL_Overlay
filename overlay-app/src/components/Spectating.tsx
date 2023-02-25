@@ -83,8 +83,8 @@ export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
           <img src={demo_svg} alt="" />
           <div className="demo">{player.demos}</div>
         </div>
-        {BoostRing(display_boost_ring, hasLocalPlayer, player)}
       </div>
+      {BoostRing(display_boost_ring, hasLocalPlayer, player)}
     </div>
   );
 };

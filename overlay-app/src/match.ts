@@ -160,8 +160,8 @@ export class Match {
     // When an in game replay from a goal is started
     ws.subscribe('game', 'replay_start', (p: unknown) => {
       // replay_start is sent twice one with json and one with plain text
-      if (p === 'game_replay_start')
-        // skip plain text
+      if (p !== 'game_replay_start')
+        // skip json
         return;
       for (const cb of this.replayStartCallbacks) {
         cb();

@@ -177,8 +177,14 @@ export class ControlRoom extends React.Component<ControlRoomProps, {}> {
                 <input type="checkbox" defaultChecked={this.state.autoUpdateSeriesScore} onClick={this.toggleUpdateSeriesScore}/>
                 <span className="slider round"></span>
               </label>
-              Left<input type="text" value={this.state.teams.left.seriesScore} style={{width:"0.4rem"}} disabled={this.state.autoUpdateSeriesScore}/>
-              Right<input type="text" value={this.state.teams.right.seriesScore} style={{width:"0.4rem"}} disabled={this.state.autoUpdateSeriesScore}/>
+              Left<input type="text" value={this.state.teams.left.seriesScore} style={{width:"0.4rem"}} disabled={this.state.autoUpdateSeriesScore} onChange={(event) =>{
+                this.state.teams.left.seriesScore = parseInt(event.target.value);
+                this.setTeam(this.state.teams.left);
+              }}/>
+              Right<input type="text" value={this.state.teams.right.seriesScore} style={{width:"0.4rem"}} disabled={this.state.autoUpdateSeriesScore} onChange={(event) =>{
+                this.state.teams.right.seriesScore = parseInt(event.target.value);
+                this.setTeam(this.state.teams.right);
+              }}/>
             </div>
             
             <label htmlFor="series-info" style={{flexBasis:"13%",lineHeight:"3.5rem"}}>Series Info: </label>

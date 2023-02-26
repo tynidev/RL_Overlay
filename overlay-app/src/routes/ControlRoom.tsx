@@ -117,7 +117,7 @@ export class ControlRoom extends React.Component<ControlRoomProps, {}> {
         }}/>
       </div>
       <div className='team-input'>
-        <label htmlFor={id + "-color"}>Color: <span style={{color:"#555"}}>default({team.id == 0 ? "7, 121, 211" : "242, 96, 29"})</span></label>
+        <label htmlFor={id + "-color"}>Color: <span style={{color:"#555"}}>({team.id == 0 ? "7, 121, 211" : "242, 96, 29"})</span></label>
         <input type="text" value={colorStr} id={id + "-color"}/>
         <div className='team-color-sample' style={{backgroundColor:"rgba(" + colorStr + ")"}} onClick={ (event) => {
           team.display = true;
@@ -138,7 +138,7 @@ export class ControlRoom extends React.Component<ControlRoomProps, {}> {
         </div> : null }
       </div>
       <div className='team-input'>
-        <label htmlFor={id + "-logo"}>Logo</label>
+        <label htmlFor={id + "-logo"}>Logo: <span style={{color:"#555",textTransform:'none'}}>(rl_logo.svg)</span></label>
         <input type="text" value={team.logo} id={id + "-logo"} className='logo_input' onChange={(event) => {
           team.logo = event.target.value;
           this.setTeam(team);

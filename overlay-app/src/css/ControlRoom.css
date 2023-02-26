@@ -20,6 +20,7 @@
     font-size: 1rem;
     color: rgb(60, 60, 60);
     padding-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
     border-bottom: 0.1rem solid rgba(var(--base-color), 0.5);
 }
 
@@ -135,7 +136,7 @@ input[type=text]:focus {
     outline: 0.05rem solid rgba(var(--base-color), 0.8);
 }
 
-input[type="submit"] {
+input[type="button"] {
     border: none;
     border-radius: .25rem;
     background-color: rgb(34, 44, 54);
@@ -145,10 +146,26 @@ input[type="submit"] {
     flex: 1;
     font-size: 0.9rem;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    border:2px solid rgb(45, 58, 71);
 }
-
-input[type="submit"].red {
+input[type="button"]:hover {
+    border:2px solid rgb(179, 195, 209);
+}
+input[type="button"]:active {
+    box-shadow: none;
+    background-color: rgb(22, 30, 37);
+    color:rgb(179, 195, 209);
+}
+input[type="button"].red {
     background-color: #9d2121;
+    border:2px solid #ac2525;
+}
+input[type="button"].red:hover {
+    border:2px solid rgb(209, 179, 179);
+}
+input[type="button"].red:active {
+    background-color: #791818;
+    color:rgb(209, 179, 179);
 }
 
 /* The switch - the box around the slider */

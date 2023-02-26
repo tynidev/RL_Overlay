@@ -11,6 +11,7 @@ import { Stream } from './routes/Stream';
 import { GameStats } from './routes/GameStats';
 import { MiniMapRoute } from './routes/MiniMapRoute';
 import { RCONN } from './RCONN';
+import { ControlRoom } from './routes/ControlRoom';
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
   {
     path: '/minimap',
     element: <MiniMapRoute match={match} height={height} width={width} />,
+  },
+  {
+    path: '/ctrl',
+    element: <ControlRoom height={height} width={width} />,
   },
 ]);
 

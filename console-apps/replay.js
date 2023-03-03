@@ -1,7 +1,20 @@
 import WebSocket from 'ws';
 import fs from 'fs'
+import { networkInterfaces } from 'node:os';
 
-let webSocket = new WebSocket(`ws://localhost:49322`);
+const nets = networkInterfaces();
+const externalInterfaces = [];
+
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+        // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
+        const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
+        if (net.family === familyV4Value && !net.internal) {
+            externalInterfaces.push(net.address);
+        }
+    }
+}
 
 async function sleep(msec) {
     return new Promise(resolve => setTimeout(resolve, msec));
@@ -18,23 +31,39 @@ function send(eventNum, webSocket){
     });
 }
 
-async function replay(eventStart, eventEnd, webSocket){
+async function replay(host, eventStart, eventEnd){
+    const init = () => {
+        let webSocket = new WebSocket(`ws://${host}:49322`);
+
+        webSocket.onopen = (event) => {
+            console.count("WebSocket:OnOpen");
+        };
+        
+        webSocket.onclose  = (event) => {
+            console.count("WebSocket:OnClose");
+        };
+        
+        webSocket.onerror  = (event) => {
+            console.count("WebSocket:OnError");
+            console.error(event);
+        };
+
+        return webSocket;
+    }
+
+    let webSocket = init();
+    setInterval(function () {
+        if(webSocket.readyState === WebSocket.CLOSED)
+          webSocket = init();
+      }, 1500);
+
     while(eventStart <= eventEnd){
-        send(eventStart++, webSocket);
+        if(webSocket.readyState === WebSocket.OPEN)
+            send(eventStart++, webSocket);
         await sleep(50);
     }
     process.exit();
 }
 
-webSocket.onopen = (event) => {
-    console.count("WebSocket:OnOpen");
-    replay(1, 800, webSocket);
-};
 
-webSocket.onclose  = (event) => {
-    console.count("WebSocket:OnClose");
-};
-
-webSocket.onerror  = (event) => {
-    console.count("WebSocket:OnError");
-};
+await replay(externalInterfaces[0], 1, 800);

@@ -1,3 +1,4 @@
+import { Console } from 'console';
 import { Callback } from './util/utils';
 
 export const WsSubscribers = {
@@ -28,39 +29,50 @@ export const WsSubscribers = {
         );
       }
     }
-    WsSubscribers.webSocket = new WebSocket(`ws://${host}:${port}`);
+
+    WsSubscribers.initRelayWebsocket(`ws://${host}:${port}`);
+    setInterval(function () {
+      if(WsSubscribers.webSocket === undefined ||
+         WsSubscribers.webSocket.readyState !== WebSocket.CLOSED)
+        return;
+        WsSubscribers.initRelayWebsocket(`ws://${host}:${port}`);
+    }, 1500);
+   
+    
+  },
+
+  initRelayWebsocket(socket:string) {
+    console.log(`WsRelay: connecting... ${socket}`);
+    WsSubscribers.webSocket = new WebSocket(socket);
+    
     WsSubscribers.webSocket.onmessage = (event) => {
       let jEvent = JSON.parse(event.data);
       if (!jEvent.hasOwnProperty('event')) {
         return;
       }
       const [channel, event_event] = jEvent.event.split(':');
-      if (debug) {
-        if (!debugFilters) {
-          console.log(channel, event_event, jEvent);
-        } else if (debugFilters && debugFilters.indexOf(jEvent.event) < 0) {
-          console.log(channel, event_event, jEvent);
-        }
-      }
       WsSubscribers.triggerSubscribers(channel, event_event, jEvent.data);
     };
     WsSubscribers.webSocket.onopen = function () {
+      console.log("WsRelay: connected");
       WsSubscribers.triggerSubscribers('ws', 'open');
       WsSubscribers.webSocketConnected = true;
       WsSubscribers.registerQueue.forEach((r) => {
+        console.log(`WsRelay: register ${r}`);
         WsSubscribers.send('wsRelay', 'register', r);
       });
-      WsSubscribers.registerQueue = [];
     };
     WsSubscribers.webSocket.onerror = function () {
       WsSubscribers.triggerSubscribers('ws', 'error');
       WsSubscribers.webSocketConnected = false;
     };
     WsSubscribers.webSocket.onclose = function () {
+      console.error("WsRelay: disconnected");
       WsSubscribers.triggerSubscribers('ws', 'close');
       WsSubscribers.webSocketConnected = false;
     };
   },
+
   /**
    * Add callbacks for when certain events are thrown
    * Execution is guaranteed to be in First In First Out order
@@ -84,12 +96,14 @@ export const WsSubscribers = {
         }
         if (!WsSubscribers.__subscribers[c].hasOwnProperty(e)) {
           WsSubscribers.__subscribers[c][e] = [];
+          WsSubscribers.registerQueue.push(`${c}:${e}`);
           if (WsSubscribers.webSocketConnected) {
+            console.log(`WsRelay: register ${c}:${e}`);
             WsSubscribers.send('wsRelay', 'register', `${c}:${e}`);
-          } else {
-            WsSubscribers.registerQueue.push(`${c}:${e}`);
           }
         }
+        
+        console.log(`WsSubscribers: subscribed ${c}:${e}`);
         WsSubscribers.__subscribers[c][e].push(callback);
       }
     }

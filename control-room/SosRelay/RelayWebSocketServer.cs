@@ -7,7 +7,7 @@ namespace SOS
 {
     internal class RelayWebSocketServer : WebSocketBehavior
     {
-        public ILogger logger = null;
+        public ILogger? logger = null;
         public ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
 
         public RelayWebSocketServer()
@@ -49,7 +49,7 @@ namespace SOS
                                 registeredSessions.Add(ID);
                             }
                         }
-                        this.logger.Verbose($"{this.ID} -> registered event -> {channelEvent}");
+                        this.logger?.Verbose($"{this.ID} -> registered event -> {channelEvent}");
                         break;
                     }
 
@@ -67,7 +67,7 @@ namespace SOS
                         {
                             registeredSessions.Remove(ID);
                         }
-                        this.logger.Verbose($"{this.ID} -> unregistered event -> {channelEvent}");
+                        this.logger?.Verbose($"{this.ID} -> unregistered event -> {channelEvent}");
                         break;
                     }
             }
@@ -83,7 +83,7 @@ namespace SOS
                 Data = "Connected!"
             }, Formatting.Indented), this.ID);
 
-            this.logger.Info($"{this.ID} -> connected");
+            this.logger?.Info($"{this.ID} -> connected");
         }
 
         protected override void OnClose(CloseEventArgs e)
@@ -98,11 +98,11 @@ namespace SOS
                     {
                         kvp.Value.Remove(this.ID);
                     }
-                    this.logger.Verbose($"{this.ID} -> unregistered event -> {kvp.Key}");
+                    this.logger?.Verbose($"{this.ID} -> unregistered event -> {kvp.Key}");
                 }
             }
 
-            this.logger.Error($"{this.ID} -> disconnected");
+            this.logger?.Error($"{this.ID} -> disconnected");
         }
 
         public void RelayMessage(MessageEventArgs e, SosMessage msg, string? sender = null)
@@ -119,7 +119,7 @@ namespace SOS
                     Sessions.SendTo(e.Data, sessionId);
                 }
 
-                this.logger.Verbose($"{this.ID} -> relay({msg.Event}) -> {string.Join(",", sessionIds)}");
+                this.logger?.Verbose($"{this.ID} -> relay({msg.Event}) -> {string.Join(",", sessionIds)}");
             }
         }
     }

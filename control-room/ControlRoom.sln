@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SosRelay", "SosRelay\SosRelay.csproj", "{0F41EF7D-F312-4293-BFFC-73CD7F171DBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SosRelayConsole", "SosRelayConsole\SosRelayConsole.csproj", "{23FC9FBA-9FCC-4150-9CE8-6BBE1669AC92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SosRelayConsole", "SosRelayConsole\SosRelayConsole.csproj", "{23FC9FBA-9FCC-4150-9CE8-6BBE1669AC92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlRoom", "ControlRoom\ControlRoom.csproj", "{B3EDED63-BC10-42D8-8420-A1F2DC65030F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{23FC9FBA-9FCC-4150-9CE8-6BBE1669AC92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23FC9FBA-9FCC-4150-9CE8-6BBE1669AC92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23FC9FBA-9FCC-4150-9CE8-6BBE1669AC92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3EDED63-BC10-42D8-8420-A1F2DC65030F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3EDED63-BC10-42D8-8420-A1F2DC65030F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3EDED63-BC10-42D8-8420-A1F2DC65030F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3EDED63-BC10-42D8-8420-A1F2DC65030F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

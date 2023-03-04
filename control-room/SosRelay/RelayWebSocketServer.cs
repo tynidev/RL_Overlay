@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -9,6 +10,7 @@ namespace SOS
     {
         public ILogger? logger = null;
         public ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
+        public ConcurrentDictionary<string, Func<JToken, JToken>> EventMutators = new ConcurrentDictionary<string, Func<JToken, JToken>>();
 
         public RelayWebSocketServer()
         {
@@ -24,9 +26,14 @@ namespace SOS
             catch { return; }
 
 
+            if(EventMutators.ContainsKey(msg.Event))
+            {
+                msg.Data = EventMutators[msg.Event](msg.Data);
+            }
+
             if (msg.Channel != "wsrelay")
             {
-                RelayMessage(e, msg, this.ID);
+                RelayMessage(msg, this.ID);
                 return;
             }
 
@@ -105,7 +112,7 @@ namespace SOS
             this.logger?.Error($"{this.ID} -> disconnected");
         }
 
-        public void RelayMessage(MessageEventArgs e, SosMessage msg, string? sender = null)
+        public void RelayMessage(SosMessage msg, string? sender = null)
         {
             if (RegisteredEvents.ContainsKey(msg.Event))
             {
@@ -116,7 +123,7 @@ namespace SOS
                     if (sessionId == "RocketLeague" || (sender != null && sender == sessionId))
                         continue;
                     sessionIds.Add(sessionId);
-                    Sessions.SendTo(e.Data, sessionId);
+                    Sessions.SendTo(JsonConvert.SerializeObject(msg), sessionId);
                 }
 
                 this.logger?.Verbose($"{this.ID} -> relay({msg.Event}) -> {string.Join(",", sessionIds)}");

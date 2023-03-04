@@ -1,6 +1,16 @@
-﻿using SOS;
+﻿using Newtonsoft.Json.Linq;
+using SOS;
+using SOS.EventTypes;
 
-Relay relay = new Relay(new Logger(), args[0], int.Parse(args[1]));
+IRelay relay = new Relay();
+
+relay.AddMutator("game:update_state", (origJson) =>
+{
+    var gameState = origJson.ToObject<GameUpdateState>();
+    return JToken.FromObject(gameState);
+});
+
+relay.Start(new Logger(), args[0], int.Parse(args[1]));
 
 while (true)
 {

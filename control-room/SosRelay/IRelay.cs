@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
 
 namespace SOS
 {
@@ -8,6 +8,6 @@ namespace SOS
         void Stop();
         bool IsStarted();
         bool IsListening();
-        void AddMutator(string sosEvent, Func<JToken, JToken> mutator);
+        void AddMutator(string sosEvent, Func<JsonElement, JsonElement> mutator);
     }
 }

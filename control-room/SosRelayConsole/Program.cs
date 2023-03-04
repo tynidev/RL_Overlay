@@ -1,17 +1,17 @@
-﻿using Newtonsoft.Json.Linq;
-using SOS;
+﻿using SOS;
 using SOS.EventTypes;
+using System.Text.Json;
 
 IRelay relay = new Relay();
 
-//relay.AddMutator("game:update_state", (origJson) =>
-//{
-//    var gameState = origJson.ToObject<GameUpdateState>();
-    
-//    // change game state somehow.... add series data
+relay.AddMutator("game:update_state", (origJson) =>
+{
+    var gameState = origJson.Deserialize<GameUpdateState>(JsonSerializationContext.Default.GameUpdateState);
 
-//    return JToken.FromObject(gameState);
-//});
+    // change game state somehow.... add series data
+
+    return JsonSerializer.SerializeToElement(gameState, typeof(GameUpdateState), JsonSerializationContext.Default);
+});
 
 relay.Start(new Logger(), args[0], int.Parse(args[1]));
 

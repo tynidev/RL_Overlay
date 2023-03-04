@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
 using WebSocketSharp.Server;
 
 namespace SOS
@@ -11,7 +11,7 @@ namespace SOS
         private WebSocketServer? ws_relay;
         
         private ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
-        private ConcurrentDictionary<string, Func<JToken, JToken>> EventMutators = new ConcurrentDictionary<string, Func<JToken, JToken>>();
+        private ConcurrentDictionary<string, Func<JsonElement, JsonElement>> EventMutators = new ConcurrentDictionary<string, Func<JsonElement, JsonElement>>();
 
         public void Dispose()
         {
@@ -52,7 +52,7 @@ namespace SOS
             return ws_relay?.IsListening ?? false;
         }
 
-        public void AddMutator(string sosEvent, Func<JToken,JToken> mutator)
+        public void AddMutator(string sosEvent, Func<JsonElement, JsonElement> mutator)
         {
             this.EventMutators.TryAdd(sosEvent, mutator);
         }

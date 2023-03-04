@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SOS
 {
@@ -10,7 +10,7 @@ namespace SOS
     {
         public ILogger? logger = null;
         public ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
-        public ConcurrentDictionary<string, Func<JToken, JToken>> EventMutators = new ConcurrentDictionary<string, Func<JToken, JToken>>();
+        public ConcurrentDictionary<string, Func<JsonElement, JsonElement>> EventMutators = new ConcurrentDictionary<string, Func<JsonElement, JsonElement>>();
 
         public RelayWebSocketServer()
         {
@@ -18,18 +18,19 @@ namespace SOS
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            SosMessage msg;
+            SosMessage msg = new SosMessage() { Channel = "wsrelay", Function = "none" };
             try
             {
-                msg = JsonConvert.DeserializeObject<SosMessage>(e.Data) ?? new SosMessage() { Channel = "None", Function = "None" };
+                var jdoc = JsonDocument.Parse(e.Data);
+
+                if (!jdoc.RootElement.TryGetProperty("event", out JsonElement eventNode))
+                    return;
+                msg.Event = eventNode.GetString() ?? "wsrelay:none";
+
+                if (!jdoc.RootElement.TryGetProperty("data", out msg.Data))
+                    return;
             }
             catch { return; }
-
-
-            if(EventMutators.ContainsKey(msg.Event))
-            {
-                msg.Data = EventMutators[msg.Event](msg.Data);
-            }
 
             if (msg.Channel != "wsrelay")
             {
@@ -42,7 +43,7 @@ namespace SOS
                 case "register":
                     {
 
-                        string? channelEvent = msg.Data.ToObject<string>();
+                        string? channelEvent = msg.Data.ToString();
                         if (channelEvent == null)
                             break;
 
@@ -63,7 +64,7 @@ namespace SOS
 
                 case "unregister":
                     {
-                        string? channelEvent = msg.Data.ToObject<string>();
+                        string? channelEvent = msg.Data.ToString();
                         if (channelEvent == null)
                             break;
 
@@ -83,12 +84,12 @@ namespace SOS
         protected override void OnOpen()
         {
             base.OnOpen();
-            Sessions.SendTo(JsonConvert.SerializeObject(new SosMessage()
+            Sessions.SendTo(new SosMessage()
             {
                 Channel = "wsRelay",
                 Function = "info",
-                Data = "Connected!"
-            }, Formatting.Indented), this.ID);
+                Data = JsonSerializer.SerializeToElement("Connected!")
+            }.ToJson()), this.ID);
 
             this.logger?.Info($"{this.ID} -> connected");
         }
@@ -116,6 +117,11 @@ namespace SOS
         {
             if (RegisteredEvents.ContainsKey(msg.Event))
             {
+                if (EventMutators.ContainsKey(msg.Event))
+                {
+                    msg.Data = EventMutators[msg.Event](msg.Data);
+                }
+
                 var sessionIds = new List<string>();
                 foreach (var sessionId in RegisteredEvents[msg.Event])
                 {
@@ -123,7 +129,7 @@ namespace SOS
                     if (sessionId == "RocketLeague" || (sender != null && sender == sessionId))
                         continue;
                     sessionIds.Add(sessionId);
-                    Sessions.SendTo(JsonConvert.SerializeObject(msg), sessionId);
+                    Sessions.SendTo(msg.ToJson(), sessionId);
                 }
 
                 this.logger?.Verbose($"{this.ID} -> relay({msg.Event}) -> {string.Join(",", sessionIds)}");

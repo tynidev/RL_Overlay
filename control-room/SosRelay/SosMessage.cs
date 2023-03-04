@@ -1,14 +1,15 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace SOS
 {
     public class SosMessage
     {
-        [JsonProperty("data")]
-        public JToken Data = "";
+        [JsonPropertyName("data")]
+        public JsonElement Data;
 
-        [JsonProperty("event")]
+        [JsonPropertyName("event")]
         public string Event
         {
             set
@@ -31,5 +32,10 @@ namespace SOS
 
         [JsonIgnore]
         public string Function = "";
+
+        public string ToJson()
+        {
+            return $"{{ \"event\":\"{this.Event}\", \"data\":{JsonSerializer.Serialize(this.Data)}}}";
+        }
     }
 }

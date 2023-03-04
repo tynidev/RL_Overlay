@@ -1,20 +1,7 @@
 import WebSocket from 'ws';
 import fs from 'fs'
-import { networkInterfaces } from 'node:os';
-
-const nets = networkInterfaces();
-const externalInterfaces = [];
-
-for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-        // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
-        const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
-        if (net.family === familyV4Value && !net.internal) {
-            externalInterfaces.push(net.address);
-        }
-    }
-}
+import * as readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 
 async function sleep(msec) {
     return new Promise(resolve => setTimeout(resolve, msec));
@@ -66,4 +53,10 @@ async function replay(host, eventStart, eventEnd){
 }
 
 
-await replay(externalInterfaces[0], 1, 800);
+const rl = readline.createInterface({ input, output });
+
+const relay_host = await rl.question('Relay Host: ');
+
+await replay(relay_host, 1, 800);
+
+rl.close();

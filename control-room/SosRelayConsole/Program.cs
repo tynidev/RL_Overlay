@@ -4,11 +4,14 @@ using SOS.EventTypes;
 
 IRelay relay = new Relay();
 
-relay.AddMutator("game:update_state", (origJson) =>
-{
-    var gameState = origJson.ToObject<GameUpdateState>();
-    return JToken.FromObject(gameState);
-});
+//relay.AddMutator("game:update_state", (origJson) =>
+//{
+//    var gameState = origJson.ToObject<GameUpdateState>();
+    
+//    // change game state somehow.... add series data
+
+//    return JToken.FromObject(gameState);
+//});
 
 relay.Start(new Logger(), args[0], int.Parse(args[1]));
 

@@ -3,6 +3,7 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text;
 
 namespace SOS
 {
@@ -84,12 +85,12 @@ namespace SOS
         protected override void OnOpen()
         {
             base.OnOpen();
-            Sessions.SendTo(new SosMessage()
+            Sessions.SendTo(Encoding.UTF8.GetBytes((new SosMessage()
             {
                 Channel = "wsRelay",
                 Function = "info",
                 Data = JsonSerializer.SerializeToElement("Connected!")
-            }.ToJson()), this.ID);
+            }).ToJson()), this.ID);
 
             this.logger?.Info($"{this.ID} -> connected");
         }

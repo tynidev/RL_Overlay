@@ -27,9 +27,9 @@
         <Border Grid.Column="0" Margin="6,6,0,0" Height="260" Width="260" BorderBrush="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8,8,8,8" BorderThickness="8,8,8,8">
             <StackPanel Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
                 <TextBlock FontSize="24" FontWeight="Bold">SOS Relay</TextBlock>
-                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Listening: <Span Foreground="{DynamicResource TextFillColorPrimaryBrush}">Yes</Span></TextBlock>
-                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Relay Clients: <Span Foreground="{DynamicResource TextFillColorPrimaryBrush}">2</Span></TextBlock>
-                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Rocket League Connected: <Span Foreground="{DynamicResource TextFillColorPrimaryBrush}">Yes</Span></TextBlock>
+                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Rocket League Connected: <Run Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding ViewModel.RlConnected}"></Run></TextBlock>
+                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Started: <Run Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding ViewModel.SosRelayListening}"></Run></TextBlock>
+                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Clients: <Run Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding ViewModel.SosRelayClientsConnected}"></Run></TextBlock>
                 <Grid Height="155">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />

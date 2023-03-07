@@ -2,7 +2,6 @@
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text;
 
 namespace SOS
@@ -13,16 +12,29 @@ namespace SOS
         public ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
         public ConcurrentDictionary<string, Func<JsonElement, JsonElement>> EventMutators = new ConcurrentDictionary<string, Func<JsonElement, JsonElement>>();
 
+        public event Action OnClientConnected;
+        public event Action OnClientDisconnected;
+
         public RelayWebSocketServer()
         {
         }
 
+        public void SendMessage(string data)
+        {
+            this.SendMessage(data, false);
+        }
+
         protected override void OnMessage(MessageEventArgs e)
+        {
+            this.SendMessage(e.Data, true);
+        }
+
+        private void SendMessage(string data, bool fromSelf)
         {
             SosMessage msg = new SosMessage() { Channel = "wsrelay", Function = "none" };
             try
             {
-                var jdoc = JsonDocument.Parse(e.Data);
+                var jdoc = JsonDocument.Parse(data);
 
                 if (!jdoc.RootElement.TryGetProperty("event", out JsonElement eventNode))
                     return;
@@ -35,7 +47,7 @@ namespace SOS
 
             if (msg.Channel != "wsrelay")
             {
-                RelayMessage(msg, this.ID);
+                RelayMessage(msg, this.ID, fromSelf);
                 return;
             }
 
@@ -93,6 +105,9 @@ namespace SOS
             }).ToJson()), this.ID);
 
             this.logger?.Info($"{this.ID} -> connected");
+
+            if (this.OnClientConnected != null)
+                this.OnClientConnected();
         }
 
         protected override void OnClose(CloseEventArgs e)
@@ -112,9 +127,12 @@ namespace SOS
             }
 
             this.logger?.Error($"{this.ID} -> disconnected");
+
+            if (this.OnClientDisconnected != null)
+                this.OnClientDisconnected();
         }
 
-        public void RelayMessage(SosMessage msg, string? sender = null)
+        private void RelayMessage(SosMessage msg, string sender, bool fromSelf)
         {
             if (RegisteredEvents.ContainsKey(msg.Event))
             {
@@ -123,17 +141,21 @@ namespace SOS
                     msg.Data = EventMutators[msg.Event](msg.Data);
                 }
 
+                var json = msg.ToJson();
                 var sessionIds = new List<string>();
                 foreach (var sessionId in RegisteredEvents[msg.Event])
                 {
-                    // Don't send to Rocket League OR self
-                    if (sessionId == "RocketLeague" || (sender != null && sender == sessionId))
+                    // If this message is recieved by us then don't relay to us
+                    if (fromSelf && (sender != null && sender == sessionId))
                         continue;
                     sessionIds.Add(sessionId);
-                    Sessions.SendTo(msg.ToJson(), sessionId);
+
+                    // Note: Like this to be fire and forget but if SendToAsync is used we get an exception
+                    //       Potentially could update library
+                    Sessions.SendTo(json, sessionId);
                 }
 
-                this.logger?.Verbose($"{this.ID} -> relay({msg.Event}) -> {string.Join(",", sessionIds)}");
+                this.logger?.Verbose($"{this.ID} -> relay({msg.Event}) -> {sessionIds.Count} clients");
             }
         }
     }

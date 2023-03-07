@@ -1,4 +1,5 @@
-﻿using SOS;
+﻿using RConn;
+using SOS;
 using SOS.EventTypes;
 using System.Text.Json;
 
@@ -14,6 +15,23 @@ relay.AddMutator("game:update_state", (origJson) =>
 });
 
 relay.Start(new Logger(), args[0], int.Parse(args[1]));
+
+var rconn = new RemoteConnection();
+//if(rconn == null)
+//    throw new ArgumentNullException(nameof(rconn));
+
+//await rconn.ConnectAsync();
+
+//while (true)
+//{
+//    await rconn.SendCommand("rcon_refresh_allowed");
+//    await rconn.SendCommand("replay_gui hud 0");
+//    await rconn.SendCommand("replay_gui matchinfo 0");
+//    Thread.Sleep(3000);
+//}
+
+
+
 
 while (true)
 {

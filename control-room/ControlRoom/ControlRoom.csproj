@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RConn\RConn.csproj" />
     <ProjectReference Include="..\SosRelay\SosRelay.csproj" />
   </ItemGroup>
 

@@ -3,6 +3,7 @@ using ControlRoom.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RConn;
 using SOS;
 using System.IO;
 using System.Reflection;
@@ -44,6 +45,11 @@ namespace ControlRoom
                 services.AddSingleton<INavigationService, NavigationService>();
 
                 services.AddSingleton<IRelay, Relay>();
+                services.AddSingleton<RemoteConnection, RemoteConnection>((sp) => {
+                    var conn = new RemoteConnection();
+                    conn.ConnectAsync();
+                    return conn;
+                });
 
                 // Main window with navigation
                 services.AddScoped<INavigationWindow, Views.Windows.MainWindow>();

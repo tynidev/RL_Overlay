@@ -44,9 +44,9 @@
         <Border Grid.Column="1" Grid.Row="0" Margin="6,6,0,0" Height="260" Width="260" BorderBrush="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8,8,8,8" BorderThickness="8,8,8,8">
             <StackPanel Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
                 <TextBlock FontSize="24" FontWeight="Bold">RCONN</TextBlock>
-                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Connected: <Span Foreground="{DynamicResource TextFillColorPrimaryBrush}">Yes</Span></TextBlock>
+                <TextBlock FontSize="14" Foreground="{DynamicResource TextFillColorSecondaryBrush}">Connected: <Run Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding ViewModel.RconnConnected}"></Run></TextBlock>
                 <Grid Height="192">
-                    <ui:Button Grid.Column="0" VerticalAlignment="Bottom">Hide UI</ui:Button>
+                    <ui:Button Grid.Column="0" VerticalAlignment="Bottom" Command="{Binding ViewModel.RconnHideUI}">Hide UI</ui:Button>
                 </Grid>
             </StackPanel>
         </Border>

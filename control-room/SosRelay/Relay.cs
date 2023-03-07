@@ -17,7 +17,6 @@ namespace SOS
 
         private bool _rlConnected = false;
         private WebSocket? ws_rocketLeague;
-        private Timer? _connectToRlTimer;
 
         private ConcurrentDictionary<string, List<string>> RegisteredEvents = new ConcurrentDictionary<string, List<string>>();
         private ConcurrentDictionary<string, Func<JsonElement, JsonElement>> EventMutators = new ConcurrentDictionary<string, Func<JsonElement, JsonElement>>();
@@ -54,16 +53,20 @@ namespace SOS
             ws_rocketLeague.OnMessage += this.onRocketLeagueSosMessage;
             ws_rocketLeague?.Connect();
 
-            _connectToRlTimer = new Timer(ConnectToRl, this, 0, 5 * 1000);
-
             _started = true;
             ws_relay.Start();
         }
 
-        private void ConnectToRl(object? state)
+        public void ConnectToRl()
         {
             if (!this.IsRlConnected())
-                ws_rocketLeague?.Connect();
+            {
+                try
+                {
+                    ws_rocketLeague?.Connect();
+                }
+                finally { }
+            }
         }
 
         public void Stop()

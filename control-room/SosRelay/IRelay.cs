@@ -10,6 +10,7 @@ namespace SOS
         bool IsListening();
         bool IsRlConnected();
         int ConnectedClients();
+        void ConnectToRl();
         void AddMutator(string sosEvent, Func<JsonElement, JsonElement> mutator);
     }
 }

@@ -17,7 +17,7 @@ namespace RConn
 
             await socket.ConnectAsync(uri, CancellationToken.None);
             var password = GetPassword();
-            await this.SendCommand($"rcon_password {password}");
+            await this.SendCommandAsync($"rcon_password {password}");
         }
 
         private string GetPassword()
@@ -34,7 +34,7 @@ namespace RConn
             throw new ArgumentException($"Could not find rconn_password in file {fileName}");
         }
 
-        public Task SendCommand(string command)
+        public Task SendCommandAsync(string command)
         {
             return this.SendAsync(command);
         }

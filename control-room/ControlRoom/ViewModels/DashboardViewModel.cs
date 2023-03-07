@@ -105,11 +105,11 @@ namespace ControlRoom.ViewModels
         private async Task ExecuteAsync()
         {
             this._canExecute = false;
-            await this._rConn.SendCommand("replay_gui hud 1");
-            await this._rConn.SendCommand("replay_gui matchinfo 1");
+            await this._rConn.SendCommandAsync("replay_gui hud 1");
+            await this._rConn.SendCommandAsync("replay_gui matchinfo 1");
             await Task.Delay(TimeSpan.FromMilliseconds(1));
-            await this._rConn.SendCommand("replay_gui hud 0");
-            await this._rConn.SendCommand("replay_gui matchinfo 0");
+            await this._rConn.SendCommandAsync("replay_gui hud 0");
+            await this._rConn.SendCommandAsync("replay_gui matchinfo 0");
             this._canExecute = true;
         }
         #endregion

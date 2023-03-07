@@ -51,7 +51,7 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Column="0" Grid.Row="1" Margin="6,6,0,0" Height="260" Width="260" BorderBrush="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8,8,8,8" BorderThickness="8,8,8,8">
+        <!--<Border Grid.Column="0" Grid.Row="1" Margin="6,6,0,0" Height="260" Width="260" BorderBrush="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8,8,8,8" BorderThickness="8,8,8,8">
             <StackPanel Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
                 <TextBlock FontSize="24" FontWeight="Bold">Record Match</TextBlock>
                 <Grid Height="210">
@@ -67,6 +67,6 @@
                     <ui:Button Grid.Column="0"  VerticalAlignment="Bottom">Play Match</ui:Button>
                 </Grid>
             </StackPanel>
-        </Border>
+        </Border>-->
     </Grid>
 </ui:UiPage>

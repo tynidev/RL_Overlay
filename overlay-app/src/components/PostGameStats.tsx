@@ -38,7 +38,7 @@ const PostGameStatsCore: FC<PostGameProps> = (props) => {
 
   return (
     <div className="postgame-stats" style={{ opacity: props.display ? '1' : '0', transition: '400ms' }}>
-
+      <img src="rocketleague_bg2.jpg" alt="" className="stats-bg"/>
       <div className="left-team-score-overline"></div>
       <div className="left-team-score">{props.teams[0].score}</div>
       <div className="left-team-name">{props.series.teams[0].name}</div>

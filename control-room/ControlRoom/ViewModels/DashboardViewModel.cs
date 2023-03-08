@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using RConn;
+using BakkesMod;
 using SOS;
 using System;
 using System.Threading;
@@ -27,20 +27,26 @@ namespace ControlRoom.ViewModels
         private bool _rconnConnected = false;
 
         private DispatcherTimer changeTimer;
+        private DispatcherTimer connectionTimer;
 
         private IRelay _relay { get; set; }
 
         private RemoteConnection _rConn { get; set; }
-        
-        public DashboardViewModel(IRelay relay, RemoteConnection rconn) 
-        { 
+
+        public DashboardViewModel(IRelay relay, RemoteConnection rconn)
+        {
             this._relay = relay;
             this._rConn = rconn;
 
             changeTimer = new DispatcherTimer(DispatcherPriority.Background);
-            changeTimer.Tick += this.Tick;
-            changeTimer.Interval = TimeSpan.FromSeconds(1/2);
+            changeTimer.Tick += this.OnChangeCheck;
+            changeTimer.Interval = TimeSpan.FromSeconds(1 / 2);
             changeTimer.Start();
+
+            connectionTimer = new DispatcherTimer(DispatcherPriority.Background);
+            connectionTimer.Tick += this.OnConnectionCheck;
+            connectionTimer.Interval = TimeSpan.FromSeconds(10);
+            connectionTimer.Start();
         }
 
         private ICommand _rconnHideUI;
@@ -67,12 +73,21 @@ namespace ControlRoom.ViewModels
         {
         }
 
-        private void Tick(object? sender, EventArgs e)
+        private void OnChangeCheck(object? sender, EventArgs e)
         {
             this.SosRelayClientsConnected = _relay.ConnectedClients();
             this.SosRelayListening = _relay.IsListening();
             this.RlConnected = _relay.IsRlConnected();
-            this.RconnConnected = this._rConn.socket.State == System.Net.WebSockets.WebSocketState.Open;
+            this.RconnConnected = this._rConn.IsOpen;
+        }
+
+        private void OnConnectionCheck(object? sender, EventArgs e)
+        {
+            if (!this._rConn.IsOpen)
+                this._rConn.ConnectAsync();
+
+            if (!this._relay.IsRlConnected())
+                this._relay.ConnectToRl();
         }
     }
 
@@ -89,7 +104,7 @@ namespace ControlRoom.ViewModels
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute && this._rConn.socket.State == System.Net.WebSockets.WebSocketState.Open;
+            return _canExecute && this._rConn.IsOpen;
         }
         public event EventHandler CanExecuteChanged
         {

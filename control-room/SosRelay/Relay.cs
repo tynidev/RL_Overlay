@@ -65,6 +65,7 @@ namespace SOS
                 {
                     ws_rocketLeague?.Connect();
                 }
+                catch (Exception) { }
                 finally { }
             }
         }

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SosRelayConsole", "SosRelay
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlRoom", "ControlRoom\ControlRoom.csproj", "{B3EDED63-BC10-42D8-8420-A1F2DC65030F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RConn", "RConn\RConn.csproj", "{F0E1CC2C-32CB-4FBF-95CA-3CEA91C732A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BakkesMod", "BakkesMod\BakkesMod.csproj", "{F0E1CC2C-32CB-4FBF-95CA-3CEA91C732A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -111,11 +111,11 @@ function arePlayersEqual(p1: Player, p2: Player): boolean{
 export function getPostGameState(match: Match, display: boolean): PostGameProps {
   return {
     display: display,
-    teams: match?.state?.game?.teams
-      ? [match?.state?.game?.teams[0], match?.state?.game?.teams[1]]
+    teams: match?.gameState?.game?.teams
+      ? [match?.gameState?.game?.teams[0], match?.gameState?.game?.teams[1]]
       : [NewTeam(),NewTeam(),],
-    left: (match?.state.left.length ?? 0) > 0 ? match?.state.left : [],
-    right: (match?.state.right.length ?? 0) > 0 ? match?.state.right : [],
+    left: (match?.gameState.left.length ?? 0) > 0 ? match?.gameState.left : [],
+    right: (match?.gameState.right.length ?? 0) > 0 ? match?.gameState.right : [],
     series: match.series,
   };
 }

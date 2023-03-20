@@ -42,10 +42,10 @@ const areTeamsEqual = (
 
 export const getState = (match: Match) => ({
   ballLocation: getLocation(
-    match?.state.game?.ball?.location ?? { X: 0, Y: 0 }
+    match?.gameState.game?.ball?.location ?? { X: 0, Y: 0 }
   ),
-  left: match?.state.left ?? [],
-  right: match?.state.right ?? [],
+  left: match?.gameState.left ?? [],
+  right: match?.gameState.right ?? [],
 });
 
 interface MiniMapProps {

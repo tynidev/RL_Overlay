@@ -21,7 +21,7 @@ function areTeamsEqual(t1: GameTeam, t2: GameTeam): boolean{
  * Match - Class for handling all state related to a rocket league match
  */
 export class Match {
-  state = new GameState();
+  gameState = new GameState();
 
   localplayer_support = false;
   localPlayer?: Player;
@@ -81,7 +81,7 @@ export class Match {
     
     // When game is created before everyone has picked sides or specator roles
     ws.subscribe('game', 'match_created', () => {
-      this.state.setState('pre-game-lobby');
+      this.gameState.setState('pre-game-lobby');
       this.matchCreatedCallbacks.forEach((callback) => {
         callback();
       });
@@ -107,7 +107,7 @@ export class Match {
 
     // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
     ws.subscribe('game', 'initialized', () => {
-      this.state.setState('in-game');
+      this.gameState.setState('in-game');
       this.initializedCallbacks.forEach((callback) => {
         callback();
       });
@@ -115,7 +115,7 @@ export class Match {
 
     // Kick off countdown
     ws.subscribe('game', 'pre_countdown_begin', () => {
-      this.state.setState('in-game');
+      this.gameState.setState('in-game');
       this.preCountDownBeginCallbacks.forEach((callback) => {
         callback();
       });
@@ -135,7 +135,7 @@ export class Match {
 
     // Kick off countdown finished and cars are free to GO!!!!
     ws.subscribe('game', 'round_started_go', () => {
-      this.state.setState('in-game');
+      this.gameState.setState('in-game');
     });
 
     // Occurs when ball is hit
@@ -147,7 +147,7 @@ export class Match {
     //ws.subscribe("game", "clock_stopped", (p) => { });
     // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
     ws.subscribe('game', 'clock_updated_seconds', () => {
-      this.state.setState('in-game');
+      this.gameState.setState('in-game');
     });
 
     // When a goal is scored
@@ -184,7 +184,7 @@ export class Match {
 
     // When name of team winner is displayed on screen after game is over
     ws.subscribe('game', 'match_ended', (p: MatchEndData) => {
-      this.state.setState('game-ended');
+      this.gameState.setState('game-ended');
       this.series.teams[p.winner_team_num].matches_won += 1;
       for (const cb of this.gameEndCallbacks) {
         cb();
@@ -193,7 +193,7 @@ export class Match {
 
     // Celebration screen for winners podium after game ends
     ws.subscribe('game', 'podium_start', () => {
-      this.state.setState('post-game');
+      this.gameState.setState('post-game');
       this.podiumCallbacks.forEach((callback) => {
         callback();
       });
@@ -201,7 +201,7 @@ export class Match {
 
     // When match OR replay is destroyed
     ws.subscribe('game', 'match_destroyed', () => {
-      this.state.reset();
+      this.gameState.reset();
       this.matchEndedCallbacks.forEach((callback) => {
         callback();
       });
@@ -369,7 +369,7 @@ export class Match {
   }
 
   public getGameTimeString(game?: Game): string {
-    game ??= this.state.game;
+    game ??= this.gameState.game;
     if (game === undefined) {
       return '5:00';
     }
@@ -439,16 +439,16 @@ export class Match {
     });
 
     // Has time changed?
-    const prev_time_sec = this.state.game?.time_seconds;
+    const prev_time_sec = this.gameState.game?.time_seconds;
     if (prev_time_sec !== game.time_seconds) {
-      if (prev_time_sec) this.state.setState('in-game');
+      if (prev_time_sec) this.gameState.setState('in-game');
       for (const cb of this.timeUpdateCallbacks) {
         cb(this.getGameTimeString(game), game.time_seconds, game.isOT);
       }
     }
 
     // Compare teams
-    const diff = this.state.computeTeamMemberChanges(left, right);
+    const diff = this.gameState.computeTeamMemberChanges(left, right);
 
     if (!diff.equal) {
       // Fire team members changed if teams have changed
@@ -457,7 +457,7 @@ export class Match {
       }
     }
 
-    this.state.update(game, left, right);
+    this.gameState.update(game, left, right);
   }
 
   hasTeamStateChanged(prevTeams: GameTeam[], currTeams: GameTeam[]) {

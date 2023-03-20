@@ -16,7 +16,7 @@ import {
 import { Match } from '../match';
 
 export const Stream: FC<{ match: Match }> = (props) => {
-  const [gameState, setGameState] = useState(props.match.state.state);
+  const [gameState, setGameState] = useState(props.match.gameState.state);
   const [scoreboardState, setScoreboardState] = useState(
     getScoreboardState(props.match)
   );
@@ -34,9 +34,9 @@ export const Stream: FC<{ match: Match }> = (props) => {
   useEffect(() => {
     const unsubscribers = [
       // Match Created - When game is created before everyone has picked sides or specator roles
-      props.match.OnMatchCreated(() => setGameState(props.match.state.state)),
+      props.match.OnMatchCreated(() => setGameState(props.match.gameState.state)),
       // OnFirstCountdown - When the first kick off of the game occurs
-      props.match.OnFirstCountdown(() => setGameState(props.match.state.state)),
+      props.match.OnFirstCountdown(() => setGameState(props.match.gameState.state)),
       // OnCountdown - When a kickoff countdown occurs
       props.match.OnCountdown(() =>
         setSpectatingState((prevState) =>
@@ -103,23 +103,23 @@ export const Stream: FC<{ match: Match }> = (props) => {
       // OnGameEnded - When name of team winner is displayed on screen after game is over
       props.match.OnGameEnded(() => {
         setPostGameStatsState(getPostGameState(props.match, false));
-        setTimeout(() => setGameState(props.match.state.state), 2990);
+        setTimeout(() => setGameState(props.match.gameState.state), 2990);
       }),
       // OnPodiumStart - Celebration screen for winners podium after game ends
       props.match.OnPodiumStart(() =>
         setTimeout(() => {
-          setGameState(props.match.state.state);
+          setGameState(props.match.gameState.state);
           setPostGameStatsState(getPostGameState(props.match, true));
         }, 4700)
       ),
       // OnMatchEnded - When match is destroyed
-      props.match.OnMatchEnded(() => setGameState(props.match.state.state)),
+      props.match.OnMatchEnded(() => setGameState(props.match.gameState.state)),
     ];
 
     return () => unsubscribers.forEach((u) => u(props.match));
   }, [props.match]);
 
-  switch (props.match.state.state) {
+  switch (props.match.gameState.state) {
     case 'none':
     case 'pre-game-lobby':
       return <div className="overlay"></div>;
@@ -150,7 +150,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
 
     default:
       return (
-        <div className="overlay">Game State not recognized: {props.match.state.state}</div>
+        <div className="overlay">Game State not recognized: {props.match.gameState.state}</div>
       );
   }
 };

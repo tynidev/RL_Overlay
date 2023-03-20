@@ -4,8 +4,8 @@ import { Match } from '../match';
 import { PlayerCard } from './PlayerCard';
 
 export const getState = (match: Match) => ({
-  left: match?.state.left ?? [],
-  right: match?.state.right ?? [],
+  left: match?.gameState.left ?? [],
+  right: match?.gameState.right ?? [],
   playerTarget: match?.playerTarget ?? undefined,
   localPlayer: match?.localPlayer ?? undefined,
 });

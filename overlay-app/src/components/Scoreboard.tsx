@@ -5,9 +5,9 @@ import { scaleText } from '../util/utils';
 
 export const getState = (match: Match | undefined) => ({
   time: match?.getGameTimeString() ?? '5:00',
-  seconds: match?.state.game?.time_seconds ?? 5 * 60,
-  isOT: match?.state.game?.isOT ?? false,
-  teams: match?.state.game?.teams ?? [
+  seconds: match?.gameState.game?.time_seconds ?? 5 * 60,
+  isOT: match?.gameState.game?.isOT ?? false,
+  teams: match?.gameState.game?.teams ?? [
     {
       name: 'Blue',
       score: 0,

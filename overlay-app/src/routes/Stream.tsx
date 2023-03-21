@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { PostGameStats, getPostGameState } from '../components/PostGameStats';
 import { getState as getReplayState, Replay } from '../components/Replay';
+import { getState as getPossessionPositionState, PossessionPosition } from '../components/PossessionPosition'
 import {
   getState as getScoreboardState,
   Scoreboard,
@@ -30,6 +31,9 @@ export const Stream: FC<{ match: Match }> = (props) => {
   const [postGameStatsState, setPostGameStatsState] = useState(
     getPostGameState(props.match, false)
   );
+  const [possessionPositionState, setPossessionPositionState] = useState(
+    getPossessionPositionState(props.match)
+  );
 
   useEffect(() => {
     const unsubscribers = [
@@ -46,6 +50,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
       // OnTimeUpdated - When a time update is recieved
       props.match.OnTimeUpdated(() => {
         setScoreboardState(getScoreboardState(props.match));
+        setPossessionPositionState(getPossessionPositionState(props.match));
       }),
       // OnPlayersUpdated - When players stats/properties have changed
       props.match.OnPlayersUpdated(() => {
@@ -129,6 +134,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
         <div className="overlay">
           <Scoreboard {...scoreboardState} />
           <TeamBoard {...teamBoardState} />
+          <PossessionPosition {...possessionPositionState} />
           <Spectating {...spectatingState} />
           <Replay {...replayState} />
         </div>

@@ -81,6 +81,7 @@ export class Match {
     
     // When game is created before everyone has picked sides or specator roles
     ws.subscribe('game', 'match_created', () => {
+      this.gameState.clockRunning = false;
       this.gameState.setState('pre-game-lobby');
       this.matchCreatedCallbacks.forEach((callback) => {
         callback();
@@ -107,6 +108,7 @@ export class Match {
 
     // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
     ws.subscribe('game', 'initialized', () => {
+      this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
       this.initializedCallbacks.forEach((callback) => {
         callback();
@@ -115,12 +117,16 @@ export class Match {
 
     // Kick off countdown
     ws.subscribe('game', 'pre_countdown_begin', () => {
+      this.gameState.ballPossessions = [];
+      this.gameState.fieldPositions = [];
+      this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
       this.preCountDownBeginCallbacks.forEach((callback) => {
         callback();
       });
     });
     ws.subscribe('game', 'post_countdown_begin', () => {
+      this.gameState.clockRunning = false;
       if (this.RCONN !== undefined && !this.hiddenUI) {
         this.RCONN.send('replay_gui hud 1');
         this.RCONN.send('replay_gui matchinfo 1');
@@ -135,11 +141,14 @@ export class Match {
 
     // Kick off countdown finished and cars are free to GO!!!!
     ws.subscribe('game', 'round_started_go', () => {
+      this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
     });
 
     // Occurs when ball is hit
-    //ws.subscribe("game", "ball_hit", (p) => { });
+    ws.subscribe("game", "ball_hit", (p) => { 
+      this.gameState.clockRunning = true;
+    });
 
     // Fires when the clock starts ticking after any kick off
     //ws.subscribe("game", "clock_started", (p) => { });
@@ -152,6 +161,7 @@ export class Match {
 
     // When a goal is scored
     ws.subscribe('game', 'goal_scored', (p: unknown) => {
+      this.gameState.clockRunning = false;
       this.onGoalScoredCallbacks.forEach((callback) => {
         callback(p);
       });
@@ -159,6 +169,7 @@ export class Match {
 
     // When an in game replay from a goal is started
     ws.subscribe('game', 'replay_start', (p: unknown) => {
+      this.gameState.clockRunning = false;
       // replay_start is sent twice one with json and one with plain text
       if (p !== 'game_replay_start')
         // skip json
@@ -170,6 +181,7 @@ export class Match {
 
     // When an in game replay from a goal is about to end
     ws.subscribe('game', 'replay_will_end', () => {
+      this.gameState.clockRunning = false;
       for (const cb of this.replayWillEndCallbacks) {
         cb();
       }
@@ -177,6 +189,7 @@ export class Match {
 
     // When an in game replay from a goal ends
     ws.subscribe('game', 'replay_end', () => {
+      this.gameState.clockRunning = false;
       for (const cb of this.replayEndCallbacks) {
         cb();
       }
@@ -184,6 +197,7 @@ export class Match {
 
     // When name of team winner is displayed on screen after game is over
     ws.subscribe('game', 'match_ended', (p: MatchEndData) => {
+      this.gameState.clockRunning = false;
       this.gameState.setState('game-ended');
       this.series.teams[p.winner_team_num].matches_won += 1;
       for (const cb of this.gameEndCallbacks) {
@@ -193,6 +207,7 @@ export class Match {
 
     // Celebration screen for winners podium after game ends
     ws.subscribe('game', 'podium_start', () => {
+      this.gameState.clockRunning = false;
       this.gameState.setState('post-game');
       this.podiumCallbacks.forEach((callback) => {
         callback();
@@ -441,9 +456,11 @@ export class Match {
     // Has time changed?
     const prev_time_sec = this.gameState.game?.time_seconds;
     if (prev_time_sec !== game.time_seconds) {
+      this.gameState.clockRunning = true;
       if (prev_time_sec) this.gameState.setState('in-game');
+      var game_time_str = this.getGameTimeString(game);
       for (const cb of this.timeUpdateCallbacks) {
-        cb(this.getGameTimeString(game), game.time_seconds, game.isOT);
+        cb(game_time_str, game.time_seconds, game.isOT);
       }
     }
 

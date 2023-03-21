@@ -16,9 +16,6 @@ export const PossessionPosition: FC<ReturnType<typeof getState>> = (props) => {
   let possessionLeftElement = (<div id="possession-flyout" className="left" style={{transform:possession >= 40 ? "translateX(17.5rem)" : ""}}>possession</div>);
   let possessionRightElement = (<div id="possession-flyout" className="right" style={{transform:possession <= -40 ? "translateX(-17.5rem)" : ""}}>possession</div>);
 
-  console.log("Position: " + fieldPosition);
-  console.log("Possession: " + possession);
-
   return (
     <div id="possession-positon">
       {possessionLeftElement}

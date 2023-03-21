@@ -1,15 +1,20 @@
 .teamboard .player {
-  --padding: calc(var(--sw) / 256);
-  padding: 0 var(--padding) var(--padding) var(--padding);
+  padding: 0 0.625rem 0.625rem 0.625rem;
+  margin: 0.3rem 0 0.5rem 0;
   font-size: 1.5rem;
-  line-height: calc(var(--padding) * 3);
-  display: block;
-  margin: calc(var(--padding) / 2) 0 calc(var(--sw) / 320) 0;
   background-color: rgb(var(--base-color));
+  height:2.5rem;
+}
+
+.teamboard .right .player{
+  left:0px;
+  position: relative;
 }
 
 .teamboard .player .name{
   padding-top:calc(var(--one)* 2);
+  z-index: 1000;
+  position: relative;
 }
 
 .teamboard .player .boost{
@@ -81,4 +86,65 @@
 
 .teamboard .player .stats .stat {
   display:none;
+}
+
+ .teamboard .right .statOverlay{
+  height:3.125rem;
+  width:100%;
+  position: absolute;
+  background-image: linear-gradient(to right, rgba(var(--orange),1) 20%, 35%, rgba(var(--orange),0.0) 70%);
+  left:-3.5rem;
+  animation: right-statfeed 200ms;
+  z-index: 100;
+}
+.teamboard .right .statOverlay img{
+  float:left;
+}
+
+.teamboard .left .statOverlay img{
+  float:right;
+}
+
+.teamboard .statOverlay img{
+  height:3.625rem;
+  top:-0.25rem;
+  position: relative;
+  margin:0rem 0.2rem;
+}
+.teamboard .right .statOverlay img{
+  filter: 
+  invert(1) 
+  sepia(0.1) 
+  saturate(500%)
+  drop-shadow(0px 0px 3px rgb(255, 255, 0));
+  z-index: 1000;
+}
+.teamboard .left .statOverlay img{
+  filter: 
+  invert(1) 
+  sepia(0.0) 
+  saturate(500%)
+  drop-shadow(0px 0px 3px rgb(0, 225, 255));
+  z-index: 1000;
+}
+
+.teamboard .left .statOverlay{
+ height:3.125rem;
+ width:100%;
+ position: absolute;
+ background-image: linear-gradient(to left, rgba(var(--blue),1) 20%, 35%, rgba(var(--blue),0.0) 70%);
+ left:3.5rem;
+ animation: left-statfeed 200ms;
+ z-index: 100;
+}
+
+@keyframes right-statfeed {
+  0% {left:-12rem;opacity: 0;}
+  50% {opacity: 0.2;}
+  100% {left:-3.5rem;opacity: 1}
+}
+@keyframes left-statfeed {
+  0% {left:12rem;opacity: 0;}
+  50% {opacity: 0.2;}
+  100% {left:3.5rem;opacity: 1}
 }

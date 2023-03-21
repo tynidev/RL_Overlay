@@ -5,6 +5,7 @@ import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
 import { Callback, pad } from './util/utils';
 import { RCONN } from './RCONN';
+import { StatfeedEvent } from './types/statfeedEvent';
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
@@ -67,6 +68,7 @@ export class Match {
   podiumCallbacks: Callback[] = [];
   ballUpdateCallbacks: Callback[] = [];
   seriesUpdateCallbacks: ((s: Series) => void)[] = [];
+  statfeedCallbacks: ((s: StatfeedEvent) => void)[] = [];
 
   RCONN?: RCONN = undefined;
   hiddenUI = false;
@@ -249,6 +251,26 @@ export class Match {
         cb(p);
       }
     });
+
+    // "game:statfeed_event": {
+    //   "event_name": "string"
+    //   "main_target": {
+    //     "id": "string",
+    //     "name": "string",
+    //     "team_num": "number"
+    //   },
+    //   "secondary_target": {
+    //     "id": "string",
+    //     "name": "string",
+    //     "team_num": "number"
+    //   },
+    //   "type": "string"
+    // }
+    ws.subscribe('game', 'statfeed_event', (p: StatfeedEvent) =>{
+      for (const cb of this.statfeedCallbacks) {
+        cb(p);
+      }
+    });
   }
 
   /***************************/
@@ -383,6 +405,10 @@ export class Match {
    */
   OnSeriesUpdate(callback: (s: Series) => void) {
     return this.handleCallback(callback, (m) => m.seriesUpdateCallbacks);
+  }
+
+  OnStatfeedEvent(callback: (s: StatfeedEvent) => void){
+    return this.handleCallback(callback, (m) => m.statfeedCallbacks);
   }
 
   public getGameTimeString(game?: Game): string {

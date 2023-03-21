@@ -9,23 +9,19 @@
 	font-size: 1.5rem;
 	line-height: calc(var(--padding) * 3);
 	background-color: rgb(var(--base-color));
-	width:16rem; 
+	width:17rem; 
 	top:16.5rem;
 	transition: 0.4s;
 }
 #possession-flyout.left{
 	text-align: right;
-	left: -17.5rem;
+	left: -18.5rem;
 	padding: 0.5rem 1rem 0.5rem 0.5rem;
-	/* animation-duration: 0.4s;
-	animation-fill-mode: forwards; */
 }
 #possession-flyout.right{
 	text-align: left;
 	left: calc(var(--sw));
 	padding: 0.5rem 0.5rem 0.5rem 1rem;
-	/* animation-duration: 0.4s;
-	animation-fill-mode: forwards; */
 }
 
 #position-flyout{
@@ -33,39 +29,17 @@
 	font-size: 1.5rem;
 	line-height: calc(var(--padding) * 3);
 	background-color: rgb(var(--base-color));
-	width:16rem; 
+	width:17rem; 
 	top:20rem;
 	transition: 0.4s;
 }
 #position-flyout.left{
 	text-align: right;
-	left: -17.5rem;
+	left: -18.5rem;
 	padding: 0.5rem 1rem 0.5rem 0.5rem;
-	/* animation-duration: 0.4s;
-	animation-fill-mode: forwards; */
 }
 #position-flyout.right{
 	text-align: left;
 	left: calc(var(--sw));
 	padding: 0.5rem 0.5rem 0.5rem 1rem;
-	/* animation-duration: 0.4s;
-	animation-fill-mode: forwards; */
-}
-
-@keyframes flyout-right {
-	from {left: var(--sw);}
-	to {left: calc(var(--sw) - 17.5rem);}
-}
-@keyframes flyin-right {
-	from {left: calc(var(--sw) - 17.5rem);}
-	to {left: var(--sw);}
-}
-
-@keyframes flyout-left {
-	from {left: -17.5rem;}
-	to {left: 0;}
-}
-@keyframes flyin-left {
-	from {left: 0;}
-	to {left: -17.5rem;}
 }

@@ -117,8 +117,6 @@ export class Match {
 
     // Kick off countdown
     ws.subscribe('game', 'pre_countdown_begin', () => {
-      this.gameState.ballPossessions = [];
-      this.gameState.fieldPositions = [];
       this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
       this.preCountDownBeginCallbacks.forEach((callback) => {
@@ -169,6 +167,10 @@ export class Match {
 
     // When an in game replay from a goal is started
     ws.subscribe('game', 'replay_start', (p: unknown) => {
+      this.gameState.ballPossessions = [];
+      this.gameState.fieldPositions = [];
+      this.gameState.possession = 0;
+      this.gameState.fieldPosition =  0;
       this.gameState.clockRunning = false;
       // replay_start is sent twice one with json and one with plain text
       if (p !== 'game_replay_start')

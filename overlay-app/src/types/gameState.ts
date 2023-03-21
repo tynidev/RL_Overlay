@@ -80,26 +80,23 @@ export class GameState {
 
     // record possession
     this.ballPossessions.push(this.curr.game.ball.team);
-    let possessions = [0,0];
-    for(let i = this.ballPossessions.length - 1; i > 0 && i >= this.ballPossessions.length - (10 * 16); i--)
-    {
-      possessions[this.ballPossessions[i]] += 1;
-    }
-    let totalRecords = possessions[0] + possessions[1];
-    possessions[0] = possessions[0] / totalRecords * 100;
-    possessions[1] = possessions[1] / totalRecords * 100;
-    this.possession = possessions[0] - possessions[1];
+    this.possession = this.computeAverage(this.ballPossessions, (10 * 16), (list, i) => { return list[i] === 0 ? 1 : -1; }) * 100;
 
     // record field position
     this.fieldPositions.push(this.computPositionalAdvantage()); // add ball location at end of array
+    this.fieldPosition = this.computeAverage(this.fieldPositions, (10 * 8), (list, i) => { return list[i]; });
+  }
+
+  private computeAverage(numbers:number[], numberElements:number, value: (numbers:number[], i:number) => number)
+  {
     let sum = 0;
-    let records = 0;
-    for(let i = this.fieldPositions.length - 1; i > 0 && i >= this.fieldPositions.length - (10 * 8); i--)
+    for(let i = numbers.length - 1; i >= numbers.length - numberElements; i--)
     {
-      sum += this.fieldPositions[i];
-      records += 1;
+      if(i < 0)
+        break;
+      sum += value(numbers, i);
     }
-    this.fieldPosition = sum / (records === 0 ? 1 : records);
+    return sum / numberElements;
   }
 
   private computPositionalAdvantage() {

@@ -50,12 +50,12 @@ export const Stream: FC<{ match: Match }> = (props) => {
       // OnTimeUpdated - When a time update is recieved
       props.match.OnTimeUpdated(() => {
         setScoreboardState(getScoreboardState(props.match));
-        setPossessionPositionState(getPossessionPositionState(props.match));
       }),
       // OnPlayersUpdated - When players stats/properties have changed
       props.match.OnPlayersUpdated(() => {
         setTeamBoardState(getTeamBoardState(props.match));
         setPostGameStatsState(getPostGameState(props.match, false));
+        setPossessionPositionState(getPossessionPositionState(props.match));
       }),
       // OnSpecatorUpdated - When the spectated player changes
       props.match.OnSpecatorUpdated(() => {

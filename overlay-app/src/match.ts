@@ -294,7 +294,7 @@ export class Match {
 
         let changed = false;
         if(!this.statfeeds.has(p.main_target.id)){
-          this.statfeeds.set(p.main_target.id, [{stat:p,ttl:4}]);
+          this.statfeeds.set(p.main_target.id, [{stat:p,ttl:5}]);
           changed = true;
         }
         else{
@@ -313,7 +313,7 @@ export class Match {
           }
 
           if(!found){
-            this.statfeeds.get(p.main_target.id)?.push({stat:p,ttl:4});
+            this.statfeeds.get(p.main_target.id)?.push({stat:p,ttl:5});
             changed = true;
           }
         }

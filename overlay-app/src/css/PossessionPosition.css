@@ -5,42 +5,38 @@
 	opacity: 0.96;
 }
 
-#possession-flyout{
-	position: absolute;
-	font-size: 1.5rem;
-	line-height: calc(var(--padding) * 3);
-	background-color: rgb(var(--base-color));
-	width:17rem; 
-	top:16.5rem;
-	transition: 0.4s;
-}
-#possession-flyout.left{
-	text-align: right;
-	left: -18.5rem;
-	padding: 0.5rem 1rem 0.5rem 0.5rem;
-}
-#possession-flyout.right{
-	text-align: left;
-	left: calc(var(--sw));
-	padding: 0.5rem 0.5rem 0.5rem 1rem;
+#possession-positon-text-left{
+	position:absolute;
+	top:4.5rem;
+	left:52.3rem;
+	width:200px;
 }
 
-#position-flyout{
-	position: absolute;
-	font-size: 1.5rem;
-	line-height: calc(var(--padding) * 3);
-	background-color: rgb(var(--base-color));
-	width:17rem; 
-	top:20rem;
-	transition: 0.4s;
-}
-#position-flyout.left{
+#possession-positon-text-left div{
+	text-shadow: none;
+	font-size: 0.9rem;
+	float:right;
+	background-color: rgba(var(--base-color),0.0);
+	border-radius: 0 0 var(--box-radius) var(--box-radius);
+	margin-right:0.5rem;
+	color:#ecec4f;
 	text-align: right;
-	left: -18.5rem;
-	padding: 0.5rem 1rem 0.5rem 0.5rem;
 }
-#position-flyout.right{
-	text-align: left;
-	left: calc(var(--sw));
-	padding: 0.5rem 0.5rem 0.5rem 1rem;
+
+#possession-positon-text-right{
+	position:absolute;
+	top:4.5rem;
+	left:95.7rem;
+	width:200px;
+}
+
+#possession-positon-text-right div{
+	text-shadow: none;
+	font-size: 0.9rem;
+	float:left;
+	background-color: rgba(var(--base-color),0.0);
+	border-radius: 0 0 var(--box-radius) var(--box-radius);
+	margin-right:0.5rem;
+	color:#ecec4f;
+	text-align: right;
 }

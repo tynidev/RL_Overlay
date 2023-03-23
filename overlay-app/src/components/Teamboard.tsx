@@ -2,15 +2,14 @@ import '../css/Teamboard.css';
 import React, { FC } from 'react';
 import { Match } from '../match';
 import { PlayerCard } from './PlayerCard';
-import { StatfeedEvent } from '../types/statfeedEvent';
 
-export const getState = (match: Match, s:StatfeedEvent|undefined) => {
+export const getState = (match: Match) => {
   return {
     left: match?.gameState.left ?? [],
     right: match?.gameState.right ?? [],
     playerTarget: match?.playerTarget ?? undefined,
     localPlayer: match?.localPlayer ?? undefined,
-    statfeed: s,
+    statfeed: match?.statfeeds,
   };
 };
 
@@ -25,7 +24,7 @@ export const TeamBoard: FC<ReturnType<typeof getState>> = (props) => {
           index={index}
           showBoost={!localPlayer}
           key={index}
-          s={statfeed}
+          statfeed={statfeed.get(player.id) ?? []}
         />
       ))}
     </div>

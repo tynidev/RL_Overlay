@@ -15,7 +15,7 @@ import {
   TeamBoard,
 } from '../components/Teamboard';
 import { Match } from '../match';
-import { StatfeedEvent } from '../types/statfeedEvent';
+import { StatFeed } from '../types/statfeedEvent';
 
 export const Stream: FC<{ match: Match }> = (props) => {
   const [gameState, setGameState] = useState(props.match.gameState.state);
@@ -26,7 +26,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
     getSpectatingState(props.match, undefined, undefined)
   );
   const [teamBoardState, setTeamBoardState] = useState(
-    getTeamBoardState(props.match, undefined)
+    getTeamBoardState(props.match)
   );
   const [replayState, setReplayState] = useState(getReplayState(undefined));
   const [postGameStatsState, setPostGameStatsState] = useState(
@@ -52,18 +52,18 @@ export const Stream: FC<{ match: Match }> = (props) => {
       props.match.OnTimeUpdated(() => {
         setScoreboardState(getScoreboardState(props.match));
       }),
-      props.match.OnStatfeedEvent((s: StatfeedEvent) => {
-        setTeamBoardState((prevState) => getTeamBoardState(props.match, s));
+      props.match.OnStatfeedEvent((s: Map<string,StatFeed[]>) => {
+        setTeamBoardState(() => getTeamBoardState(props.match));
       }),
       // OnPlayersUpdated - When players stats/properties have changed
       props.match.OnPlayersUpdated(() => {
-        setTeamBoardState((prevState) => getTeamBoardState(props.match, prevState?.statfeed));
+        setTeamBoardState(() => getTeamBoardState(props.match));
         setPostGameStatsState(getPostGameState(props.match, false));
         setPossessionPositionState(getPossessionPositionState(props.match));
       }),
       // OnSpecatorUpdated - When the spectated player changes
       props.match.OnSpecatorUpdated(() => {
-        setTeamBoardState((prevState) => getTeamBoardState(props.match, prevState?.statfeed));
+        setTeamBoardState(() => getTeamBoardState(props.match));
         setSpectatingState((prevState) =>
           getSpectatingState(props.match, 'OnSpecatorUpdated', prevState)
         );

@@ -5,7 +5,7 @@ import { Series } from './types/series';
 import { GameState, Stats } from './types/gameState';
 import { Callback, pad } from './util/utils';
 import { RCONN } from './RCONN';
-import { StatfeedEvent } from './types/statfeedEvent';
+import { StatFeed, StatfeedEvent } from './types/statfeedEvent';
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
@@ -29,6 +29,8 @@ export class Match {
   playerTarget?: Player;
 
   stats?: Stats;
+  
+  statfeeds = new Map<string,StatFeed[]>();
 
   /**
    * Series information
@@ -68,7 +70,7 @@ export class Match {
   podiumCallbacks: Callback[] = [];
   ballUpdateCallbacks: Callback[] = [];
   seriesUpdateCallbacks: ((s: Series) => void)[] = [];
-  statfeedCallbacks: ((s: StatfeedEvent) => void)[] = [];
+  statfeedCallbacks: ((s: Map<string,StatFeed[]>) => void)[] = [];
 
   RCONN?: RCONN = undefined;
   hiddenUI = false;
@@ -194,6 +196,15 @@ export class Match {
     // When an in game replay from a goal ends
     ws.subscribe('game', 'replay_end', () => {
       this.gameState.clockRunning = false;
+      
+      // clear out current stat feeds when replay ends
+      this.statfeeds = new Map<string,StatFeed[]>();
+      // call statfeed changed callbacks
+      for (const cb of this.statfeedCallbacks) {
+        cb(this.statfeeds);
+      }
+
+      // call callbacks
       for (const cb of this.replayEndCallbacks) {
         cb();
       }
@@ -267,8 +278,51 @@ export class Match {
     //   "type": "string"
     // }
     ws.subscribe('game', 'statfeed_event', (p: StatfeedEvent) =>{
-      for (const cb of this.statfeedCallbacks) {
-        cb(p);
+      var supportedEvent = false;
+      switch(p.type){
+        case 'Assist':
+        case 'Demolition':
+        case 'Epic Save':
+        case 'Goal':
+        case 'Save':
+        case 'Shot on Goal':
+          supportedEvent = true;
+          break;
+      }
+
+      if(supportedEvent){
+
+        let changed = false;
+        if(!this.statfeeds.has(p.main_target.id)){
+          this.statfeeds.set(p.main_target.id, [{stat:p,ttl:4}]);
+          changed = true;
+        }
+        else{
+
+          // we get multiple events for the same feed so filter duplicates
+          let feeds = this.statfeeds.get(p.main_target.id);
+          let found = false;
+          for (let i = 0; i < feeds!.length; i++) {
+            var stat = feeds![i].stat;
+            if(stat.main_target.id !== p.main_target.id ||
+               stat.secondary_target.id !== p.secondary_target.id ||
+               stat.type !== p.type)
+               continue;
+            found = true;
+            break;
+          }
+
+          if(!found){
+            this.statfeeds.get(p.main_target.id)?.push({stat:p,ttl:4});
+            changed = true;
+          }
+        }
+
+        if(changed){
+          for (const cb of this.statfeedCallbacks) {
+            cb(this.statfeeds);
+          }
+        }
       }
     });
   }
@@ -407,7 +461,7 @@ export class Match {
     return this.handleCallback(callback, (m) => m.seriesUpdateCallbacks);
   }
 
-  OnStatfeedEvent(callback: (s: StatfeedEvent) => void){
+  OnStatfeedEvent(callback: (s: Map<string,StatFeed[]>) => void){
     return this.handleCallback(callback, (m) => m.statfeedCallbacks);
   }
 
@@ -484,8 +538,36 @@ export class Match {
     // Has time changed?
     const prev_time_sec = this.gameState.game?.time_seconds;
     if (prev_time_sec !== game.time_seconds) {
-      this.gameState.clockRunning = true;
-      if (prev_time_sec) this.gameState.setState('in-game');
+      // time is running as it is changing
+      this.gameState.clockRunning = true
+      
+      // if time has changed and we didn't have a previous time
+      if (prev_time_sec){
+        this.gameState.setState('in-game');
+      }
+      
+      // Update statfeeds time to live every second of game time
+      let changedStats = false;
+      for (let [pid, feeds] of this.statfeeds) {
+      for (let i = 0; i < feeds.length; i++) {
+        
+        feeds![i].ttl += -1;
+        var item = feeds![i];
+
+        if(item.ttl <= 0){
+          feeds!.splice(i, 1);
+          changedStats = true;
+        }
+      }}
+
+      // call statfeed events if stats have changed
+      if(changedStats){
+        for (const cb of this.statfeedCallbacks) {
+          cb(this.statfeeds);
+        }
+      }
+      
+      // call time update callbacks
       var game_time_str = this.getGameTimeString(game);
       for (const cb of this.timeUpdateCallbacks) {
         cb(game_time_str, game.time_seconds, game.isOT);

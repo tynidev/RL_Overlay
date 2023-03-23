@@ -2,6 +2,7 @@
 	position: absolute;
     width: var(--sw);
     height: var(--sh);
+	opacity: 0.96;
 }
 
 #possession-flyout{

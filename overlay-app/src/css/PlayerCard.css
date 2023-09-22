@@ -7,19 +7,9 @@
   transition: all .5s ease;
 }
 
-
-.teamboard .left .player {
-  transform: translate3d(-100%, 0, 0);
-}
-
-.teamboard.showing .player {
-  transform: translate3d(0, 0, 0);
-}
-
 .teamboard .right .player{
   left:0px;
   position: relative;
-  transform: translate3d(-10%, 0, 0);
 }
 
 .teamboard .player .name{

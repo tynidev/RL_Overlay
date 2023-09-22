@@ -8,12 +8,7 @@
 	--scoreboard-w: calc(var(--sw) / 1.8);
 	--scoreboard-hw: calc(var(--scoreboard-w) / 1.8);
   	width: var(--scoreboard-w);
-	transform: translate3d(0, -150%, 0);
 	opacity: 0.99;
-}
-
-.scoreboard.showing {
-	transform: translate3d(0, 0, 0);
 }
 
 .scoreboard .left .logo {

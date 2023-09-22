@@ -1,6 +1,8 @@
 import WebSocket from 'ws';
 import prompt from 'prompt';
 
+// RANDOM CHANGE!!
+
 const WsSubscribers = {
     __subscribers: {},
     websocket: undefined,
@@ -159,6 +161,18 @@ prompt.get([
         required: true,
         default: "Orange",
     },
+    {
+        description: 'Left Team Logo',
+        name: 'left_team_logo',
+        required: false,
+        default: "",
+    },
+    {
+        description: 'Right Team Logo',
+        name: 'right_team_logo',
+        required: false,
+        default: "",
+    },
 ], async function (e, r) {
 
     WsSubscribers.send("game", "series_update", {
@@ -168,12 +182,14 @@ prompt.get([
         {
         "team" : 0,
         "name" : r.left_team,
-        "matches_won" : 0
+        "matches_won" : 0,
+        "logo": r.left_team_logo
         },
         {
         "team" : 1,
         "name" : r.right_team,
-        "matches_won" : 0
+        "matches_won" : 0,
+        "logo": r.right_team_logo
         }
     ]
     });

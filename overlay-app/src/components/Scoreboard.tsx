@@ -4,7 +4,6 @@ import { Match } from '../match';
 import { scaleText } from '../util/utils';
 
 export const getState = (match: Match | undefined) => ({
-  hiddenUI: match?.hiddenUI,
   time: match?.getGameTimeString() ?? '5:00',
   seconds: match?.gameState.game?.time_seconds ?? 5 * 60,
   isOT: match?.gameState.game?.isOT ?? false,
@@ -39,7 +38,7 @@ export const getState = (match: Match | undefined) => ({
 })
 
 export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
-  const { time, seconds, isOT, teams, series, hiddenUI } = props;
+  const { time, seconds, isOT, teams, series } = props;
   let timeStyle = { color: '#fffbb3' };
   if (!isOT) {
     if (seconds <= 10) timeStyle = { color: 'rgb(209, 35, 23)' };
@@ -91,7 +90,7 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
   const hasBothLogos = leftTeamLogo && rightTeamLogo;
 
   return (
-    <div className={`scoreboard ${!hiddenUI && 'showing'}`}>
+    <div className="scoreboard">
       <div className="left">
         <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
         <div className="score">{teams[0].score}</div>

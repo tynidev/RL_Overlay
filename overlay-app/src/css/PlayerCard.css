@@ -4,7 +4,6 @@
   font-size: 1.5rem;
   background-color: rgb(var(--base-color));
   height:2.5rem;
-  transition: all .5s ease;
 }
 
 .teamboard .right .player{

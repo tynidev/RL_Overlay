@@ -59,7 +59,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
       props.match.OnPlayersUpdated(() => {
         setTeamBoardState(() => getTeamBoardState(props.match));
         setPostGameStatsState(getPostGameState(props.match, false));
-        // setPossessionPositionState(getPossessionPositionState(props.match));
+        setPossessionPositionState(getPossessionPositionState(props.match));
       }),
       // OnSpecatorUpdated - When the spectated player changes
       props.match.OnSpecatorUpdated(() => {
@@ -138,7 +138,7 @@ export const Stream: FC<{ match: Match }> = (props) => {
         <div className="overlay">
           <Scoreboard {...scoreboardState} />
           <TeamBoard {...teamBoardState} />
-          {/* <PossessionPosition {...possessionPositionState} /> */}
+          <PossessionPosition {...possessionPositionState} />
           <Spectating {...spectatingState} />
           <Replay {...replayState} />
         </div>

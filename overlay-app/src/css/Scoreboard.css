@@ -36,7 +36,6 @@
 	top: 10px;
 	height: calc(var(--scoreboard-h) + 10px);
 	width: calc(var(--scoreboard-h) + 10px);
-	/* background-color: rgba(0,0,0,.54); */
 	background-color: black;
 }
 

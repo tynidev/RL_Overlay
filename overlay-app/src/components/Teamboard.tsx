@@ -5,6 +5,7 @@ import { PlayerCard } from './PlayerCard';
 
 export const getState = (match: Match) => {
   return {
+    hiddenUI: match?.hiddenUI,
     left: match?.gameState.left ?? [],
     right: match?.gameState.right ?? [],
     playerTarget: match?.playerTarget ?? undefined,
@@ -14,7 +15,7 @@ export const getState = (match: Match) => {
 };
 
 export const TeamBoard: FC<ReturnType<typeof getState>> = (props) => {
-  const { playerTarget, localPlayer, statfeed} = props;
+  const { playerTarget, localPlayer, statfeed, hiddenUI } = props;
   const getTeam = (side: 'left' | 'right') => (
     <div className={side}>
       {props[side].map((player, index) => (
@@ -31,7 +32,7 @@ export const TeamBoard: FC<ReturnType<typeof getState>> = (props) => {
   );
 
   return (
-    <div className="teamboard">
+    <div className={`teamboard ${!false && 'showing'}`}>
       {getTeam('left')}
       {getTeam('right')}
     </div>

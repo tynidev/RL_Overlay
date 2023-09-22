@@ -5,6 +5,7 @@ export interface GameTeam {
   color_secondary: string;
   name: string;
   score: number;
+  logo: string;
 }
 
 export interface Game {

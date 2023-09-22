@@ -2,14 +2,49 @@
 	position: absolute;
 	top: 0px;
 	transition: 1s;
-	left: calc(var(--scoreboard-w) - var(--scoreboard-hw));
+	left: calc(var(--scoreboard-w) - var(--scoreboard-hw) - 55px);
 	height: var(--scoreboard-h);
 	--scoreboard-h: calc(var(--sh) / 15);
-	--scoreboard-w: calc(var(--sw) / 2);
-	--scoreboard-hw: calc(var(--scoreboard-w) / 2);
+	--scoreboard-w: calc(var(--sw) / 1.8);
+	--scoreboard-hw: calc(var(--scoreboard-w) / 1.8);
   	width: var(--scoreboard-w);
+	transform: translate3d(0, -150%, 0);
 	opacity: 0.99;
 }
+
+.scoreboard.showing {
+	transform: translate3d(0, 0, 0);
+}
+
+.scoreboard .left .logo {
+	left: 0;
+}
+
+.scoreboard .right .logo {
+	right: 0;
+}
+
+.scoreboard .logo .logo-inner {
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	top: 10px;
+	bottom: 10px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.scoreboard .logo {
+	z-index: 2;
+	position: absolute;
+	top: 10px;
+	height: calc(var(--scoreboard-h) + 10px);
+	width: calc(var(--scoreboard-h) + 10px);
+	/* background-color: rgba(0,0,0,.54); */
+	background-color: black;
+}
+
 .scoreboard .left{
 	position: absolute;
 	top: 0px;

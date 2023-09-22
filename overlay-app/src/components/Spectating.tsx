@@ -29,6 +29,7 @@ export const getState = (
   }
 
   return {
+    hiddenUI: match?.hiddenUI,
     display: match?.playerTarget === undefined ? false : true,
     display_boost_ring: display_boost_ring,
     spectating_left: spectating_left,
@@ -44,6 +45,7 @@ export const getState = (
 export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
   const {
     display,
+    hiddenUI,
     display_boost_ring,
     spectating_left,
     bg_color,
@@ -63,7 +65,7 @@ export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
   return (
     <div>
       <div
-        className="spectating"
+        className={`spectating && ${!hiddenUI && 'showing'}`}
         style={{
           backgroundImage: bg_color,
           left: spectating_left,
@@ -84,7 +86,7 @@ export const SpectatingCore: FC<ReturnType<typeof getState>> = (props) => {
           <div className="demo">{player.demos}</div>
         </div>
       </div>
-      {BoostRing(display_boost_ring, hasLocalPlayer, player)}
+      {BoostRing(display_boost_ring, hasLocalPlayer, player, hiddenUI)}
     </div>
   );
 };
@@ -115,7 +117,7 @@ function ShouldUpdate(prevProps:ReturnType<typeof getState>, nextProps:ReturnTyp
   );
 }
 
-function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, player: Player):JSX.Element{
+function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, player: Player, hiddenUI: Boolean):JSX.Element{
 
   if (!display_boost_ring)
     return <div className="specatating-boost"></div>;
@@ -132,7 +134,7 @@ function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, 
   const y = x;
   
   return (
-    <div className="spectating-boost">
+    <div className={`spectating-boost ${!hiddenUI && 'showing'}`}>
       <svg className="boost-ring">
         <circle
           className="border-inner"

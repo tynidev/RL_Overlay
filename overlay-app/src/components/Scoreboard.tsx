@@ -4,6 +4,7 @@ import { Match } from '../match';
 import { scaleText } from '../util/utils';
 
 export const getState = (match: Match | undefined) => ({
+  hiddenUI: match?.hiddenUI,
   time: match?.getGameTimeString() ?? '5:00',
   seconds: match?.gameState.game?.time_seconds ?? 5 * 60,
   isOT: match?.gameState.game?.isOT ?? false,
@@ -25,18 +26,20 @@ export const getState = (match: Match | undefined) => ({
         team: 0,
         name: 'Blue',
         matches_won: 0,
+        logo: ''
       },
       {
         team: 1,
         name: 'Orange',
         matches_won: 0,
+        logo: ''
       },
     ],
   },
-});
+})
 
 export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
-  const { time, seconds, isOT, teams, series } = props;
+  const { time, seconds, isOT, teams, series, hiddenUI } = props;
   let timeStyle = { color: '#fffbb3' };
   if (!isOT) {
     if (seconds <= 10) timeStyle = { color: 'rgb(209, 35, 23)' };
@@ -45,7 +48,9 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
   }
 
   let leftTeamName = teams[0].name;
+  let leftTeamLogo = series.teams[0].logo;
   let rightTeamName = teams[1].name;
+  let rightTeamLogo = series.teams[1].logo;
   let series_txt = '';
 
   let leftMarks = <div className="left" />;
@@ -83,12 +88,16 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
   let leftFontSize, rightFontSize = "1.5rem";
   [leftTeamName, leftFontSize] = scaleText(leftTeamName, sizes);
   [rightTeamName, rightFontSize] = scaleText(rightTeamName, sizes);
+  const hasBothLogos = leftTeamLogo && rightTeamLogo;
 
   return (
-    <div className="scoreboard">
+    <div className={`scoreboard ${!hiddenUI && 'showing'}`}>
       <div className="left">
         <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
         <div className="score">{teams[0].score}</div>
+        { hasBothLogos && <div className="logo">
+          <div className="logo-inner" style={{backgroundImage: `url(${leftTeamLogo})`}}></div>
+        </div> }
       </div>
 
       <div className="center">
@@ -102,6 +111,9 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
       <div className="right">
         <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
         <div className="score">{teams[1].score}</div>
+        { hasBothLogos && <div className="logo">
+          <div className="logo-inner" style={{backgroundImage: `url(${rightTeamLogo})`}}></div>
+        </div> }
       </div>
 
       <div className="series-tally">

@@ -154,16 +154,16 @@ prompt.get([
         default: "Blue",
     },
     {
-        description: 'Right team',
-        name: 'right_team',
-        required: true,
-        default: "Orange",
-    },
-    {
         description: 'Left Team Logo',
         name: 'left_team_logo',
         required: false,
         default: "",
+    },
+    {
+        description: 'Right team',
+        name: 'right_team',
+        required: true,
+        default: "Orange",
     },
     {
         description: 'Right Team Logo',

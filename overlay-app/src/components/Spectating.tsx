@@ -132,7 +132,7 @@ function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, 
   const y = x;
   
   return (
-    <div className={`spectating-boost`}>
+    <div className="spectating-boost">
       <svg className="boost-ring">
         <circle
           className="border-inner"

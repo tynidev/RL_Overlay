@@ -92,14 +92,18 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
     <div className="scoreboard-wrapper">
       <div className={`scoreboard ${hasBothLogos && 'has-logos'}`}>
         <div className="side left">
-          <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
-          <div className="score">{teams[0].score}</div>
-          { hasBothLogos && <div className="logo">
-            <div className="logo-inner" style={{backgroundImage: `url(${leftTeamLogo})`}}></div>
-          </div> }
-          <div className="series-tally">
-            {leftMarks}
+          <div className="color-block">
+            <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
+            <div className="score">{teams[0].score}</div>
+            <div className="series-tally">
+              {leftMarks}
+            </div>
           </div>
+          { hasBothLogos && <div className="logo">
+            <div className="logo-inner">
+              <div className="logo-img" style={{backgroundImage: `url(${leftTeamLogo})`}} />
+            </div>
+          </div> }
         </div>
 
         <div className="center">
@@ -112,14 +116,18 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
         </div>
 
         <div className="side right">
-          <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
-          <div className="score">{teams[1].score}</div>
-          { hasBothLogos && <div className="logo">
-            <div className="logo-inner" style={{backgroundImage: `url(${rightTeamLogo})`}}></div>
-          </div> }
-          <div className="series-tally">
-            {rightMarks}
+          <div className="color-block">
+            <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
+            <div className="score">{teams[1].score}</div>
+            <div className="series-tally">
+              {rightMarks}
+            </div>
           </div>
+          { hasBothLogos && <div className="logo">
+            <div className="logo-inner">
+              <div className="logo-img" style={{backgroundImage: `url(${rightTeamLogo})`}} />
+            </div>
+          </div> }
         </div>
 
         <div style={{ clear: "both" }}></div>

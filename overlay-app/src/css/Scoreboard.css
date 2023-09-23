@@ -1,111 +1,144 @@
-.scoreboard {
+.scoreboard-wrapper {
 	position: absolute;
-	top: 0px;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.scoreboard {
+  position: relative;
+	margin: 0 auto;
 	transition: 1s;
-	left: calc(var(--scoreboard-w) - var(--scoreboard-hw) - 55px);
-	height: var(--scoreboard-h);
+  
+  
 	--scoreboard-h: calc(var(--sh) / 15);
-	--scoreboard-w: calc(var(--sw) / 1.8);
-	--scoreboard-hw: calc(var(--scoreboard-w) / 1.8);
-  	width: var(--scoreboard-w);
+	--scoreboard-w: calc(var(--sw) / 2);
+	--scoreboard-hw: calc(var(--scoreboard-w) / 2);
+	--name-h: calc(var(--scoreboard-h) * 0.9);
+  height: var(--scoreboard-h);
 	opacity: 0.99;
+	--logo-size: calc(var(--name-h) + var(--tally-h));
+  
+  --center-w: calc(var(--sw) / 10);
+  --center-hw: calc(var(--center-w) / 2);
+  --score-w: calc(var(--sw) * .04);
+	--tally-h: calc(var(--sw) * .0078);
+
+  width: var(--scoreboard-w);
+}
+
+.scoreboard.has-logos {
+	--scoreboard-w: calc(var(--sw) / 1.7);
 }
 
 .scoreboard .left .logo {
 	left: 0;
+  border-radius: 0 0 0 var(--box-radius);
 }
 
 .scoreboard .right .logo {
 	right: 0;
+  border-radius: 0 0 var(--box-radius) 0;
+}
+
+.scoreboard .logo {
+  z-index: 2;
+	position: absolute;
+	top: var(--offset);
+	height: var(--logo-size);
+	width: var(--logo-size);
+	background-color: rgba(0,0,0,.99);
+  top: calc(var(--scoreboard-h) - var(--name-h));
 }
 
 .scoreboard .logo .logo-inner {
+  --logo-padding: 5px;
 	position: absolute;
-	left: 10px;
-	right: 10px;
-	top: 10px;
-	bottom: 10px;
+	left: var(--logo-padding);
+	right: var(--logo-padding);
+	top: var(--logo-padding);
+	bottom: var(--logo-padding);
 	background-position: center center;
 	background-repeat: no-repeat;
 	background-size: contain;
 }
 
-.scoreboard .logo {
-	z-index: 2;
-	position: absolute;
-	top: 10px;
-	height: calc(var(--scoreboard-h) + 10px);
-	width: calc(var(--scoreboard-h) + 10px);
-	background-color: black;
+.scoreboard .side {
+  float: left;
+  position: relative;
+  width: calc(var(--scoreboard-hw) - calc(var(--center-hw)));
+  height: var(--scoreboard-h);
 }
 
-.scoreboard .left{
-	position: absolute;
-	top: 0px;
+.scoreboard .left {
 	left: 0px;
-	width: calc(var(--scoreboard-w) * 0.4);
-	height: var(--scoreboard-h);
 	background-color: rgb(var(--blue));
 }
+
 .scoreboard .right {
-	position: absolute;
-	top: 0px;
-	left: calc(var(--scoreboard-w) * 0.6);
-	padding: 0px 0px 0px 0px; 	 	
-	width: calc(calc(var(--scoreboard-w) * 0.4));
-	height: var(--scoreboard-h);
+	right: 0;
 	text-align: right;
 	background-color: rgb(var(--orange));
 }
-.scoreboard .left .name {
-  position: absolute;
-  height: calc(var(--scoreboard-h) * 0.9);
-  width: calc(var(--scoreboard-w) * 0.4 * 0.8 - 20px);
-  top: calc(var(--scoreboard-h) * 0.1);
-  background: linear-gradient(45deg, #185777a6,rgb(var(--base-color)));
-  text-align: right;
-  line-height: calc(var(--scoreboard-h) * 0.9);
-  padding-right: 20px;
-  border-radius: 0 var(--box-radius) 0 0;
-  font-size: 2.5rem;
+
+.scoreboard .score {
+	position: absolute;
+	height: calc(var(--scoreboard-h) * 0.9);
+	line-height: calc(var(--scoreboard-h) * 0.9);
+  width: var(--score-w);
+	top: 10%;
+	font-size: 5rem;
+	text-align: center;
 }
+
 .scoreboard .left .score {
   position: absolute;
-  height: calc(var(--scoreboard-h) * 0.9);
-  line-height: calc(var(--scoreboard-h) * 0.9);
-  width:20%;
-  left:80%;
-  top: 10%;
-  font-size: 5rem;
-  text-align: center;
+  right: 0;
 }
+
+.scoreboard .name {
+	position: absolute;
+  height: var(--name-h);
+  bottom: 0;
+	line-height: calc(var(--scoreboard-h) * 0.9);
+	border-radius: var(--box-radius) 0 0 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+	font-size: 2.5rem;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+
+.scoreboard .left .name {
+  background: linear-gradient(45deg, #185777a6,rgb(var(--base-color)));
+  text-align: right;
+  right: var(--score-w);
+  left: 0;
+}
+
 .scoreboard .right .name {
-  position: absolute;
-  height: calc(var(--scoreboard-h) * 0.9);
-  width: calc(var(--scoreboard-w) * 0.4 * 0.8 - 20px);
-  top: calc(var(--scoreboard-h) * 0.1);
-  left:20%;
   background: linear-gradient(-45deg, #9d4621a6,rgb(var(--base-color)));
   text-align: left;
-  line-height: calc(var(--scoreboard-h) * 0.9);
-  padding-left: 20px;
-  border-radius: var(--box-radius) 0 0 0;
-  font-size: 2.5rem;
+  left: var(--score-w);
+  right: 0;
 }
-.scoreboard .right .score {
-  position: absolute;
-  height: calc(var(--scoreboard-h) * 0.9);
-  line-height: calc(var(--scoreboard-h) * 0.9);
-  width:20%;
-  top: 10%;
-  font-size: 5rem;
-  text-align: center;
+
+.scoreboard.has-logos .left .name {
+  left: var(--logo-size);
+} 
+
+.scoreboard.has-logos .right .name {
+  right: var(--logo-size);
+} 
+
+.scoreboard .center {
+  float: left;
+  position: relative;
+  width: var(--center-w);
 }
+
 .scoreboard .center .box {
-	position: absolute;
-	top: 0px;
-	left: calc(var(--scoreboard-w) * 0.4);
-	width: calc(var(--scoreboard-w) * 0.2);
+	width: var(--center-w);
 	height: var(--scoreboard-h);
 	text-align: center;
 	line-height: var(--scoreboard-h);
@@ -114,39 +147,34 @@
 }
 
 .scoreboard .series-tally {
-	position: absolute;
-	top: var(--scoreboard-h);
-	left: calc(50% - var(--scoreboard-hw));
-	width: var(--scoreboard-w);
+  position: absolute;
+  top: var(--scoreboard-h);
+  left: 0;
+  right: 0;
 	height: var(--tally-h);
-	--scoreboard-hw: calc(var(--scoreboard-w) / 2);
-	--tally-h: calc(var(--scoreboard-h) * .2085);
 }
-.scoreboard .series-tally .left {
-    z-index: 1;
-	position: absolute;
-	width: calc(var(--scoreboard-w) * 0.4);
-	height: var(--tally-h);
-	background: linear-gradient(0deg, #000000fd,rgb(var(--base-color)));
-	border-radius: 0 0 0 var(--box-radius);
+
+.scoreboard .series-tally .tally-side {
+  height: var(--tally-h);
+  background: linear-gradient(0deg, #000000fd,rgb(var(--base-color)));
+  border-radius: 0 0 var(--box-radius) 0;
+  box-sizing: border-box;
 }
-.scoreboard .series-tally .right {
-  	z-index: 1;
-	position: absolute;
-	left: calc(var(--scoreboard-w) * 0.6);
-	width: calc(var(--scoreboard-w) * 0.4);
-	height: var(--tally-h);
-	background: linear-gradient(0deg, #000000fd,rgb(var(--base-color)));
-	border-radius: 0 0 var(--box-radius) 0;
+
+.scoreboard .left .series-tally .tally-side {
+  border-radius: 0  0 0 var(--box-radius);
 }
-.scoreboard .series-tally .series-text {
-  	z-index: 2;
-	position: absolute;
-	left: calc(var(--scoreboard-w) * 0.4);
-	width: calc(var(--scoreboard-w) * 0.2);
+
+.scoreboard .right .series-tally .tally-side {
+  border-radius: 0 0 var(--box-radius) 0;
+}
+
+.scoreboard .series-text {
+	position: relative;
+  width: 100%;
+  text-align: center;
 	height: calc(var(--tally-h) * 1.3);
 	border-radius: 0 0 calc(var(--tally-h) * 0.3) calc(var(--tally-h) * 0.3);
-	text-align: center;
 	color: rgba(255, 255, 255, 0.95);
 	font-size: calc(0.825 * var(--tally-h));
 	background: linear-gradient(0deg, #0e1216fd,rgb(var(--base-color)));

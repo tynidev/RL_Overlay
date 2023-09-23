@@ -1,8 +1,6 @@
 import WebSocket from 'ws';
 import prompt from 'prompt';
 
-// RANDOM CHANGE!!
-
 const WsSubscribers = {
     __subscribers: {},
     websocket: undefined,
@@ -198,6 +196,8 @@ prompt.get([
     let right_score = 0;
     let left_team = r.left_team;
     let right_team = r.right_team;
+    let left_team_logo = r.left_team_logo;
+    let right_team_logo = r.right_team_logo;
 
     while(true)
     {
@@ -209,6 +209,12 @@ prompt.get([
                 name: 'left_team',
                 required: true,
                 default: left_team,
+            },
+            {
+                description: 'Left Team Logo',
+                name: 'left_team_logo',
+                required: false,
+                default: left_team_logo,
             },
             {
                 description: 'Left score',
@@ -232,6 +238,12 @@ prompt.get([
                 required: true,
                 default: right_score,
             },
+            {
+                description: 'Right Team Logo',
+                name: 'right_team_logo',
+                required: false,
+                default: right_team_logo,
+            },
         ], 
         function (e, b) {
             recieved_prompt = true;
@@ -246,12 +258,14 @@ prompt.get([
                     {
                     "team" : 0,
                     "name" : left_team,
-                    "matches_won" : parseInt(left_score)
+                    "matches_won" : parseInt(left_score),
+                    "logo": left_team_logo
                     },
                     {
                     "team" : 1,
                     "name" : right_team,
-                    "matches_won" : parseInt(right_score)
+                    "matches_won" : parseInt(right_score),
+                    "logo": right_team_logo
                     }
                 ]
                 });

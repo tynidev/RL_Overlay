@@ -59,7 +59,6 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
   if (series.length > 0) {
     leftTeamName = series.teams[0].name;
     rightTeamName = series.teams[1].name;
-
     let games = Math.ceil(series.length / 2);
     let leftWon = series.teams[0].matches_won;
     let rightWon = series.teams[1].matches_won;
@@ -78,47 +77,52 @@ export const Scoreboard: FC<ReturnType<typeof getState>> = (props) => {
       rightWon--;
     }
 
-    leftMarks = <div className="left">{leftRows}</div>;
+    leftMarks = <div className="tally-side left">{leftRows}</div>;
 
-    rightMarks = <div className="right">{rightRows}</div>;
+    rightMarks = <div className="tally-side right">{rightRows}</div>;
   }
 
   let sizes:Array<[number, string]> = [[13, "2.5rem"], [16, "2rem"], [23, "1.5rem"]];
   let leftFontSize, rightFontSize = "1.5rem";
   [leftTeamName, leftFontSize] = scaleText(leftTeamName, sizes);
   [rightTeamName, rightFontSize] = scaleText(rightTeamName, sizes);
-  const hasBothLogos = leftTeamLogo && rightTeamLogo;
+  let hasBothLogos = leftTeamLogo && rightTeamLogo;
 
   return (
-    <div className="scoreboard">
-      <div className="left">
-        <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
-        <div className="score">{teams[0].score}</div>
-        { hasBothLogos && <div className="logo">
-          <div className="logo-inner" style={{backgroundImage: `url(${leftTeamLogo})`}}></div>
-        </div> }
-      </div>
-
-      <div className="center">
-        <div className="box">
-          <div className="time" style={timeStyle}>
-            {time}
+    <div className="scoreboard-wrapper">
+      <div className={`scoreboard ${hasBothLogos && 'has-logos'}`}>
+        <div className="side left">
+          <div className="name" style={{fontSize:leftFontSize}}>{leftTeamName}</div>
+          <div className="score">{teams[0].score}</div>
+          { hasBothLogos && <div className="logo">
+            <div className="logo-inner" style={{backgroundImage: `url(${leftTeamLogo})`}}></div>
+          </div> }
+          <div className="series-tally">
+            {leftMarks}
           </div>
         </div>
-      </div>
 
-      <div className="right">
-        <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
-        <div className="score">{teams[1].score}</div>
-        { hasBothLogos && <div className="logo">
-          <div className="logo-inner" style={{backgroundImage: `url(${rightTeamLogo})`}}></div>
-        </div> }
-      </div>
+        <div className="center">
+          <div className="box">
+            <div className="time" style={timeStyle}>
+              {time}
+            </div>
+          </div>
+          <div className="series-text">{series_txt}</div>
+        </div>
 
-      <div className="series-tally">
-        {leftMarks}
-        <div className="series-text">{series_txt}</div>
-        {rightMarks}
+        <div className="side right">
+          <div className="name" style={{fontSize:rightFontSize}}>{rightTeamName}</div>
+          <div className="score">{teams[1].score}</div>
+          { hasBothLogos && <div className="logo">
+            <div className="logo-inner" style={{backgroundImage: `url(${rightTeamLogo})`}}></div>
+          </div> }
+          <div className="series-tally">
+            {rightMarks}
+          </div>
+        </div>
+
+        <div style={{ clear: "both" }}></div>
       </div>
     </div>
   );

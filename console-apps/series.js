@@ -231,18 +231,18 @@ prompt.get([
                 default: right_team,
             },
             {
+                description: 'Right Team Logo',
+                name: 'right_team_logo',
+                required: false,
+                default: right_team_logo,
+            },
+            {
                 description: 'Right score',
                 pattern: /^\d+$/,
                 message: 'Must be a number',
                 name: 'right_score',
                 required: true,
                 default: right_score,
-            },
-            {
-                description: 'Right Team Logo',
-                name: 'right_team_logo',
-                required: false,
-                default: right_team_logo,
             },
         ], 
         function (e, b) {

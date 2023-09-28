@@ -10,8 +10,6 @@
 	margin: 0 auto;
 	transition: 1s;
 	
-  --box-radius: 10px;
-	
 	--scoreboard-h: calc(var(--sh) / 11.5);
 	--scoreboard-w: calc(var(--sw) / 2);
 	--scoreboard-hw: calc(var(--scoreboard-w) / 2);
@@ -144,7 +142,7 @@
 }
 
 .scoreboard .logo .logo-inner .logo-img {
-  --logo-padding: 5px;
+  --logo-padding: calc(var(--logo-size) * .08);
   position: absolute;
   left: var(--logo-padding);
   right: var(--logo-padding);

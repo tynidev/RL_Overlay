@@ -6,6 +6,7 @@
 	text-align: right;
 	font-size: 3.9rem;
 }
+
 .spectating .name {
 	text-shadow: calc(var(--one)*2) calc(var(--one)*2) black;
 }

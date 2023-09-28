@@ -154,10 +154,22 @@ prompt.get([
         default: "Blue",
     },
     {
+        description: 'Left Team Logo',
+        name: 'left_team_logo',
+        required: false,
+        default: "",
+    },
+    {
         description: 'Right team',
         name: 'right_team',
         required: true,
         default: "Orange",
+    },
+    {
+        description: 'Right Team Logo',
+        name: 'right_team_logo',
+        required: false,
+        default: "",
     },
 ], async function (e, r) {
 
@@ -168,12 +180,14 @@ prompt.get([
         {
         "team" : 0,
         "name" : r.left_team,
-        "matches_won" : 0
+        "matches_won" : 0,
+        "logo": r.left_team_logo
         },
         {
         "team" : 1,
         "name" : r.right_team,
-        "matches_won" : 0
+        "matches_won" : 0,
+        "logo": r.right_team_logo
         }
     ]
     });
@@ -182,6 +196,8 @@ prompt.get([
     let right_score = 0;
     let left_team = r.left_team;
     let right_team = r.right_team;
+    let left_team_logo = r.left_team_logo;
+    let right_team_logo = r.right_team_logo;
 
     while(true)
     {
@@ -193,6 +209,12 @@ prompt.get([
                 name: 'left_team',
                 required: true,
                 default: left_team,
+            },
+            {
+                description: 'Left Team Logo',
+                name: 'left_team_logo',
+                required: false,
+                default: left_team_logo,
             },
             {
                 description: 'Left score',
@@ -207,6 +229,12 @@ prompt.get([
                 name: 'right_team',
                 required: true,
                 default: right_team,
+            },
+            {
+                description: 'Right Team Logo',
+                name: 'right_team_logo',
+                required: false,
+                default: right_team_logo,
             },
             {
                 description: 'Right score',
@@ -230,12 +258,14 @@ prompt.get([
                     {
                     "team" : 0,
                     "name" : left_team,
-                    "matches_won" : parseInt(left_score)
+                    "matches_won" : parseInt(left_score),
+                    "logo": left_team_logo
                     },
                     {
                     "team" : 1,
                     "name" : right_team,
-                    "matches_won" : parseInt(right_score)
+                    "matches_won" : parseInt(right_score),
+                    "logo": right_team_logo
                     }
                 ]
                 });

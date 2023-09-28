@@ -14,7 +14,7 @@ export const getState = (match: Match) => {
 };
 
 export const TeamBoard: FC<ReturnType<typeof getState>> = (props) => {
-  const { playerTarget, localPlayer, statfeed} = props;
+  const { playerTarget, localPlayer, statfeed } = props;
   const getTeam = (side: 'left' | 'right') => (
     <div className={side}>
       {props[side].map((player, index) => (

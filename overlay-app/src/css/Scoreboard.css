@@ -90,7 +90,7 @@
 
 .scoreboard .left .name {
   border-radius: 0 var(--box-radius) 0 0;
-  background: linear-gradient(45deg, #185777a6,rgb(var(--base-color)));
+  background: linear-gradient(45deg, rgb(var(--blue)), rgb(var(--base-color)));
   text-align: right;
   right: var(--score-w);
   left: 0;
@@ -98,7 +98,7 @@
 
 .scoreboard .right .name {
   border-radius: var(--box-radius) 0 0;
-  background: linear-gradient(-45deg, #9d4621a6,rgb(var(--base-color)));
+  background: linear-gradient(-45deg, rgb(var(--orange)), rgb(var(--base-color)));
   text-align: left;
   left: var(--score-w);
   right: 0;

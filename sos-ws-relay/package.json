@@ -4,7 +4,7 @@
   "description": "Websocket Relay. Very lightweight",
   "main": "ws-relay.js",
   "scripts": {
-    "relay": "node ws-relay.js"
+    "relay": "node ws-relay.js --delay=0 --port=49322 --rocketLeagueHost=localhost:49122"
   },
   "author": "",
   "license": "MIT",

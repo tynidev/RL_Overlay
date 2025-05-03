@@ -146,7 +146,11 @@ if (-not $rocketLeagueProcess) {
     }
     
     # Ask if the user wants to use the Epic Games or Steam version of Rocket League
-    $launchOption = Read-Host "Launch Rocket League from (1) Epic Games or (2) Steam?: " -ForegroundColor Cyan
+    Write-Host "Launch Rocket League from:" -ForegroundColor Cyan
+    Write-Host "  (1) Epic Games" -ForegroundColor Cyan
+    Write-Host "  (2) Steam" -ForegroundColor Cyan
+    Write-Host "Enter selection: " -ForegroundColor Cyan -NoNewline
+    $launchOption = Read-Host
     if ($launchOption -eq "1") {
         Write-Host "Starting Rocket League from Epic Games..."
         Start-Process $RL_EPIC_URL

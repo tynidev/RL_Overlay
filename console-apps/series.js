@@ -1,7 +1,10 @@
 import WebSocket from 'ws';
 import prompt from 'prompt';
+import fs from 'fs'; // Added import
+import minimist from 'minimist'; // Added import
 
 const WsSubscribers = {
+    // ... existing WsSubscribers object ...
     __subscribers: {},
     websocket: undefined,
     webSocketConnected: false,
@@ -120,90 +123,28 @@ const WsSubscribers = {
             }));
         }
     }
-  };  
+};
 
 WsSubscribers.init(49322, false);
 
-//
-// Start the prompt
-//
-prompt.start();
+// Function to send series update
+function sendSeriesUpdate(data) {
+    WsSubscribers.send("game", "series_update", data);
+}
 
-//
-// Get two properties from the user: username and email
-//
-prompt.get([
-    {
-        description: 'Series text (used in center of scoreboard)',
-        name: 'series_text',
-        required: true,
-        default: "RANKED",
-    },
-    {
-        description: "Series length",
-        pattern: /^\d+$/,
-        message: 'Must be a number',
-        name: 'series_length',
-        required: true,
-        default: "5",
-    },
-    {
-        description: 'Left team',
-        name: 'left_team',
-        required: true,
-        default: "Blue",
-    },
-    {
-        description: 'Left Team Logo',
-        name: 'left_team_logo',
-        required: false,
-        default: "",
-    },
-    {
-        description: 'Right team',
-        name: 'right_team',
-        required: true,
-        default: "Orange",
-    },
-    {
-        description: 'Right Team Logo',
-        name: 'right_team_logo',
-        required: false,
-        default: "",
-    },
-], async function (e, r) {
+// Function to run the update prompt loop
+async function runUpdateLoop(currentSeriesText, currentSeriesLength, initialLeftScore, initialRightScore, initialLeftTeam, initialRightTeam, initialLeftLogo, initialRightLogo) {
+    let left_score = initialLeftScore;
+    let right_score = initialRightScore;
+    let left_team = initialLeftTeam;
+    let right_team = initialRightTeam;
+    let left_team_logo = initialLeftLogo;
+    let right_team_logo = initialRightLogo;
 
-    WsSubscribers.send("game", "series_update", {
-    "series_txt" : r.series_text,
-    "length" : parseInt(r.series_length), 
-    "teams": [
-        {
-        "team" : 0,
-        "name" : r.left_team,
-        "matches_won" : 0,
-        "logo": r.left_team_logo
-        },
-        {
-        "team" : 1,
-        "name" : r.right_team,
-        "matches_won" : 0,
-        "logo": r.right_team_logo
-        }
-    ]
-    });
+    while (true) {
+        let received_prompt = false;
 
-    let left_score = 0;
-    let right_score = 0;
-    let left_team = r.left_team;
-    let right_team = r.right_team;
-    let left_team_logo = r.left_team_logo;
-    let right_team_logo = r.right_team_logo;
-
-    while(true)
-    {
-        let recieved_prompt = false;
-
-        prompt.get([        
+        prompt.get([
             {
                 description: 'Left team',
                 name: 'left_team',
@@ -244,36 +185,206 @@ prompt.get([
                 required: true,
                 default: right_score,
             },
-        ], 
-        function (e, b) {
-            recieved_prompt = true;
-            left_score = b.left_score;
-            right_score = b.right_score;
-            left_team = b.left_team;
-            right_team = b.right_team;
-            WsSubscribers.send("game", "series_update", {
-                "series_txt" : r.series_text,
-                "length" : parseInt(r.series_length), 
-                "teams": [
-                    {
-                    "team" : 0,
-                    "name" : left_team,
-                    "matches_won" : parseInt(left_score),
-                    "logo": left_team_logo
-                    },
-                    {
-                    "team" : 1,
-                    "name" : right_team,
-                    "matches_won" : parseInt(right_score),
-                    "logo": right_team_logo
-                    }
-                ]
-                });
-        });
+        ],
+            function (err, b) {
+                if (err) {
+                    console.error("Error getting update prompt:", err);
+                    // Decide how to handle prompt errors, e.g., continue or exit
+                    // For now, just log and continue the loop
+                    received_prompt = true; // Mark as received to avoid infinite wait
+                    return;
+                }
+                received_prompt = true;
+                left_score = b.left_score;
+                right_score = b.right_score;
+                left_team = b.left_team;
+                right_team = b.right_team;
+                left_team_logo = b.left_team_logo; // Update logos
+                right_team_logo = b.right_team_logo; // Update logos
 
-        while(!recieved_prompt)
-        {
-            await new Promise(r => setTimeout(r, 2000));
+                const updateData = {
+                    "series_txt": currentSeriesText, // Keep original series text
+                    "length": parseInt(currentSeriesLength), // Keep original length
+                    "teams": [
+                        {
+                            "team": 0,
+                            "name": left_team,
+                            "matches_won": parseInt(left_score),
+                            "logo": left_team_logo
+                        },
+                        {
+                            "team": 1,
+                            "name": right_team,
+                            "matches_won": parseInt(right_score),
+                            "logo": right_team_logo
+                        }
+                    ]
+                };
+                sendSeriesUpdate(updateData);
+            });
+
+        while (!received_prompt) {
+            await new Promise(resolve => setTimeout(resolve, 500)); // Reduced wait time
         }
     }
-});
+}
+
+
+// Parse command line arguments
+const args = minimist(process.argv.slice(2));
+const filePath = args.file;
+
+if (filePath) {
+    // Read data from file
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const seriesDataFromFile = JSON.parse(fileContent);
+
+        // Validate required fields (basic validation)
+        if (!seriesDataFromFile.series_text || !seriesDataFromFile.series_length || !seriesDataFromFile.teams || seriesDataFromFile.teams.length !== 2) {
+            console.error("Invalid JSON structure in the provided file.");
+            process.exit(1);
+        }
+
+        console.log(`Loaded series data from ${filePath}`);
+
+        const initialData = {
+            "series_txt": seriesDataFromFile.series_text,
+            "length": parseInt(seriesDataFromFile.series_length),
+            "teams": seriesDataFromFile.teams.map(team => ({
+                "team": team.team,
+                "name": team.name,
+                "matches_won": parseInt(team.matches_won || 0), // Default matches_won to 0 if not present
+                "logo": team.logo || "" // Default logo to empty string if not present
+            }))
+        };
+
+        // Function to send initial data and start the update loop
+        const startAfterFileLoad = () => {
+            sendSeriesUpdate(initialData);
+            console.log("Initial series data sent from file. Starting update prompt.");
+            prompt.start(); // Start prompt for file mode
+            runUpdateLoop(
+                initialData.series_txt,
+                initialData.length,
+                initialData.teams[0].matches_won,
+                initialData.teams[1].matches_won,
+                initialData.teams[0].name,
+                initialData.teams[1].name,
+                initialData.teams[0].logo,
+                initialData.teams[1].logo
+            );
+        };
+
+        // Ensure websocket is ready before sending
+        if (WsSubscribers.webSocketConnected) {
+            startAfterFileLoad();
+        } else {
+            // Wait for websocket connection
+            WsSubscribers.subscribe("ws", "open", startAfterFileLoad);
+        }
+
+    } catch (error) {
+        console.error(`Error reading or parsing file ${filePath}:`, error);
+        process.exit(1);
+    }
+} else {
+    // Original prompt logic if no file path is provided
+    //
+    // Start the prompt
+    //
+    prompt.start();
+
+    //
+    // Get initial properties from the user:
+    //
+    prompt.get([
+        // ... existing prompt schema ...
+        {
+            description: 'Series text (used in center of scoreboard)',
+            name: 'series_text',
+            required: true,
+            default: "RANKED",
+        },
+        {
+            description: "Series length",
+            pattern: /^\d+$/,
+            message: 'Must be a number',
+            name: 'series_length',
+            required: true,
+            default: "5",
+        },
+        {
+            description: 'Left team',
+            name: 'left_team',
+            required: true,
+            default: "Blue",
+        },
+        {
+            description: 'Left Team Logo',
+            name: 'left_team_logo',
+            required: false,
+            default: "",
+        },
+        {
+            description: 'Right team',
+            name: 'right_team',
+            required: true,
+            default: "Orange",
+        },
+        {
+            description: 'Right Team Logo',
+            name: 'right_team_logo',
+            required: false,
+            default: "",
+        },
+    ], async function (e, r) {
+        if (e) {
+            console.error("Error getting initial prompt:", e);
+            process.exit(1);
+        }
+
+        const initialData = {
+            "series_txt": r.series_text,
+            "length": parseInt(r.series_length),
+            "teams": [
+                {
+                    "team": 0,
+                    "name": r.left_team,
+                    "matches_won": 0,
+                    "logo": r.left_team_logo
+                },
+                {
+                    "team": 1,
+                    "name": r.right_team,
+                    "matches_won": 0,
+                    "logo": r.right_team_logo
+                }
+            ]
+        };
+
+        // Function to send initial data and start the update loop
+        const startAfterInitialPrompt = () => {
+            sendSeriesUpdate(initialData);
+            console.log("Initial series data sent from prompt. Starting update prompt.");
+            // prompt was already started
+            runUpdateLoop(
+                initialData.series_txt,
+                initialData.length,
+                initialData.teams[0].matches_won, // starts at 0
+                initialData.teams[1].matches_won, // starts at 0
+                initialData.teams[0].name,
+                initialData.teams[1].name,
+                initialData.teams[0].logo,
+                initialData.teams[1].logo
+            );
+        };
+
+        // Ensure websocket is ready before sending
+        if (WsSubscribers.webSocketConnected) {
+             startAfterInitialPrompt();
+        } else {
+            WsSubscribers.subscribe("ws", "open", startAfterInitialPrompt);
+        }
+    });
+} // End of else block for prompt logic

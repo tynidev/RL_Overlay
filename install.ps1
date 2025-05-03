@@ -1,13 +1,18 @@
+# This script installs the necessary components for the RL_Overlay project.
+# It installs the BakkesMod SOS plugin, checks/installs Node.js, and sets up the WebSocket relay, overlay web app, and console applications.
+
 $root = get-location
 
 function install-sos-plugin {
     $bakkesDir = "$env:APPDATA/bakkesmod/bakkesmod";
     if(!(Test-Path -Path $bakkesDir)){
-        write-error "BakkesMod is not installed.  Install BakkesMod then re-run this script."
+        write-warning "BakkesMod is not installed. Please install BakkesMod from https://bakkesplugins.com/ and then re-run this script."
+        write-host "Press any key to exit..."
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         exit 1
     }
 
-    # copy plugin and just overwrite if exsiting
+    # copy plugin and just overwrite if existing
     copy-item ./bakkes-plugins/SOS.dll -Destination "$bakkesDir/plugins"
     copy-item ./bakkes-plugins/sos.set -Destination "$bakkesDir/plugins/settings"
 
@@ -21,15 +26,15 @@ function install-node-js {
     $nodeExists = Get-Command "node" -errorAction SilentlyContinue;
     if (!$nodeExists){
         winget install OpenJS.NodeJS
-        write-host "Restart powershell for changes to take affect then re-run this script"
+        write-host "Restart PowerShell to update the PATH environment variable and ensure Node.js is recognized, then re-run this script."
         exit 0
     }
 }
 
-function build-ws-relay {
-    cd $root/sos-ws-relay
+function Install-WsRelay {
+    Set-Location $root/sos-ws-relay
     npm install
-    cd $root
+    Set-Location $root
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut("$root/SOS-WS-Relay.lnk")
     $Shortcut.TargetPath = "npm"
@@ -38,12 +43,12 @@ function build-ws-relay {
     $Shortcut.Save()
 }
 
-function build-overlay-app {
-    cd $root/overlay-app
+function install-overlay-app {
+    Set-Location $root/overlay-app
     npm install
     npm run build
     npm install -g serve
-    cd $root
+    Set-Location $root
 
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut("$root/Overlay-Server.lnk")
@@ -68,10 +73,10 @@ function build-overlay-app {
     $Shortcut.Save()
 }
 
-function build-series-app {
-    cd $root/console-apps
+function install-series-app {
+    Set-Location $root/console-apps
     npm install
-    cd $root
+    Set-Location $root
 
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut("$root/Series.lnk")
@@ -89,8 +94,8 @@ function build-series-app {
 }
 
 install-node-js
-build-ws-relay
-build-overlay-app
-build-series-app
 install-sos-plugin
+Install-WsRelay
+install-overlay-app
+install-series-app
 exit 0

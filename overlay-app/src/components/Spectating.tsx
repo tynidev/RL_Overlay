@@ -115,7 +115,7 @@ function ShouldUpdate(prevProps:ReturnType<typeof getState>, nextProps:ReturnTyp
   );
 }
 
-function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, player: Player):JSX.Element{
+function BoostRing(display_boost_ring:boolean, hasLocalPlayer:Player|undefined, player: Player){
 
   if (!display_boost_ring)
     return <div className="specatating-boost"></div>;

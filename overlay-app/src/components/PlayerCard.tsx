@@ -9,6 +9,7 @@ import React, { FC } from 'react';
 import { Player } from '../types/player';
 import { areEqual, scaleText } from '../util/utils';
 import { StatFeed } from '../types/statfeedEvent';
+import { JSX } from 'react/jsx-runtime';
 
 interface PlayerCardProps {
   player: Player;
@@ -20,7 +21,6 @@ interface PlayerCardProps {
 
 const PlayerCardCore: FC<PlayerCardProps> = (props) => {
   const { player, spectating, index, showBoost, statfeed} = props;
-
   let feeds:JSX.Element[] = [];
   if(statfeed !== undefined)
   {

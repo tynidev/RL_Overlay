@@ -5,7 +5,7 @@
   "description": "Rocket League Overlay Series App",
   "main": "series.js",
   "scripts": {
-    "series": "node series.js",
+    "series": "node series.js --file=../series.json",
     "record": "node record.js",
     "replay": "node replay.js"
   },
@@ -15,6 +15,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "minimist": "^1.2.8",
     "prompt": "^1.1.0",
     "websocket": "^1.0.34",
     "ws": "^7.4.3"

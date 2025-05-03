@@ -7,6 +7,7 @@ import { Series } from '../types/series';
 import { GameTeam } from '../types/game';
 import mvp_svg from '../assets/stat-icons/mvp.svg';
 import { areEqual, truncate } from '../util/utils';
+import { JSX } from 'react/jsx-runtime';
 
 const PostGameStatsCore: FC<PostGameProps> = (props) => {
 
@@ -148,7 +149,7 @@ interface TeamTable {
   statRows:Array<Array<string>>;
 }
 
-function StatSliders(stats:AggregatedTeamStats):JSX.Element[]{
+function StatSliders(stats:AggregatedTeamStats){
   const leftStatSliderWidth = {
     'score': calcSliderPosition(stats.score),
     'goals': calcSliderPosition(stats.goals),
@@ -171,23 +172,23 @@ function StatSliders(stats:AggregatedTeamStats):JSX.Element[]{
   return sliders;
 }
 
-function TeamStatTable(className:any, team:TeamTable):JSX.Element{
+function TeamStatTable(className:any, team:TeamTable){
   return (<table className={className}>
   <thead>
     <tr className="mvp-row">
-      {team.mvpHeader.map((value, index):JSX.Element => {
+      {team.mvpHeader.map((value, index) => {
         return <th><img className="mvp" src={mvp_svg} alt="" style={{ visibility: value ? 'visible' : 'hidden' }} key={index}/></th>
       })}
     </tr>
     <tr className="name">
-      {team.nameHeader.map((value, index):JSX.Element => {
+      {team.nameHeader.map((value, index) => {
         return <th key={index}>{value}</th>
       })}
     </tr>
   </thead>
   <tbody>
-    {team.statRows.map((stats, statIdx):JSX.Element => {
-      return <tr key={statIdx}>{stats.map((playerStat, playerStatIdx):JSX.Element =>{
+    {team.statRows.map((stats, statIdx) => {
+      return <tr key={statIdx}>{stats.map((playerStat, playerStatIdx) =>{
         return <td key={playerStatIdx}>{playerStat}</td>;
       })}</tr>
     })}

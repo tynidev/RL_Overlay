@@ -1,0 +1,18 @@
+{
+  "series_text": "RANKED",
+  "series_length": 5,
+  "teams": [
+    {
+      "team": 0,
+      "name": "IBM",
+      "matches_won": 0,
+      "logo": ""
+    },
+    {
+      "team": 1,
+      "name": "RedHat",
+      "matches_won": 0,
+      "logo": ""
+    }
+  ]
+}

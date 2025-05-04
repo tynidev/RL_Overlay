@@ -29,6 +29,9 @@ export class GameStats extends React.Component<GameStatsProps, PostGameProps> {
       this.match.OnSeriesUpdate(() => {
         this.setState(getPostGameState(this.match, true));
       }),
+      this.match.OnMatchCreated(() => {
+        this.setState(getPostGameState(this.match, false));
+      }),
       this.match.OnGameEnded(() => {
         this.setState(getPostGameState(this.match, true));
       }),

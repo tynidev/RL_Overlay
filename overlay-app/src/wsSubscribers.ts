@@ -51,6 +51,7 @@ export const WsSubscribers = {
         return;
       }
       const [channel, event_event] = jEvent.event.split(':');
+      // Pass the actual data payload instead of the entire jEvent
       WsSubscribers.triggerSubscribers(channel, event_event, jEvent.data);
     };
     WsSubscribers.webSocket.onopen = function () {

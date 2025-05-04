@@ -80,7 +80,7 @@ export class Match {
     RCONN?: RCONN,
     localplayer_support?: boolean
   ) {
-    this.localplayer_support = localplayer_support || true;
+    this.localplayer_support = localplayer_support ?? true;
     this.RCONN = RCONN || undefined;
     
     // When game is created before everyone has picked sides or specator roles
@@ -92,13 +92,16 @@ export class Match {
       });
       this.hiddenUI = false;
 
+      // Determines if a team has won the series, reset the match counters, and broadcasts the update to subscribers. 
       let games = Math.ceil(this.series.length / 2);
       if (
         this.series.teams[0].matches_won === games ||
         this.series.teams[1].matches_won === games
       ) {
+        console.log(`Series over, resetting match counters for teams ${this.series.teams[0].name} and ${this.series.teams[1].name}`);
         this.series.teams[0].matches_won = 0;
         this.series.teams[1].matches_won = 0;
+        WsSubscribers.send("local", "series_update", this.series);
       }
     });
     //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -215,6 +218,7 @@ export class Match {
       this.gameState.clockRunning = false;
       this.gameState.setState('game-ended');
       this.series.teams[p.winner_team_num].matches_won += 1;
+      WsSubscribers.send("local", "series_update", this.series);
       for (const cb of this.gameEndCallbacks) {
         cb();
       }
@@ -256,11 +260,40 @@ export class Match {
     //         }
     //     ]
     // }
-    ws.subscribe('game', 'series_update', (p: Series) => {
-      this.series = p;
-      for (const cb of this.seriesUpdateCallbacks) {
-        cb(p);
+    ws.subscribe('game', 'series_update', (data: unknown) => {
+      console.log(`game.series_update received:`, data);
+      
+      // The data from websocket may be either direct series object or wrapped in a data property
+      let seriesData: Series;
+      
+      if (data && typeof data === 'object' && 'data' in data) {
+        // If data is wrapped in a data property (from WebSocket)
+        const wrappedData = data as { data: Series };
+        seriesData = wrappedData.data;
+      } else {
+        // Direct series object (from direct send)
+        seriesData = data as Series;
       }
+      
+      this.handleSeriesUpdate(seriesData);
+    });
+    
+    ws.subscribe('local', 'series_update', (data: unknown) => {
+      console.log(`local.series_update received:`, data);
+      
+      // The data from websocket may be either direct series object or wrapped in a data property
+      let seriesData: Series;
+      
+      if (data && typeof data === 'object' && 'data' in data) {
+        // If data is wrapped in a data property (from WebSocket)
+        const wrappedData = data as { data: Series };
+        seriesData = wrappedData.data;
+      } else {
+        // Direct series object (from direct send)
+        seriesData = data as Series;
+      }
+      
+      this.handleSeriesUpdate(seriesData);
     });
 
     // "game:statfeed_event": {
@@ -549,16 +582,16 @@ export class Match {
       // Update statfeeds time to live every second of game time
       let changedStats = false;
       for (let [pid, feeds] of this.statfeeds) {
-      for (let i = 0; i < feeds.length; i++) {
-        
-        feeds![i].ttl += -1;
-        var item = feeds![i];
-
-        if(item.ttl <= 0){
-          feeds!.splice(i, 1);
-          changedStats = true;
+        // Iterate backwards through the array to safely remove elements
+        for (let i = feeds.length - 1; i >= 0; i--) {
+          feeds[i].ttl -= 1;
+          
+          if (feeds[i].ttl <= 0) {
+            feeds.splice(i, 1);
+            changedStats = true;
+          }
         }
-      }}
+      }
 
       // call statfeed events if stats have changed
       if(changedStats){
@@ -593,5 +626,43 @@ export class Match {
       !areTeamsEqual(prevTeams[0], currTeams[0]) ||
       !areTeamsEqual(prevTeams[1], currTeams[1])
     );
+  }
+  
+  // Helper method to handle series updates from any source
+  private handleSeriesUpdate(p: Series) {
+    console.log(`Processing series update:`, p);
+    
+    if (!p) {
+      console.error('Received invalid series data');
+      return;
+    }
+    
+    this.series.length = p.length ?? this.series.length;
+    this.series.series_txt = p.series_txt ?? this.series.series_txt;
+    
+    if (p.teams && p.teams.length >= 2) {
+      this.series.teams[0].name = p.teams[0].name ?? this.series.teams[0].name;
+      this.series.teams[0].matches_won = 
+        p.teams[0].matches_won !== undefined ? 
+        p.teams[0].matches_won : 
+        this.series.teams[0].matches_won;
+      this.series.teams[0].team = p.teams[0].team ?? this.series.teams[0].team;
+      this.series.teams[0].logo = p.teams[0].logo ?? this.series.teams[0].logo;
+  
+      this.series.teams[1].name = p.teams[1].name ?? this.series.teams[1].name;
+      this.series.teams[1].matches_won = 
+        p.teams[1].matches_won !== undefined ? 
+        p.teams[1].matches_won : 
+        this.series.teams[1].matches_won;
+      this.series.teams[1].team = p.teams[1].team ?? this.series.teams[1].team;
+      this.series.teams[1].logo = p.teams[1].logo ?? this.series.teams[1].logo;
+    }
+    
+    console.log(`Series updated to:`, this.series);
+    
+    // Call all registered callbacks
+    for (const cb of this.seriesUpdateCallbacks) {
+      cb(this.series);
+    }
   }
 }

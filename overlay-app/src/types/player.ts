@@ -1,3 +1,12 @@
+export interface PlayerLocation {
+  X: number;
+  Y: number;
+  Z: number;
+  pitch: number;
+  roll: number;
+  yaw: number;
+}
+
 export interface Player {
   assists: number;
   attacker: string;

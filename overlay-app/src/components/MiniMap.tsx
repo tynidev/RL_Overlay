@@ -1,7 +1,7 @@
 import '../css/MiniMap.css';
 import React, { FC } from 'react';
 import { Match } from '../match';
-import { Player } from '../types/player';
+import { Player, PlayerLocation } from '../types/player';
 import { Point } from '../types/point';
 
 const getLocation = (point: Point): Point => ({
@@ -40,13 +40,47 @@ const areTeamsEqual = (
   return true;
 };
 
-export const getState = (match: Match) => ({
-  ballLocation: getLocation(
-    match?.gameState.game?.ball?.location ?? { X: 0, Y: 0 }
-  ),
-  left: match?.gameState.left ?? [],
-  right: match?.gameState.right ?? [],
-});
+// Safe accessor for location data to prevent undefined errors
+const getSafeLocation = (location: Point | undefined): Point => {
+  // If location is undefined or missing X/Y properties, return default values
+  if (!location || typeof location.X !== 'number' || typeof location.Y !== 'number') {
+    return { X: 0, Y: 0 };
+  }
+  return location;
+};
+
+// Safe accessor for location data to prevent undefined errors
+const getSafePlayerLocation = (location: PlayerLocation | undefined): PlayerLocation => {
+  // If location is undefined or missing X/Y properties, return default values
+  if (!location || typeof location.X !== 'number' || typeof location.Y !== 'number' || typeof location.Z !== 'number' || typeof location.pitch !== 'number' || typeof location.roll !== 'number' || typeof location.yaw !== 'number') {
+    return { X: 0, Y: 0 , Z: 0, pitch: 0, roll: 0, yaw: 0 };
+  }
+  return location;
+};
+
+export const getState = (match: Match) => {
+  // Safely get ball location with fallback to default values
+  const ballLocation = match?.gameState?.game?.ball?.location 
+    ? getLocation(getSafeLocation(match.gameState.game.ball.location))
+    : { X: 4096, Y: 6000 }; // Center of field as default
+
+  // Ensure left and right teams have valid location data
+  const safeLeft = (match?.gameState?.left || []).map(player => ({
+    ...player,
+    location: getSafePlayerLocation(player.location)
+  }));
+  
+  const safeRight = (match?.gameState?.right || []).map(player => ({
+    ...player,
+    location: getSafePlayerLocation(player.location)
+  }));
+
+  return {
+    ballLocation,
+    left: safeLeft,
+    right: safeRight,
+  };
+};
 
 interface MiniMapProps {
   ballLocation: Point;

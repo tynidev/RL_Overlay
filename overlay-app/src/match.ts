@@ -277,7 +277,7 @@ export class Match {
       
       this.handleSeriesUpdate(seriesData);
     });
-    
+
     ws.subscribe('local', 'series_update', (data: unknown) => {
       console.log(`local.series_update received:`, data);
       
@@ -294,6 +294,9 @@ export class Match {
       }
       
       this.handleSeriesUpdate(seriesData);
+
+      // send game update to any remote subscribers
+      ws.send("game", "series_update", seriesData);
     });
 
     // "game:statfeed_event": {

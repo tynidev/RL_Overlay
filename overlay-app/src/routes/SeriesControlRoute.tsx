@@ -190,25 +190,41 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     this.safeSetState({ series: updatedSeries });
   }
 
-  // Swap team positions
-  swapTeams = () => {
-    console.log('Swapping teams...');
-    const updatedTeams = [...this.state.series.teams].reverse() as [SeriesTeam, SeriesTeam];
-    
-    // Ensure team numbers are swapped
-    let team0 = updatedTeams[0].team;
-    updatedTeams[0].team = updatedTeams[1].team;
-    updatedTeams[1].team = team0; 
-
-    // Create a new series object with swapped teams
-    const updatedSeries = {
-      ...this.state.series,
-      teams: updatedTeams
-    };
-    
-    // Update state with the new object
-    this.safeSetState({ series: updatedSeries });
-  }
+    // Swap team positions
+    swapTeamNamesAndLogo = () => {
+        console.log('Swapping teams...');
+        
+        // Get current teams
+        const team0 = this.state.series.teams[0];
+        const team1 = this.state.series.teams[1];
+        
+        // Create new team objects with swapped positions
+        const newTeam0: SeriesTeam = {
+            team: team0.team,
+            name: team1.name,
+            matches_won: team0.matches_won,
+            logo: team1.logo
+        };
+        
+        const newTeam1: SeriesTeam = {
+            team: team1.team,
+            name: team0.name,
+            matches_won: team1.matches_won,
+            logo: team0.logo
+        };
+        
+        // Create new teams array with swapped teams
+        const updatedTeams: [SeriesTeam, SeriesTeam] = [newTeam0, newTeam1];
+        
+        // Create a new series object with swapped teams
+        const updatedSeries = {
+            ...this.state.series,
+            teams: updatedTeams
+        };
+        
+        // Update state with the new object
+        this.safeSetState({ series: updatedSeries });
+    }
 
   // Update team information
   updateTeam = (teamIndex: 0 | 1, field: keyof SeriesTeam, value: any) => {
@@ -350,7 +366,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
             <h1>SERIES CONTROL ROOM</h1>
             <div className="series-header-buttons">
               <button 
-                onClick={this.swapTeams}
+                onClick={this.swapTeamNamesAndLogo}
                 className="swap-btn"
               >
                 Swap Teams
@@ -362,7 +378,6 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                   console.log('Updating series:', currentSeries);
                   try {
                     WsSubscribers.send('local', 'series_update', currentSeries);
-                    WsSubscribers.send('game', 'series_update', currentSeries);
                   } catch (error) {
                     console.error('Error sending series update:', error);
                   }

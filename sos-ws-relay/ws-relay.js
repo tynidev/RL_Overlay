@@ -70,6 +70,10 @@ prompt.get([
 
     const wss = new WebSocket.Server({ port: r.port });
     let connections = {};
+
+    // Explicitly set the terminal title after prompts
+    process.stdout.write('\x1b]0;SOS WS Relay\x07');
+
     info.wb("Opened WebSocket server on port " + r.port);
 
     wss.on('connection', function connection(ws) {

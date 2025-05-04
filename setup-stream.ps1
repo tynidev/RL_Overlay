@@ -53,7 +53,7 @@ $RL_WINDOW_MODE = "Borderless"  # Options: Fullscreen, Borderless, Windowed
 $BAKKESMOD_STARTUP_DELAY = 10     # Delay for BakkesMod to fully load
 $ROCKET_LEAGUE_STARTUP_DELAY = 25 # Delay for Rocket League to fully load
 $OBS_STARTUP_DELAY = 10           # Delay after starting OBS
-$SERIES_STARTUP_DELAY = 5         # Delay before starting Series Ctrl app
+$BROWSER_OPEN_DELAY = 5         # Delay before opening the control room URL in the browser
 
 #----------------------------------------------------------------------------
 # Functions
@@ -166,18 +166,24 @@ if (-not $rocketLeagueProcess) {
     Write-Host "Rocket League is already running."
 }
 
-# Launch Windows Terminal with multiple tabs
+# Launch Windows Terminal with required tabs
 $root = Get-Location # Get the current working directory to use as the base path for applications
+Write-Host "Starting SOS Relay and Overlay Server in Windows Terminal..."
 Start-Process wt -ArgumentList @(
     # Start the SOS WebSocket Relay in the first tab
     "-d", "`"$(Join-Path $root "sos-ws-relay")`"", "--title", "`"SOS WS Relay`"", "powershell", "-NoExit", "-Command", "`"npm run relay;`"",
     # Start the Overlay Server (serve) in the second tab
-    "new-tab", "-d", "`"$(Join-Path $root "overlay-app")`"", "--title", "`"Overlay Web Server`"", "powershell", "-NoExit", "-Command", "`"serve -s build;`"",
-    # Start the Series App in the third tab with dynamic encoded command
-    # Dynamically generate the encoded command for the Series app so we can combine it with the startup delay
-    "new-tab", "-d", "`"$(Join-Path $root "console-apps")`"", "--title", "`"Series Ctrl`"", "powershell", "-NoExit", "-EncodedCommand", $(Convert-ToBase64EncodedCommand -Command "Start-Sleep -Seconds $SERIES_STARTUP_DELAY; npm run series")
+    "new-tab", "-d", "`"$(Join-Path $root "overlay-app")`"", "--title", "`"Overlay Web Server`"", "powershell", "-NoExit", "-Command", "`"serve -s build`""
 )
-Write-Host "Started all applications in Windows Terminal tabs."
+Write-Host "Started background applications in Windows Terminal tabs."
+
+# Wait for the Overlay Web Server to potentially start
+Write-Host "Waiting a few seconds for the Overlay Web Server..."
+Start-Sleep -Seconds $BROWSER_OPEN_DELAY # Wait before opening browser
+
+# Open the control room URL in the default browser
+Write-Host "Opening Control Room URL in browser: http://localhost:3000/ctrl"
+Start-Process "http://localhost:3000/ctrl"
 
 # Check if OBS is running and start it if not
 $obsProcess = Get-Process -Name obs64 -ErrorAction SilentlyContinue

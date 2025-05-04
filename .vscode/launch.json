@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Overlay Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm", // Or "yarn" if you use yarn
+            "runtimeArgs": [
+                "run",
+                "test",
+                "--", // Delimiter to pass args directly to the test script
+                "--runInBand", // Runs tests serially in the current process, required for debugging
+                "--no-cache" // Disables Jest's cache
+                // You can add specific test file patterns here if needed, e.g., "match.test.ts"
+            ],
+            "cwd": "${workspaceFolder}/overlay-app", // Sets the working directory to your app folder
+            "console": "integratedTerminal", // Shows output in the VS Code terminal
+            "internalConsoleOptions": "neverOpen" // Prevents the Debug Console from opening automatically
+        }
+    ]
+}

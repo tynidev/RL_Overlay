@@ -1,4 +1,4 @@
-import { WsSubscribers } from './wsSubscribers';
+import { WsSubscribers as WsSubscribersObject } from './wsSubscribers';
 import { Player } from './types/player';
 import { Game, GameStateData, GameTeam } from './types/game';
 import { Series } from './types/series';
@@ -6,6 +6,7 @@ import { GameState, Stats } from './types/gameState';
 import { Callback, pad } from './util/utils';
 import { RCONN } from './RCONN';
 import { StatFeed, StatfeedEvent } from './types/statfeedEvent';
+import { WsSubscribers } from './types/wsSubscribers'; // Import the interface
 
 interface MatchEndData {
   winner_team_num: 0 | 1;
@@ -72,19 +73,21 @@ export class Match {
   seriesUpdateCallbacks: ((s: Series) => void)[] = [];
   statfeedCallbacks: ((s: Map<string,StatFeed[]>) => void)[] = [];
 
+  ws: WsSubscribers; // Use the interface type
   RCONN?: RCONN = undefined;
   hiddenUI = false;
 
   constructor(
-    ws: typeof WsSubscribers,
+    ws: WsSubscribers, // Use the interface type
     RCONN?: RCONN,
     localplayer_support?: boolean
   ) {
+    this.ws = ws; // Store the instance
     this.localplayer_support = localplayer_support ?? true;
     this.RCONN = RCONN || undefined;
     
     // When game is created before everyone has picked sides or specator roles
-    ws.subscribe('game', 'match_created', () => {
+    this.ws.subscribe('game', 'match_created', () => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('pre-game-lobby');
       this.matchCreatedCallbacks.forEach((callback) => {
@@ -101,7 +104,7 @@ export class Match {
         console.log(`Series over, resetting match counters for teams ${this.series.teams[0].name} and ${this.series.teams[1].name}`);
         this.series.teams[0].matches_won = 0;
         this.series.teams[1].matches_won = 0;
-        WsSubscribers.send("local", "series_update", this.series);
+        this.ws.send("local", "series_update", this.series);
       }
     });
     //ws.subscribe("game", "replay_created", (p) => { }); // Same as match_created but for replay
@@ -109,12 +112,12 @@ export class Match {
     // Game state updates happens as soon as match_created is fired and until match_destroyed is called.
     // How often this fires depends on the hook rate in the SOS plugin in bakkesmod
     // NOTE: Players are added/removed dynamically throughout game
-    ws.subscribe('game', 'update_state', (p: GameStateData) => {
+    this.ws.subscribe('game', 'update_state', (p: GameStateData) => { // Use this.ws
       this.HandleStateChange(p);
     });
 
     // Game is initialized and players have chosen a side. NOTE: This is the same as the first kick off countdown
-    ws.subscribe('game', 'initialized', () => {
+    this.ws.subscribe('game', 'initialized', () => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
       this.initializedCallbacks.forEach((callback) => {
@@ -123,14 +126,14 @@ export class Match {
     });
 
     // Kick off countdown
-    ws.subscribe('game', 'pre_countdown_begin', () => {
+    this.ws.subscribe('game', 'pre_countdown_begin', () => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
       this.preCountDownBeginCallbacks.forEach((callback) => {
         callback();
       });
     });
-    ws.subscribe('game', 'post_countdown_begin', () => {
+    this.ws.subscribe('game', 'post_countdown_begin', () => { // Use this.ws
       this.gameState.clockRunning = false;
       if (this.RCONN !== undefined && !this.hiddenUI) {
         this.RCONN.send('replay_gui hud 1');
@@ -145,13 +148,13 @@ export class Match {
     });
 
     // Kick off countdown finished and cars are free to GO!!!!
-    ws.subscribe('game', 'round_started_go', () => {
+    this.ws.subscribe('game', 'round_started_go', () => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('in-game');
     });
 
     // Occurs when ball is hit
-    ws.subscribe("game", "ball_hit", (p) => { 
+    this.ws.subscribe("game", "ball_hit", (_p: unknown) => { // Use unknown type for unused parameter
       this.gameState.clockRunning = true;
     });
 
@@ -160,12 +163,12 @@ export class Match {
     // Fired when the clock ends NOTE: this fires many times in a row so you will receive duplicates
     //ws.subscribe("game", "clock_stopped", (p) => { });
     // Fired when the seconds for the game are updated NOTE: it's better to read time from update_state than to depend on this
-    ws.subscribe('game', 'clock_updated_seconds', () => {
+    this.ws.subscribe('game', 'clock_updated_seconds', () => { // Use this.ws
       this.gameState.setState('in-game');
     });
 
     // When a goal is scored
-    ws.subscribe('game', 'goal_scored', (p: unknown) => {
+    this.ws.subscribe('game', 'goal_scored', (p: unknown) => { // Use this.ws
       this.gameState.clockRunning = false;
       this.onGoalScoredCallbacks.forEach((callback) => {
         callback(p);
@@ -173,7 +176,7 @@ export class Match {
     });
 
     // When an in game replay from a goal is started
-    ws.subscribe('game', 'replay_start', (p: unknown) => {
+    this.ws.subscribe('game', 'replay_start', (p: unknown) => { // Use this.ws
       this.gameState.ballPossessions = [];
       this.gameState.fieldPositions = [];
       this.gameState.possession = 0;
@@ -189,7 +192,7 @@ export class Match {
     });
 
     // When an in game replay from a goal is about to end
-    ws.subscribe('game', 'replay_will_end', () => {
+    this.ws.subscribe('game', 'replay_will_end', () => { // Use this.ws
       this.gameState.clockRunning = false;
       for (const cb of this.replayWillEndCallbacks) {
         cb();
@@ -197,7 +200,7 @@ export class Match {
     });
 
     // When an in game replay from a goal ends
-    ws.subscribe('game', 'replay_end', () => {
+    this.ws.subscribe('game', 'replay_end', () => { // Use this.ws
       this.gameState.clockRunning = false;
       
       // clear out current stat feeds when replay ends
@@ -214,18 +217,18 @@ export class Match {
     });
 
     // When name of team winner is displayed on screen after game is over
-    ws.subscribe('game', 'match_ended', (p: MatchEndData) => {
+    this.ws.subscribe('game', 'match_ended', (p: MatchEndData) => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('game-ended');
       this.series.teams[p.winner_team_num].matches_won += 1;
-      WsSubscribers.send("local", "series_update", this.series);
+      this.ws.send("local", "series_update", this.series);
       for (const cb of this.gameEndCallbacks) {
         cb();
       }
     });
 
     // Celebration screen for winners podium after game ends
-    ws.subscribe('game', 'podium_start', () => {
+    this.ws.subscribe('game', 'podium_start', () => { // Use this.ws
       this.gameState.clockRunning = false;
       this.gameState.setState('post-game');
       this.podiumCallbacks.forEach((callback) => {
@@ -234,7 +237,7 @@ export class Match {
     });
 
     // When match OR replay is destroyed
-    ws.subscribe('game', 'match_destroyed', () => {
+    this.ws.subscribe('game', 'match_destroyed', () => { // Use this.ws
       this.gameState.reset();
       this.matchEndedCallbacks.forEach((callback) => {
         callback();
@@ -260,7 +263,7 @@ export class Match {
     //         }
     //     ]
     // }
-    ws.subscribe('game', 'series_update', (data: unknown) => {
+    this.ws.subscribe('game', 'series_update', (data: unknown) => { // Use this.ws
       console.log(`game.series_update received:`, data);
       
       // The data from websocket may be either direct series object or wrapped in a data property
@@ -278,7 +281,7 @@ export class Match {
       this.handleSeriesUpdate(seriesData);
     });
 
-    ws.subscribe('local', 'series_update', (data: unknown) => {
+    this.ws.subscribe('local', 'series_update', (data: unknown) => { // Use this.ws
       console.log(`local.series_update received:`, data);
       
       // The data from websocket may be either direct series object or wrapped in a data property
@@ -296,7 +299,7 @@ export class Match {
       this.handleSeriesUpdate(seriesData);
 
       // send game update to any remote subscribers
-      ws.send("game", "series_update", seriesData);
+      this.ws.send("game", "series_update", seriesData); // Use this.ws
     });
 
     // "game:statfeed_event": {
@@ -313,7 +316,7 @@ export class Match {
     //   },
     //   "type": "string"
     // }
-    ws.subscribe('game', 'statfeed_event', (p: StatfeedEvent) =>{
+    this.ws.subscribe('game', 'statfeed_event', (p: StatfeedEvent) =>{ // Use this.ws
       var supportedEvent = false;
       switch(p.type){
         case 'Assist':
@@ -584,7 +587,7 @@ export class Match {
       
       // Update statfeeds time to live every second of game time
       let changedStats = false;
-      for (let [pid, feeds] of this.statfeeds) {
+      for (let [_pid, feeds] of this.statfeeds) { // Prefix unused variable with _
         // Iterate backwards through the array to safely remove elements
         for (let i = feeds.length - 1; i >= 0; i--) {
           feeds[i].ttl -= 1;

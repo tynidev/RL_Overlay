@@ -17,6 +17,7 @@ interface SeriesControlRouteState {
     width: number;
     height: number;
   };
+  hasUnsavedChanges: boolean; // Add state to track unsaved changes
 }
 
 export class SeriesControlRoute extends React.Component<SeriesControlRouteProps, SeriesControlRouteState> {
@@ -33,7 +34,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
       dimensions: {
         width: props.width,
         height: props.height
-      }
+      },
+      hasUnsavedChanges: false // Initialize unsaved changes state
     };
   }
 
@@ -86,9 +88,10 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         this.subscribeToMatchEvents(this.props.match);
       }
       
-      // Update series data
+      // Update series data and reset unsaved changes flag
       this.safeSetState({
-        series: {...this.props.match.series}
+        series: {...this.props.match.series},
+        hasUnsavedChanges: false // Reset flag when props update series
       });
     } else {
       console.log('No changes detected, not updating state');
@@ -108,13 +111,19 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         match.OnMatchCreated(() => {
             console.log('Match created, updating series state');
             console.log('Incoming series state:', match.series);
-            this.safeSetState({ series: {...match.series} });
+            this.safeSetState({ 
+                series: {...match.series},
+                hasUnsavedChanges: false // Reset flag on match creation
+            });
       }),
       match.OnGameEnded(() => {
         console.log('Game ended, updating series state');
         console.log('Incoming series state:', match.series);
         
-        this.safeSetState({ series: {...match.series} });
+        this.safeSetState({ 
+            series: {...match.series},
+            hasUnsavedChanges: false // Reset flag on game end
+        });
       }),
     ];
   }
@@ -165,29 +174,31 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   // Update the series length
   handleSeriesLengthChange = (value: number) => {
     const oddValue = this.ensureOddNumber(value);
-    if (oddValue >= 1 && oddValue <= 9) {
+    if (oddValue >= 1 && oddValue <= 9 && oddValue !== this.state.series.length) { // Check if value actually changed
       // Create a new series object with updated length
       const updatedSeries = {
         ...this.state.series,
         length: oddValue
       };
       
-      // Update state with the new object
-      this.safeSetState({ series: updatedSeries });
+      // Update state with the new object and mark changes as unsaved
+      this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
     }
   }
 
   // Update series text
   handleSeriesTextChange = (value: string) => {
-    console.log('Updating series text:', value);
-    // Create a new series object with updated text
-    const updatedSeries = {
-      ...this.state.series,
-      series_txt: value
-    };
-    
-    // Update state with the new object
-    this.safeSetState({ series: updatedSeries });
+    if (value !== this.state.series.series_txt) { // Check if value actually changed
+        console.log('Updating series text:', value);
+        // Create a new series object with updated text
+        const updatedSeries = {
+          ...this.state.series,
+          series_txt: value
+        };
+        
+        // Update state with the new object and mark changes as unsaved
+        this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
+    }
   }
 
     // Swap team positions
@@ -222,12 +233,19 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
             teams: updatedTeams
         };
         
-        // Update state with the new object
-        this.safeSetState({ series: updatedSeries });
+        // Update state with the new object and mark changes as unsaved
+        this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
     }
 
   // Update team information
   updateTeam = (teamIndex: 0 | 1, field: keyof SeriesTeam, value: any) => {
+    const currentTeam = this.state.series.teams[teamIndex];
+    
+    // Check if the value actually changed
+    if (currentTeam[field] === value) {
+        return; // No change, do nothing
+    }
+
     console.log(`Updating team ${teamIndex} field ${field} with value:`, value);
     const updatedTeams = [...this.state.series.teams];
     
@@ -265,8 +283,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
       teams: updatedTeams as [SeriesTeam, SeriesTeam]
     };
     
-    // Update state with the new object
-    this.safeSetState({ series: updatedSeries });
+    // Update state with the new object and mark changes as unsaved
+    this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
   }
 
   renderTeamCard = (teamIndex: 0 | 1) => {
@@ -359,6 +377,9 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
       height: `${this.state.dimensions.height / this.getScaleFactor()}px`
     };
     
+    // Determine button class based on unsaved changes
+    const updateButtonClass = `update-btn ${this.state.hasUnsavedChanges ? 'update-btn-pending' : ''}`;
+
     return (
       <div className="series-control-wrapper">
         <div className="series-control-container" style={containerStyle}>
@@ -378,11 +399,14 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                   console.log('Updating series:', currentSeries);
                   try {
                     WsSubscribers.send('local', 'series_update', currentSeries);
+                    // Reset unsaved changes flag after successful send
+                    this.safeSetState({ hasUnsavedChanges: false }); 
                   } catch (error) {
                     console.error('Error sending series update:', error);
                   }
                 }}
-                className="update-btn"
+                className={updateButtonClass} // Use dynamic class
+                disabled={!this.state.hasUnsavedChanges} // Disable if no unsaved changes
               >
                 Update Series
               </button>

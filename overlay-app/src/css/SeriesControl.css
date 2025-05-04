@@ -219,11 +219,27 @@
   border-radius: 4px;
   font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s; /* Add opacity transition */
 }
 
-.update-btn:hover {
+.update-btn:hover:not(:disabled) { /* Ensure hover only applies when not disabled */
     background-color: #8c8c8c;
+}
+
+.update-btn:disabled { /* Style for disabled button */
+  background-color: #333; /* Darker background */
+  cursor: not-allowed;
+  opacity: 0.5; /* Make it visually distinct */
+}
+
+/* Blinking animation for pending changes */
+@keyframes blink-red {
+  0%, 100% { background-color: #e74c3c; } /* Red */
+  50% { background-color: #c0392b; } /* Darker Red */
+}
+
+.update-btn-pending:not(:disabled) { /* Apply animation only when pending and not disabled */
+  animation: blink-red 1s infinite;
 }
 
 .swap-btn {

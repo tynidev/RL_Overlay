@@ -11,7 +11,7 @@ import { areEqual, scaleText } from '../util/utils';
 import { StatFeed } from '../types/statfeedEvent';
 import { JSX } from 'react/jsx-runtime';
 
-interface PlayerCardProps {
+export interface PlayerCardProps { // Export the interface
   player: Player;
   spectating: boolean;
   index: number;
@@ -79,25 +79,44 @@ const PlayerCardCore: FC<PlayerCardProps> = (props) => {
 
 export const PlayerCard = React.memo(
   PlayerCardCore,
-  // ArePropsEqual // for some reason we aren't getting this right... so I'm taking the performance hit of rendering every time
+  ArePlayerCardPropsEqual // Uncommented to use the comparison function
 );
 
-function ArePropsEqual(prevProps:PlayerCardProps, nextProps:PlayerCardProps): boolean{
-  let render = !(
+// Export for testing
+export function ArePlayerCardPropsEqual(prevProps:PlayerCardProps, nextProps:PlayerCardProps): boolean{
+  // Compare primitive props first
+  if (
     prevProps.index !== nextProps.index ||
     prevProps.showBoost !== nextProps.showBoost ||
-    prevProps.spectating !== nextProps.spectating ||
+    prevProps.spectating !== nextProps.spectating
+  ) {
+    return false; // Props are different
+  }
+
+  // Compare player object fields
+  if (
     prevProps.player.id !== nextProps.player.id ||
     prevProps.player.name !== nextProps.player.name ||
-    prevProps.player.boost !== nextProps.player.boost ||
-    !areEqual(prevProps.statfeed, nextProps.statfeed, areStatsEqual)
-  );
-  return render;
+    prevProps.player.boost !== nextProps.player.boost
+    // Add comparisons for any other relevant player fields if they exist
+  ) {
+    return false; // Player props are different
+  }
+
+  // Compare statfeed array using the utility function
+  if (!areEqual(prevProps.statfeed, nextProps.statfeed, areStatsEqual)) {
+    return false; // Statfeed arrays are different
+  }
+  
+  // If all checks pass, the props are equal
+  return true; 
 }
 
 function areStatsEqual(a:StatFeed, b:StatFeed){
-  let equal = !(a.stat.main_target.id !== b.stat.main_target.id || 
-    a.stat.secondary_target.id !== b.stat.secondary_target.id || 
-    a.stat.type !== b.stat.type)
- return equal;
+  // Check if both main_target exist and compare their ids, or if both are undefined
+  const mainTargetEqual = (a.stat.main_target?.id === b.stat.main_target?.id);
+  // Check if both secondary_target exist and compare their ids, or if both are undefined
+  const secondaryTargetEqual = (a.stat.secondary_target?.id === b.stat.secondary_target?.id);
+
+  return mainTargetEqual && secondaryTargetEqual && a.stat.type === b.stat.type;
 }

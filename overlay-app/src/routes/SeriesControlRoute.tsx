@@ -18,6 +18,7 @@ interface SeriesControlRouteState {
     height: number;
   };
   hasUnsavedChanges: boolean; // Add state to track unsaved changes
+  matchId: string; // Add matchId to state
 }
 
 export class SeriesControlRoute extends React.Component<SeriesControlRouteProps, SeriesControlRouteState> {
@@ -35,7 +36,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         width: props.width,
         height: props.height
       },
-      hasUnsavedChanges: false // Initialize unsaved changes state
+      hasUnsavedChanges: false, // Initialize unsaved changes state
+      matchId: '' // Initialize matchId
     };
   }
 
@@ -287,6 +289,57 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
   }
 
+  fetchMatchData = async () => {
+    const { matchId } = this.state;
+    if (!matchId) {
+      console.error('Match ID is empty');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/matches/${matchId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch match data: ${response.statusText}`);
+      }
+
+      const matchData = await response.json();
+      console.log('Fetched match data:', matchData);
+
+      // Extract team IDs from the response
+      const teamIds = matchData.data.ts.map((team: { tid: string }) => team.tid);
+      console.log('Extracted team IDs:', teamIds);
+
+      // Fetch additional information for each team
+      const teamDataPromises = teamIds.map((teamId: string) =>
+        fetch(`https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/teams/${teamId}`).then((res) => res.json())
+      );
+
+      const teamsData = await Promise.all(teamDataPromises);
+      console.log('Fetched team data:', teamsData);
+
+      // Update series state with fetched team data
+      const updatedTeams = teamsData.map((teamResponse: any, index: number) => {
+        const teamData = teamResponse.data[0]; // Extract the first team object
+        return {
+          team: index, // Assign team index (0 or 1)
+          name: teamData.dn || `Team ${index + 1}`, // Use `dn` as display name
+          matches_won: 0, // Default to 0 matches won
+          logo: teamData.ico || '' // Use `ico` as team logo
+        };
+      });
+
+      this.safeSetState({
+        series: {
+          ...this.state.series,
+          teams: updatedTeams as [SeriesTeam, SeriesTeam]
+        },
+        hasUnsavedChanges: false // Reset unsaved changes flag
+      });
+    } catch (error) {
+      console.error('Error fetching match or team data:', error);
+    }
+  };
+
   renderTeamCard = (teamIndex: 0 | 1) => {
     console.log(`Rendering team card for team ${teamIndex}`);
     const team = this.state.series.teams[teamIndex];
@@ -411,6 +464,20 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                 Update Series
               </button>
             </div>
+          </div>
+
+          <div className="match-id-input">
+            <label htmlFor="match-id">MATCH ID:</label>
+            <input
+              id="match-id"
+              type="text"
+              value={this.state.matchId}
+              onChange={(e) => this.safeSetState({ matchId: e.target.value })}
+              className="match-id-field"
+            />
+            <button onClick={this.fetchMatchData} className="fetch-btn">
+              Fetch Match Data
+            </button>
           </div>
 
           <div className="series-settings">

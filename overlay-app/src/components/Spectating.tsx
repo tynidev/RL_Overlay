@@ -108,7 +108,7 @@ function ShouldUpdate(prevProps:ReturnType<typeof getState>, nextProps:ReturnTyp
     prevProps.player.assists !== nextProps.player.assists ||
     prevProps.player.saves !== nextProps.player.saves ||
     prevProps.player.shots !== nextProps.player.shots ||
-    prevProps.player.assists !== nextProps.player.assists ||
+    prevProps.player.demos !== nextProps.player.demos || // Added demos check
     prevProps.player.boost !== nextProps.player.boost ||
     prevProps.player.isSonic !== nextProps.player.isSonic ||
     prevProps.player.speed !== nextProps.player.speed

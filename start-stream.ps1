@@ -53,7 +53,7 @@ $RL_WINDOW_MODE = "Borderless"  # Options: Fullscreen, Borderless, Windowed
 $BAKKESMOD_STARTUP_DELAY = 10     # Delay for BakkesMod to fully load
 $ROCKET_LEAGUE_STARTUP_DELAY = 25 # Delay for Rocket League to fully load
 $OBS_STARTUP_DELAY = 10           # Delay after starting OBS
-$BROWSER_OPEN_DELAY = 5         # Delay before opening the control room URL in the browser
+$BROWSER_OPEN_DELAY = 5           # Delay before opening the control room URL in the browser
 
 #----------------------------------------------------------------------------
 # Functions
@@ -177,13 +177,30 @@ Start-Process wt -ArgumentList @(
 )
 Write-Host "Started background applications in Windows Terminal tabs."
 
-# Wait for the Overlay Web Server to potentially start
-Write-Host "Waiting a few seconds for the Overlay Web Server..."
-Start-Sleep -Seconds $BROWSER_OPEN_DELAY # Wait before opening browser
+# Wait for the Overlay Web Server to potentially start, checking every second
+Write-Host "Waiting up to $BROWSER_OPEN_DELAY seconds for the Overlay Web Server..."
+$serverStarted = $false
+for ($i = 0; $i -lt $BROWSER_OPEN_DELAY; $i++) {
+    $serverListening = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+    if ($serverListening) {
+        Write-Host "Overlay Web Server detected listening on port 3000."
+        $serverStarted = $true
+        break # Exit the loop as soon as the server is found
+    }
+    Write-Host "Server not yet detected, waiting 1 second..."
+    Start-Sleep -Seconds 1
+}
 
-# Open the control room URL in the default browser
-Write-Host "Opening Control Room URL in browser: http://localhost:3000/ctrl"
-Start-Process "http://localhost:3000/ctrl"
+# Open the browser if the server started
+if ($serverStarted) {
+    Write-Host "Opening Control Room URL in browser: http://localhost:3000/ctrl"
+    # Note: Checking if this specific URL is already open in a tab is complex and unreliable.
+    # We will open it; the browser will likely handle duplicates (new tab or focus existing).
+    Start-Process "http://localhost:3000/ctrl"
+} else {
+    Write-Host "Warning: Overlay Web Server did not start listening on port 3000 within the $BROWSER_OPEN_DELAY second timeout."
+    Write-Host "Skipping opening the Control Room URL in the browser."
+}
 
 # Check if OBS is running and start it if not
 $obsProcess = Get-Process -Name obs64 -ErrorAction SilentlyContinue

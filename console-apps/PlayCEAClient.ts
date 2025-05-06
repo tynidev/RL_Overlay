@@ -437,7 +437,7 @@ class PlayCEAClient {
             }
 
             // Parse the JSON response as the raw API response type
-            const apiResponse: ApiResponse.MatchApiResponse = await response.json();
+            const apiResponse: ApiResponse.MatchesApiResponse = await response.json();
 
             // Validate the response format
             if (!apiResponse || typeof apiResponse !== 'object' || apiResponse.data === undefined) {
@@ -760,28 +760,30 @@ namespace ApiResponse {
         }[];
     }
 
+    export interface MatchApiResponse {
+        mid: string;    // matchId
+        cts: string;    // createdTimestamp
+        uts: string;    // updatedTimestamp
+        ts: BracketTeamData[]; // teams
+        mn: number;     // matchNumber
+        ace: number;    // aceEnabled
+        rnd: number;    // roundIndex
+        meta: Record<string, unknown>; // metadata
+        bid: string;    // bracketId
+        game: string;   // game
+        gs: {
+            gid: string; // gameId
+            ts: any[];   // teams
+            xvx: number; // format
+        }[];
+    };
+
     /**
      * Raw API response for match information
      */
-    export interface MatchApiResponse {
+    export interface MatchesApiResponse {
         message: string;
-        data: {
-            mid: string;    // matchId
-            cts: string;    // createdTimestamp
-            uts: string;    // updatedTimestamp
-            ts: BracketTeamData[]; // teams
-            mn: number;     // matchNumber
-            ace: number;    // aceEnabled
-            rnd: number;    // roundIndex
-            meta: Record<string, unknown>; // metadata
-            bid: string;    // bracketId
-            game: string;   // game
-            gs: {
-                gid: string; // gameId
-                ts: any[];   // teams
-                xvx: number; // format
-            }[];
-        };
+        data: MatchApiResponse; // match data
     }
 
     /**
@@ -806,23 +808,7 @@ namespace ApiResponse {
         roundName: string;        // roundName
         rid: string;       // roundId
         bid: string;       // bracketId
-        matches: {
-            mid: string;    // matchId
-            cts: string;    // createdTimestamp
-            uts: string;    // updatedTimestamp
-            ts: BracketTeamData[]; // teams
-            mn: number;     // matchNumber
-            ace: number;    // aceEnabled
-            rnd: number;    // roundIndex
-            meta: Record<string, unknown>; // metadata
-            bid: string;    // bracketId
-            game: string;   // game
-            gs: {
-                gid: string; // gameId
-                ts: any[];   // teams
-                xvx: number; // format
-            }[];
-        }[];
+        matches: MatchApiResponse[];
         tf: number[];      // teamFormats
         c: boolean;        // complete
         xvxList?: number[];  // List of team sizes for each game (e.g., [3,3,3,3,3] for 3v3)

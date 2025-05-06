@@ -176,7 +176,7 @@ async function examineMatchingTournaments(
                                         
                                         console.log(`\nTeams:`);
                                         matchData.teams.forEach((team, idx) => {
-                                            console.log(`  ${idx + 1}. ${team.displayName} (${team.organization})`);
+                                            console.log(`  Team ${idx + 1}: ${team.teamId}`);
                                             console.log(`     Score: ${team.score || 0}`);
                                         });
                                         

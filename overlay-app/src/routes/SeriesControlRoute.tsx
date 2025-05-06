@@ -4,7 +4,21 @@ import { Series, SeriesTeam } from '../types/series';
 import { WsSubscribers } from '../wsSubscribers';
 import '../css/SeriesControl.css';
 import { Callback } from '../util/utils';
-import { PlayCEAClient } from 'playcea-api';
+import { PlayCEAClient, Tournament, Bracket, Team } from 'playcea-api';
+
+// Define interfaces for modal state management
+interface ModalState {
+  isOpen: boolean;
+  step: 'tournament' | 'bracket' | 'match';
+  tournaments: Tournament[];
+  selectedTournament: Tournament | null;
+  brackets: { bracketId: string, name: string }[];
+  selectedBracket: { bracketId: string, name: string } | null;
+  bracketData: Bracket | null;
+  matches: { matchId: string, teamNames: string[], roundName: string }[];
+  loading: boolean;
+  error: string | null;
+}
 
 interface SeriesControlRouteProps {
   match: Match;
@@ -20,6 +34,7 @@ interface SeriesControlRouteState {
   };
   hasUnsavedChanges: boolean; // Add state to track unsaved changes
   matchId: string; // Add matchId to state
+  modal: ModalState; // Add modal state
 }
 
 export class SeriesControlRoute extends React.Component<SeriesControlRouteProps, SeriesControlRouteState> {
@@ -27,6 +42,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   private unsubscribers: Callback[] = [];
   // Track if component is mounted to prevent setState after unmount
   private _isMounted: boolean = false;
+  // Create an instance of the PlayCEA client
+  private ceaClient = new PlayCEAClient();
   
   constructor(props: SeriesControlRouteProps) {
     super(props);
@@ -38,7 +55,20 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         height: props.height
       },
       hasUnsavedChanges: false, // Initialize unsaved changes state
-      matchId: '' // Initialize matchId
+      matchId: '', // Initialize matchId
+      // Initialize modal state
+      modal: {
+        isOpen: false,
+        step: 'tournament',
+        tournaments: [],
+        selectedTournament: null,
+        brackets: [],
+        selectedBracket: null,
+        bracketData: null,
+        matches: [],
+        loading: false,
+        error: null
+      }
     };
   }
 
@@ -290,52 +320,6 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     this.safeSetState({ series: updatedSeries, hasUnsavedChanges: true });
   }
 
-  fetchMatchData = async () => {
-    const { matchId } = this.state;
-    if (!matchId) {
-      console.error('Match ID is empty');
-      return;
-    }
-
-    try {
-      // Create a new PlayCEA client instance
-      const client = new PlayCEAClient();
-      
-      // Fetch match data using the client
-      const matchData = await client.getMatch(matchId);
-      console.log('Fetched match data:', matchData);
-
-      // Extract team IDs from the match data
-      const teamIds = matchData.teams.map(team => team.teamId);
-      console.log('Extracted team IDs:', teamIds);
-
-      // Fetch additional information for each team using the client
-      const teamDataPromises = teamIds.map(teamId => client.getTeam(teamId));
-      const teamsData = await Promise.all(teamDataPromises);
-      console.log('Fetched team data:', teamsData);
-
-      // Update series state with fetched team data
-      const updatedTeams = teamsData.map((teamData, index) => {
-        return {
-          team: index, // Assign team index (0 or 1)
-          name: teamData.displayName || `Team ${index + 1}`, // Use displayName property
-          matches_won: 0, // Default to 0 matches won
-          logo: teamData.iconUrl || '' // Use iconUrl property
-        };
-      });
-
-      this.safeSetState({
-        series: {
-          ...this.state.series,
-          teams: updatedTeams as [SeriesTeam, SeriesTeam]
-        },
-        hasUnsavedChanges: true // Mark changes as unsaved so user can apply them
-      });
-    } catch (error) {
-      console.error('Error fetching match or team data:', error);
-    }
-  };
-
   renderTeamCard = (teamIndex: 0 | 1) => {
     console.log(`Rendering team card for team ${teamIndex}`);
     const team = this.state.series.teams[teamIndex];
@@ -418,6 +402,387 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     );
   }
 
+  // New methods for CEA match modal functionality
+  openCEAModal = async () => {
+    // Set modal state to loading while we fetch tournaments
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        isOpen: true,
+        loading: true,
+        error: null
+      }
+    });
+
+    try {
+      // Get the current year
+      const currentYear = new Date().getFullYear().toString();
+      
+      // Search for current Rocket League tournaments
+      const tournaments = await this.ceaClient.searchTournaments(
+        /Rocket/i, 
+        { year: currentYear },
+        "Rocket League"
+      );
+
+      // Filter to only include current and live tournaments
+      const liveCurrentTournaments = tournaments.filter(t => t.isLive && t.isCurrent);
+      
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          tournaments: liveCurrentTournaments,
+          loading: false
+        }
+      });
+    } catch (error) {
+      console.error('Error loading tournaments:', error);
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          loading: false,
+          error: 'Failed to load tournaments. Please try again.'
+        }
+      });
+    }
+  };
+
+  // Handle tournament selection
+  selectTournament = (tournament: Tournament) => {
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        selectedTournament: tournament,
+        brackets: tournament.brackets,
+        step: 'bracket',
+        error: null
+      }
+    });
+  };
+
+  // Handle bracket selection and load bracket data
+  selectBracket = async (bracket: { bracketId: string, name: string }) => {
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        selectedBracket: bracket,
+        loading: true,
+        error: null
+      }
+    });
+
+    try {
+      // Load the bracket data to get rounds and matches
+      const bracketData = await this.ceaClient.getBracket(bracket.bracketId);
+      
+      // Prepare matches data for display - flatten rounds and matches
+      const matchesList: { matchId: string, teamNames: string[], roundName: string }[] = [];
+      
+      // Process each round in the bracket to extract matches with team names
+      for (const round of bracketData.rounds) {
+        if (round.matches && round.matches.length > 0) {
+          for (const match of round.matches) {
+            // Only include matches with 2 teams (standard match)
+            if (match.teams && match.teams.length === 2) {
+              // Fetch team names synchronously
+              const teamNames = [];
+              for (const team of match.teams) {
+                try {
+                  const teamData = await this.ceaClient.getTeam(team.teamId);
+                  teamNames.push(teamData.displayName || 'Unknown Team');
+                } catch (e) {
+                  console.error(`Failed to fetch team ${team.teamId}:`, e);
+                  teamNames.push('Team Data Error');
+                }
+              }
+              
+              matchesList.push({
+                matchId: match.matchId,
+                teamNames: teamNames,
+                roundName: round.roundName
+              });
+            }
+          }
+        }
+      }
+
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          bracketData: bracketData,
+          matches: matchesList,
+          step: 'match',
+          loading: false
+        }
+      });
+    } catch (error) {
+      console.error('Error loading bracket data:', error);
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          loading: false,
+          error: 'Failed to load bracket data. Please try again.'
+        }
+      });
+    }
+  };
+
+  // Handle match selection
+  selectMatch = async (matchId: string, roundName: string) => {
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        loading: true,
+        error: null
+      }
+    });
+
+    try {
+      // Get the match data to find team IDs
+      const matchData = await this.ceaClient.getMatch(matchId);
+      
+      if (matchData.teams.length !== 2) {
+        throw new Error('Expected 2 teams in the match');
+      }
+
+      // Get detailed team info for both teams
+      const team1Data = await this.ceaClient.getTeam(matchData.teams[0].teamId);
+      const team2Data = await this.ceaClient.getTeam(matchData.teams[1].teamId);
+
+      // Update the series with team names, logos and round name
+      const updatedSeries = {
+        ...this.state.series,
+        series_txt: roundName, // Set series text to round name
+        teams: [
+          {
+            ...this.state.series.teams[0],
+            name: team1Data.displayName,
+            logo: team1Data.iconUrl || ''
+          },
+          {
+            ...this.state.series.teams[1],
+            name: team2Data.displayName, 
+            logo: team2Data.iconUrl || ''
+          }
+        ] as [SeriesTeam, SeriesTeam]
+      };
+
+      // Close modal and update series with new team data
+      this.safeSetState({
+        series: updatedSeries,
+        hasUnsavedChanges: true,
+        matchId: matchId,
+        modal: {
+          ...this.state.modal,
+          isOpen: false,
+          loading: false
+        }
+      });
+
+    } catch (error) {
+      console.error('Error loading team data:', error);
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          loading: false,
+          error: 'Failed to load team data. Please try again.'
+        }
+      });
+    }
+  };
+
+  // Close the modal
+  closeModal = () => {
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        isOpen: false,
+        step: 'tournament',
+        selectedTournament: null,
+        selectedBracket: null,
+        bracketData: null,
+        error: null
+      }
+    });
+  };
+
+  // Render the modal based on current step
+  renderModal = () => {
+    if (!this.state.modal.isOpen) return null;
+
+    const { step, tournaments, brackets, matches, loading, error } = this.state.modal;
+
+    const modalStyle = {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000
+    } as React.CSSProperties;
+
+    const modalContentStyle = {
+      width: '80%',
+      maxWidth: '800px',
+      maxHeight: '80vh',
+      backgroundColor: '#2c2c2c',
+      borderRadius: '8px',
+      padding: '20px',
+      overflowY: 'auto' as 'auto'
+    };
+
+    const headerStyle = {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '20px',
+      borderBottom: '1px solid #555'
+    };
+
+    const buttonStyle = {
+      padding: '8px 16px',
+      margin: '5px',
+      borderRadius: '4px',
+      border: 'none',
+      backgroundColor: '#4a90e2',
+      color: 'white',
+      cursor: 'pointer'
+    };
+
+    const listItemStyle = {
+      padding: '12px 15px',
+      margin: '5px 0',
+      backgroundColor: '#3a3a3a',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    };
+
+    const getStepTitle = () => {
+      switch (step) {
+        case 'tournament': return 'Select Tournament';
+        case 'bracket': return 'Select Bracket';
+        case 'match': return 'Select Match';
+        default: return 'CEA Match Selector';
+      }
+    };
+
+    return (
+      <div style={modalStyle}>
+        <div style={modalContentStyle}>
+          <div style={headerStyle}>
+            <h2>{getStepTitle()}</h2>
+            <button onClick={this.closeModal} style={{ ...buttonStyle, backgroundColor: '#e74c3c' }}>Close</button>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <p>Loading...</p>
+            </div>
+          ) : error ? (
+            <div style={{ color: '#e74c3c', padding: '10px', textAlign: 'center' }}>
+              <p>{error}</p>
+              <button onClick={this.closeModal} style={buttonStyle}>OK</button>
+            </div>
+          ) : (
+            <div>
+              {step === 'tournament' && (
+                <div>
+                  <p>Select a tournament from the list below:</p>
+                  {tournaments.length === 0 ? (
+                    <p>No current Rocket League tournaments found.</p>
+                  ) : (
+                    <div>
+                      {tournaments.map((tournament, index) => (
+                        <div 
+                          key={tournament.id}
+                          style={listItemStyle}
+                          onClick={() => this.selectTournament(tournament)}
+                        >
+                          <span>{tournament.name}</span>
+                          <span>{tournament.seasonInfo.league} {tournament.seasonInfo.season} {tournament.seasonInfo.year}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === 'bracket' && (
+                <div>
+                  <p>Select a bracket stage:</p>
+                  {brackets.length === 0 ? (
+                    <p>No brackets found for this tournament.</p>
+                  ) : (
+                    <div>
+                      {brackets.map((bracket, index) => (
+                        <div 
+                          key={bracket.bracketId}
+                          style={listItemStyle}
+                          onClick={() => this.selectBracket(bracket)}
+                        >
+                          {bracket.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => this.safeSetState({ 
+                      modal: { ...this.state.modal, step: 'tournament', selectedTournament: null } 
+                    })}
+                    style={{ ...buttonStyle, backgroundColor: '#95a5a6' }}
+                  >
+                    Back
+                  </button>
+                </div>
+              )}
+
+              {step === 'match' && (
+                <div>
+                  <p>Select a match:</p>
+                  {matches.length === 0 ? (
+                    <p>No matches found in this bracket.</p>
+                  ) : (
+                    <div>
+                      {matches.map((match) => (
+                        <div 
+                          key={match.matchId}
+                          style={listItemStyle}
+                          onClick={() => this.selectMatch(match.matchId, match.roundName)}
+                        >
+                          <span>{match.teamNames[0]} vs {match.teamNames[1]}</span>
+                          <span>{match.roundName}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => this.safeSetState({ 
+                      modal: { 
+                        ...this.state.modal, 
+                        step: 'bracket',
+                        bracketData: null,
+                        matches: [] 
+                      } 
+                    })}
+                    style={{ ...buttonStyle, backgroundColor: '#95a5a6' }}
+                  >
+                    Back
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   render() {
     console.log('Rendering SeriesControlRoute with series:', this.state.series);
     const containerStyle = {
@@ -435,6 +800,12 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
           <div className="series-header">
             <h1>SERIES CONTROL ROOM</h1>
             <div className="series-header-buttons">
+              <button
+                onClick={this.openCEAModal}
+                className="swap-btn"
+              >
+                CEA Match
+              </button>
               <button 
                 onClick={this.swapTeamNamesAndLogo}
                 className="swap-btn"
@@ -460,20 +831,6 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                 Update Series
               </button>
             </div>
-          </div>
-
-          <div className="match-id-input">
-            <label htmlFor="match-id">MATCH ID:</label>
-            <input
-              id="match-id"
-              type="text"
-              value={this.state.matchId}
-              onChange={(e) => this.safeSetState({ matchId: e.target.value })}
-              className="match-id-field"
-            />
-            <button onClick={this.fetchMatchData} className="fetch-btn">
-              Fetch Match Data
-            </button>
           </div>
 
           <div className="series-settings">
@@ -525,6 +882,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
             {this.renderTeamCard(1)}
           </div>
         </div>
+        {/* Render the modal outside the main container to avoid scaling issues */}
+        {this.renderModal()}
       </div>
     );
   }

@@ -8,8 +8,7 @@
     "series": "node series.js --file=../series.json",
     "record": "node record.js",
     "replay": "node replay.js",
-    "build": "tsc",
-    "cea": "node ./dist/displayTournaments.js"
+    "build": "tsc"
   },
   "author": "",
   "license": "MIT",

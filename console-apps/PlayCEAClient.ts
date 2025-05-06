@@ -1,100 +1,54 @@
-// filepath: c:\Users\Tyler.TYLERS-PC\source\repos\RL_Overlay\console-apps\PlayCEAClient.ts
+/**
+ * PlayCEAClient.ts
+ * 
+ * A TypeScript client for interacting with the PlayCEA tournament API.
+ * This client provides methods for retrieving tournament data, searching for tournaments
+ * by various criteria, and fetching bracket information.
+ * 
+ * Features:
+ * - Fetches tournament data from the PlayCEA API
+ * - Provides search functionality for tournaments
+ * - Retrieves bracket information for specific tournaments
+ * - Handles API response formatting with clear, descriptive types
+ * - Implements resilient networking with configurable retry logic
+ * 
+ * Created: May 2025
+ * Author: PlayCEA Stats Development Team
+ */
 
-// Define the API response types with abbreviated field names
-namespace ApiResponse {
-    export interface TeamIdentifier {
-        a: boolean; // active
-        tid: string; // teamId
-    }
 
-    export interface BracketStage {
-        bid: string; // bracketId
-        name: string;
-    }
+// ================================================
+// Client-facing Types (Public API)
+// ================================================
 
-    export interface SeasonName {
-        l: string; // league (e.g., "CORPORATE", "COLLEGIATE")
-        y: string; // year (e.g., "2022")
-        s: string; // season (e.g., "FALL", "SPRING")
-    }
-
-    export interface GameInfo {
-        id: string; // e.g., "rl", "lol", "chess"
-        name: string; // e.g., "Rocket League", "League of Legends"
-        ico: string; // icon URL
-        bg: string; // background image URL
-        rb: string; // rulebook URL
-    }
-
-    export interface SubBracket {
-        reg: string; // regular
-        po: string; // playoff
-    }
-
-    export interface Tournament {
-        ts: TeamIdentifier[]; // teams
-        tmid: string; // tournamentId
-        bs: BracketStage[]; // bracketStages
-        meta: Record<string, unknown>; // metadata
-        sbkt: SubBracket; // subBracket
-        sn: SeasonName; // seasonName
-        game: GameInfo;
-        live: boolean;
-        name: string;
-        current: boolean;
-        msg?: string; // message (optional)
-    }
-
-    export interface TournamentsApiResponse {
-        message: string;
-        data: Tournament[];
-    }
-
-    export interface BracketMatch {
-        mId: string;       // matchId
-        rnd: number;       // round
-        pos: number;       // position
-        p1s: number;       // player1Score
-        p2s: number;       // player2Score
-        schT: string;      // scheduledTime (ISO date string)
-        p1?: string;       // player1Id (optional)
-        p2?: string;       // player2Id (optional)
-        win?: string;      // winnerId (optional)
-        los?: string;      // loserId (optional)
-        p1n?: string;      // player1Name (optional)
-        p2n?: string;      // player2Name (optional)
-        cmplt?: boolean;   // completed (optional)
-    }
-
-    export interface BracketData {
-        name: string;
-        matches: BracketMatch[];
-        bid: string;       // bracketId
-    }
-
-    export interface BracketsApiResponse {
-        message: string;
-        data: BracketData[];
-    }
-}
-
-// Define the client-facing types with clear, descriptive field names
+/**
+ * Represents a team participating in a tournament
+ */
 export interface Team {
     isActive: boolean;
     teamId: string;
 }
 
+/**
+ * Represents a bracket stage in a tournament
+ */
 export interface Bracket {
     bracketId: string;
     name: string;
 }
 
+/**
+ * Contains season information (league, year, season)
+ */
 export interface Season {
     league: string;
     year: string;
     season: string;
 }
 
+/**
+ * Represents game information including metadata and resources
+ */
 export interface Game {
     id: string;
     name: string;
@@ -103,11 +57,17 @@ export interface Game {
     rulebookUrl: string;
 }
 
+/**
+ * Contains information about sub-brackets (regular season and playoffs)
+ */
 export interface SubBracketInfo {
     regular: string;
     playoff: string;
 }
 
+/**
+ * Comprehensive tournament information
+ */
 export interface Tournament {
     teams: Team[];
     tournamentId: string;
@@ -122,11 +82,17 @@ export interface Tournament {
     message?: string;
 }
 
+/**
+ * Response containing a list of tournaments
+ */
 export interface TournamentsResponse {
     message: string;
     tournaments: Tournament[];
 }
 
+/**
+ * Represents a match within a bracket
+ */
 export interface Match {
     matchId: string;
     round: number;
@@ -143,159 +109,89 @@ export interface Match {
     completed?: boolean;
 }
 
+/**
+ * Contains bracket information including matches
+ */
 export interface BracketData {
     name: string;
     matches: Match[];
     bracketId: string;
 }
 
+/**
+ * Response containing a list of brackets
+ */
 export interface BracketsResponse {
     message: string;
     brackets: BracketData[];
 }
 
-const API_URL = 'https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/';
+// ================================================
+// Constants
+// ================================================
 
 /**
- * Client for fetching tournament data from the PlayCEA API.
+ * Base API URL for PlayCEA endpoints
+ */
+const API_URL = 'https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/';
+
+// ================================================
+// PlayCEA Client Implementation
+// ================================================
+
+/**
+ * Client for interacting with the PlayCEA Tournament API.
+ * 
+ * This client provides methods to retrieve tournament data, search for tournaments
+ * based on various criteria, and fetch bracket information for specific tournaments.
+ * It handles API response transformation, error handling, and implements resilient
+ * networking with retry capabilities for transient failures.
+ * 
+ * Example usage:
+ * ```typescript
+ * const client = new PlayCEAClient();
+ * 
+ * // Get all tournaments
+ * const allTournaments = await client.getTournaments();
+ * 
+ * // Search for live Rocket League tournaments
+ * const rlTournaments = await client.searchTournaments(/Rocket/i, { year: "2025" }, "Rocket League");
+ * 
+ * // Get bracket information for a specific tournament
+ * const brackets = await client.getBrackets("tournamentId123");
+ * ```
  */
 class PlayCEAClient {
     private apiUrl: string;
     private maxRetries: number;
     private retryDelayMs: number;
 
+    /**
+     * Creates a new PlayCEA API client
+     * @param apiUrl - Base URL for the PlayCEA API (defaults to production endpoint)
+     * @param maxRetries - Maximum number of retry attempts for failed requests
+     * @param retryDelayMs - Base delay between retry attempts in milliseconds
+     * @throws Will throw an error if the URL is invalid
+     */
     constructor(
         apiUrl: string = API_URL, 
         maxRetries: number = 3, 
         retryDelayMs: number = 500
     ) {
+        // Ensure URL ends with trailing slash
         this.apiUrl = apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`;
         this.maxRetries = maxRetries;
         this.retryDelayMs = retryDelayMs;
     }
 
-    /**
-     * Generic function for retrying API requests
-     * @param url - The URL to fetch
-     * @param options - Fetch options
-     * @returns A promise that resolves to the fetch Response
-     * @throws Will throw an error if the fetch fails after all retry attempts
-     */
-    private async retryFetch(url: string, options?: RequestInit): Promise<Response> {
-        let lastError: Error | null = null;
-        
-        // Add User-Agent header to options
-        const fetchOptions: RequestInit = {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'User-Agent': 'Play CEA Stats Collector'
-            }
-        };
-        
-        // Try the request up to maxRetries times
-        for (let attempt = 0; attempt < this.maxRetries; attempt++) {
-            try {
-                // If this isn't the first attempt, log that we're retrying
-                if (attempt > 0) {
-                    console.log(`Retry attempt ${attempt} of ${this.maxRetries} for URL ${url}...`);
-                }
-                
-                const response = await fetch(url, fetchOptions);
-
-                // Check if response was successful
-                if (!response.ok) {
-                    // Handle specific status codes differently
-                    let delayMs = -1; // Default to no delay, but will be overridden based on status code
-                    if (response.status === 504) { // Gateway Timeout
-                        
-                        delayMs = 200; // 200ms delay
-                    } 
-                    else if (response.status === 429) { // Too Many Requests
-                        delayMs = 500; // 500ms delay
-                    }
-
-                    if(delayMs > 0 && attempt < this.maxRetries - 1) {
-                        await new Promise(resolve => setTimeout(resolve, delayMs));
-                        continue; // Retry after delay
-                    }
-
-                    // For all other error status codes, return the response and let the caller handle it
-                    // This includes 502, 503 and other errors
-                    return response;
-                }
-                
-                // If we get here, the response was successful
-                return response;
-                
-            } catch (error: any) {
-                lastError = error;
-                
-                // Only retry on network errors
-                const isNetworkError = error.message.includes('network') || 
-                                      error.message.includes('failed to fetch');
-                
-                if (isNetworkError) {
-                    // If we have more retries left, wait and then continue to the next attempt
-                    console.log(`Network error encountered, retrying in ${this.retryDelayMs}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, this.retryDelayMs));
-                    continue;
-                } else {
-                    // For other types of errors, don't retry
-                    break;
-                }
-            }
-        }
-        
-        // If we get here, all retry attempts failed
-        console.error(`Request failed after ${this.maxRetries} attempts:`);
-        throw lastError || new Error('Request failed with unknown error');
-    }
+    // ------------------------------------------------
+    // Public Methods
+    // ------------------------------------------------
 
     /**
-     * Maps API response tournament data to client-friendly Tournament objects
-     * @param apiTournament - Tournament data from the API
-     * @returns A transformed Tournament object with clear field names
-     */
-    private mapApiTournamentToTournament(apiTournament: ApiResponse.Tournament): Tournament {
-        return {
-            teams: apiTournament.ts.map(team => ({
-                isActive: team.a,
-                teamId: team.tid
-            })),
-            tournamentId: apiTournament.tmid,
-            bracketStages: apiTournament.bs.map(stage => ({
-                bracketId: stage.bid,
-                name: stage.name
-            })),
-            metadata: apiTournament.meta,
-            subBracket: {
-                regular: apiTournament.sbkt.reg,
-                playoff: apiTournament.sbkt.po
-            },
-            seasonInfo: {
-                league: apiTournament.sn.l,
-                year: apiTournament.sn.y,
-                season: apiTournament.sn.s
-            },
-            game: {
-                id: apiTournament.game.id,
-                name: apiTournament.game.name,
-                iconUrl: apiTournament.game.ico,
-                backgroundUrl: apiTournament.game.bg,
-                rulebookUrl: apiTournament.game.rb
-            },
-            isLive: apiTournament.live,
-            name: apiTournament.name,
-            isCurrent: apiTournament.current,
-            message: apiTournament.msg
-        };
-    }
-
-    /**
-     * Fetches all tournaments from the API.
+     * Fetches all tournaments from the API
      * @returns A promise that resolves to a TournamentsResponse containing transformed Tournament objects
-     * @throws Will throw an error if the fetch fails or the response is not ok.
+     * @throws Will throw an error if the fetch fails or the response is not ok
      */
     async getTournaments(): Promise<TournamentsResponse> {
         try {
@@ -375,33 +271,6 @@ class PlayCEAClient {
     }
 
     /**
-     * Maps API response bracket data to client-friendly BracketData objects
-     * @param apiBracket - Bracket data from the API
-     * @returns A transformed BracketData object with clear field names
-     */
-    private mapApiBracketToBracketData(apiBracket: ApiResponse.BracketData): BracketData {
-        return {
-            name: apiBracket.name,
-            bracketId: apiBracket.bid,
-            matches: apiBracket.matches.map(match => ({
-                matchId: match.mId,
-                round: match.rnd,
-                position: match.pos,
-                player1Score: match.p1s,
-                player2Score: match.p2s,
-                scheduledTime: match.schT,
-                player1Id: match.p1,
-                player2Id: match.p2,
-                winnerId: match.win,
-                loserId: match.los,
-                player1Name: match.p1n,
-                player2Name: match.p2n,
-                completed: match.cmplt
-            }))
-        };
-    }
-
-    /**
      * Fetches bracket data for a specific tournament
      * @param tournamentId - The ID of the tournament to fetch brackets for
      * @returns A promise that resolves to a BracketsResponse containing transformed BracketData objects
@@ -438,8 +307,240 @@ class PlayCEAClient {
             throw error;
         }
     }
+
+    // ------------------------------------------------
+    // Private Helper Methods
+    // ------------------------------------------------
+
+    /**
+     * Generic function for retrying API requests
+     * @param url - The URL to fetch
+     * @param options - Fetch options
+     * @returns A promise that resolves to the fetch Response
+     * @throws Will throw an error if the fetch fails after all retry attempts
+     */
+    private async retryFetch(url: string, options?: RequestInit): Promise<Response> {
+        let lastError: Error | null = null;
+        
+        // Add User-Agent header to options
+        const fetchOptions: RequestInit = {
+            ...options,
+            headers: {
+                ...options?.headers,
+                'User-Agent': 'Play CEA Stats Collector'
+            }
+        };
+        
+        // Try the request up to maxRetries times
+        for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+            try {
+                // If this isn't the first attempt, log that we're retrying
+                if (attempt > 0) {
+                    console.log(`Retry attempt ${attempt} of ${this.maxRetries} for URL ${url}...`);
+                }
+                
+                const response = await fetch(url, fetchOptions);
+
+                // Check if response was successful
+                if (!response.ok) {
+                    // Handle specific status codes differently
+                    if (response.status === 504) { // Gateway Timeout
+                        console.log('Gateway Timeout detected, retrying with short delay...');
+                        if (attempt < this.maxRetries - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay
+                            continue;
+                        }
+                    } 
+                    else if (response.status === 429) { // Too Many Requests
+                        console.log('Rate limit reached, retrying after longer delay...');
+                        if (attempt < this.maxRetries - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+                            continue;
+                        }
+                    }
+                    // For all other error status codes, return the response and let the caller handle it
+                    // This includes 502, 503 and other errors
+                    return response;
+                }
+                
+                // If we get here, the response was successful
+                return response;
+                
+            } catch (error: any) {
+                lastError = error;
+                
+                // Only retry on network errors
+                const isNetworkError = error.message.includes('network') || 
+                                      error.message.includes('failed to fetch');
+                
+                if (isNetworkError) {
+                    // If we have more retries left, wait and then continue to the next attempt
+                    console.log(`Network error encountered, retrying in ${this.retryDelayMs}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, this.retryDelayMs));
+                    continue;
+                } else {
+                    // For other types of errors, don't retry
+                    break;
+                }
+            }
+        }
+        
+        // If we get here, all retry attempts failed
+        console.error(`Request failed after ${this.maxRetries} attempts:`);
+        throw lastError || new Error('Request failed with unknown error');
+    }
+
+    /**
+     * Maps API response tournament data to client-friendly Tournament objects
+     * @param apiTournament - Tournament data from the API
+     * @returns A transformed Tournament object with clear field names
+     */
+    private mapApiTournamentToTournament(apiTournament: ApiResponse.Tournament): Tournament {
+        return {
+            teams: apiTournament.ts.map(team => ({
+                isActive: team.a,
+                teamId: team.tid
+            })),
+            tournamentId: apiTournament.tmid,
+            bracketStages: apiTournament.bs.map(stage => ({
+                bracketId: stage.bid,
+                name: stage.name
+            })),
+            metadata: apiTournament.meta,
+            subBracket: {
+                regular: apiTournament.sbkt.reg,
+                playoff: apiTournament.sbkt.po
+            },
+            seasonInfo: {
+                league: apiTournament.sn.l,
+                year: apiTournament.sn.y,
+                season: apiTournament.sn.s
+            },
+            game: {
+                id: apiTournament.game.id,
+                name: apiTournament.game.name,
+                iconUrl: apiTournament.game.ico,
+                backgroundUrl: apiTournament.game.bg,
+                rulebookUrl: apiTournament.game.rb
+            },
+            isLive: apiTournament.live,
+            name: apiTournament.name,
+            isCurrent: apiTournament.current,
+            message: apiTournament.msg
+        };
+    }
+
+    /**
+     * Maps API response bracket data to client-friendly BracketData objects
+     * @param apiBracket - Bracket data from the API
+     * @returns A transformed BracketData object with clear field names
+     */
+    private mapApiBracketToBracketData(apiBracket: ApiResponse.BracketData): BracketData {
+        return {
+            name: apiBracket.name,
+            bracketId: apiBracket.bid,
+            matches: apiBracket.matches.map(match => ({
+                matchId: match.mId,
+                round: match.rnd,
+                position: match.pos,
+                player1Score: match.p1s,
+                player2Score: match.p2s,
+                scheduledTime: match.schT,
+                player1Id: match.p1,
+                player2Id: match.p2,
+                winnerId: match.win,
+                loserId: match.los,
+                player1Name: match.p1n,
+                player2Name: match.p2n,
+                completed: match.cmplt
+            }))
+        };
+    }
 }
 
 // Export the client and types for use in other modules
 export { PlayCEAClient };
 
+// ================================================
+// API Response Types
+// ================================================
+
+/**
+ * Priavte Namespace containing raw API response types with abbreviated field names
+ */
+namespace ApiResponse {
+    export interface TeamIdentifier {
+        a: boolean;        // active
+        tid: string;       // teamId
+    }
+
+    export interface BracketStage {
+        bid: string;       // bracketId
+        name: string;
+    }
+
+    export interface SeasonName {
+        l: string;         // league (e.g., "CORPORATE", "COLLEGIATE")
+        y: string;         // year (e.g., "2022")
+        s: string;         // season (e.g., "FALL", "SPRING")
+    }
+
+    export interface GameInfo {
+        id: string;        // e.g., "rl", "lol", "chess"
+        name: string;      // e.g., "Rocket League", "League of Legends"
+        ico: string;       // icon URL
+        bg: string;        // background image URL
+        rb: string;        // rulebook URL
+    }
+
+    export interface SubBracket {
+        reg: string;       // regular
+        po: string;        // playoff
+    }
+
+    export interface Tournament {
+        ts: TeamIdentifier[];  // teams
+        tmid: string;          // tournamentId
+        bs: BracketStage[];    // bracketStages
+        meta: Record<string, unknown>; // metadata
+        sbkt: SubBracket;      // subBracket
+        sn: SeasonName;        // seasonName
+        game: GameInfo;
+        live: boolean;
+        name: string;
+        current: boolean;
+        msg?: string;          // message (optional)
+    }
+
+    export interface TournamentsApiResponse {
+        message: string;
+        data: Tournament[];
+    }
+
+    export interface BracketMatch {
+        mId: string;       // matchId
+        rnd: number;       // round
+        pos: number;       // position
+        p1s: number;       // player1Score
+        p2s: number;       // player2Score
+        schT: string;      // scheduledTime (ISO date string)
+        p1?: string;       // player1Id (optional)
+        p2?: string;       // player2Id (optional)
+        win?: string;      // winnerId (optional)
+        los?: string;      // loserId (optional)
+        p1n?: string;      // player1Name (optional)
+        p2n?: string;      // player2Name (optional)
+        cmplt?: boolean;   // completed (optional)
+    }
+
+    export interface BracketData {
+        name: string;
+        matches: BracketMatch[];
+        bid: string;       // bracketId
+    }
+
+    export interface BracketsApiResponse {
+        message: string;
+        data: BracketData[];
+    }
+}

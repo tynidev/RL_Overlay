@@ -205,13 +205,23 @@ class PlayCEAClient {
 
                 // Check if response was successful
                 if (!response.ok) {
-                    // If we get a 502, 503, or 504 (common gateway/server errors), throw error to trigger retry
-                    if ([502, 503, 504].includes(response.status)) {
-                        throw new Error(`API request failed with status ${response.status}: ${response.statusText} (Server Error)`);
+                    // Handle specific status codes differently
+                    let delayMs = -1; // Default to no delay, but will be overridden based on status code
+                    if (response.status === 504) { // Gateway Timeout
+                        
+                        delayMs = 200; // 200ms delay
+                    } 
+                    else if (response.status === 429) { // Too Many Requests
+                        delayMs = 500; // 500ms delay
                     }
-                    
-                    // For other error status codes, return the response and let the caller handle it
-                    // This prevents retrying for client errors like 400, 401, 404, etc.
+
+                    if(delayMs > 0 && attempt < this.maxRetries - 1) {
+                        await new Promise(resolve => setTimeout(resolve, delayMs));
+                        continue; // Retry after delay
+                    }
+
+                    // For all other error status codes, return the response and let the caller handle it
+                    // This includes 502, 503 and other errors
                     return response;
                 }
                 
@@ -221,18 +231,15 @@ class PlayCEAClient {
             } catch (error: any) {
                 lastError = error;
                 
-                // Only retry on network errors or specific server errors
+                // Only retry on network errors
                 const isNetworkError = error.message.includes('network') || 
                                       error.message.includes('failed to fetch');
-                const isServerError = error.message.includes('Server Error');
                 
-                if (isNetworkError || isServerError) {
+                if (isNetworkError) {
                     // If we have more retries left, wait and then continue to the next attempt
-                    if (attempt < this.maxRetries - 1) {
-                        console.log(`API error encountered, retrying in ${this.retryDelayMs}ms...`);
-                        await new Promise(resolve => setTimeout(resolve, this.retryDelayMs));
-                        continue;
-                    }
+                    console.log(`Network error encountered, retrying in ${this.retryDelayMs}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, this.retryDelayMs));
+                    continue;
                 } else {
                     // For other types of errors, don't retry
                     break;

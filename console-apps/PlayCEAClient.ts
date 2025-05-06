@@ -177,6 +177,35 @@ export interface BracketRound {
     matches: Match[];
     teamFormats: number[];
     complete: boolean;
+    xvxList?: number[];  // List of team sizes for each game (e.g., [3,3,3,3,3] for 3v3)
+}
+
+/**
+ * Represents a match game with details about teams and game format
+ */
+export interface MatchGame {
+    gameId: string;
+    teams: any[];
+    format: number;  // Typically represents team size (e.g., 3v3)
+}
+
+/**
+ * Complete match information with all details
+ */
+export interface MatchResponse {
+    message: string;
+    matchId: string;
+    createdTimestamp: string;
+    updatedTimestamp: string;
+    teams: BracketTeam[];
+    matchNumber: number;
+    aceEnabled: number;
+    roundId: string | number;
+    metadata: Record<string, unknown>;
+    bracketId: string;
+    game: string;
+    games: MatchGame[];
+    roundIndex?: number;
 }
 
 /**
@@ -377,8 +406,8 @@ class PlayCEAClient {
                 updatedTimestamp: bracketData.uts,
                 tournamentId: bracketData.tmid,
                 metadata: bracketData.meta || {},
-                teams: bracketData.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)),
-                rounds: bracketData.rds ? bracketData.rds.map(round => this.mapApiRoundToBracketRound(round)) : [],
+                teams: bracketData.ts ? bracketData.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)) : [],
+                rounds: bracketData.rounds ? bracketData.rounds.map(r => this.mapApiRoundToBracketRound(r)) : [],
                 name: bracketData.name,
                 game: bracketData.game
             };
@@ -387,6 +416,65 @@ class PlayCEAClient {
 
         } catch (error) {
             console.error(`Error fetching bracket with ID ${bracketId}:`, error);
+            // Re-throw the error so the caller can handle it
+            throw error;
+        }
+    }
+
+    /**
+     * Fetches match information for a specific match ID
+     * @param matchId - The ID of the match to retrieve
+     * @returns A promise that resolves to a MatchResponse containing transformed match data
+     * @throws Will throw an error if the fetch fails or the response is not ok
+     */
+    async getMatch(matchId: string): Promise<MatchResponse> {
+        try {
+            // Use the retryFetch method to get match data using the matchId
+            const response = await this.retryFetch(`${this.apiUrl}matches/${matchId}`);
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+            }
+
+            // Parse the JSON response as the raw API response type
+            const apiResponse: ApiResponse.MatchApiResponse = await response.json();
+
+            // Validate the response format
+            if (!apiResponse || typeof apiResponse !== 'object' || apiResponse.data === undefined) {
+                throw new Error('Invalid API response format: Expected an object with a "data" array.');
+            }
+            
+            const matchData = apiResponse.data;
+
+            if (!matchData) {
+                throw new Error(`No match found with ID: ${matchId}`);
+            }
+
+            // Transform API response to client-friendly format
+            const transformedResponse: MatchResponse = {
+                message: apiResponse.message,
+                matchId: matchId,
+                createdTimestamp: matchData.cts,
+                updatedTimestamp: matchData.uts,
+                teams: matchData.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)),
+                matchNumber: matchData.mn,
+                aceEnabled: matchData.ace,
+                roundId: matchData.rnd,
+                roundIndex: matchData.rnd,
+                metadata: matchData.meta || {},
+                bracketId: matchData.bid,
+                game: matchData.game,
+                games: matchData.gs.map(game => ({
+                    gameId: game.gid,
+                    teams: game.ts || [],
+                    format: game.xvx
+                }))
+            };
+
+            return transformedResponse;
+
+        } catch (error) {
+            console.error(`Error fetching match with ID ${matchId}:`, error);
             // Re-throw the error so the caller can handle it
             throw error;
         }
@@ -540,43 +628,44 @@ class PlayCEAClient {
     private mapApiRoundToBracketRound(apiRound: ApiResponse.Round): BracketRound {
         return {
             aceEnabled: apiRound.ace,
-            gameCount: apiRound.gc,
-            teams: apiRound.ts.map(team => ({
+            gameCount: apiRound.gameCount,
+            teams: Array.isArray(apiRound.teams) ? apiRound.teams.map(team => ({
                 teamId: team.tid,
-                position: team.p
-            })),
-            scores: apiRound.scs.map(score => ({
+                position: undefined
+            })) : [],
+            scores: Array.isArray(apiRound.scores) ? apiRound.scores.map(score => ({
                 matchId: score.mid,
-                scores: score.scs,
-                roundIndex: score.ri,
-                teams: score.ts.map(team => ({
+                scores: score.scores || {},
+                roundIndex: score.ridx,
+                teams: Array.isArray(score.ts) ? score.ts.map(team => ({
                     position: team.p,
                     teamId: team.tid
-                }))
-            })),
-            format: apiRound.fmt,
-            roundName: apiRound.rn,
+                })) : []
+            })) : [],
+            format: apiRound.format,
+            roundName: apiRound.roundName,
             roundId: apiRound.rid,
             bracketId: apiRound.bid,
-            matches: apiRound.mts.map(match => ({
+            matches: Array.isArray(apiRound.matches) ? apiRound.matches.map(match => ({
                 matchId: match.mid,
                 createdTimestamp: match.cts,
                 updatedTimestamp: match.uts,
-                teams: match.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)),
+                teams: Array.isArray(match.ts) ? match.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)) : [],
                 matchNumber: match.mn,
                 aceEnabled: match.ace,
-                roundId: match.rid,
-                metadata: match.meta,
+                roundId: match.rnd,
+                metadata: match.meta || {},
                 bracketId: match.bid,
-                game: match.g,
-                games: match.gs.map(game => ({
+                game: match.game,
+                games: Array.isArray(match.gs) ? match.gs.map(game => ({
                     gameId: game.gid,
-                    teams: game.ts,
-                    format: game.fmt
-                }))
-            })),
-            teamFormats: apiRound.tf,
-            complete: apiRound.c
+                    teams: Array.isArray(game.ts) ? game.ts : [],
+                    format: game.xvx
+                })) : []
+            })) : [],
+            teamFormats: Array.isArray(apiRound.tf) ? apiRound.tf : [],
+            complete: apiRound.c,
+            xvxList: apiRound.xvxList
         };
     }
 }
@@ -665,10 +754,34 @@ namespace ApiResponse {
             ts: BracketTeamData[]; // teams
             tmid: string;  // tournamentId
             meta: Record<string, unknown>; // metadata
-            rds: Round[];  // rounds
+            rounds: Round[];  // rounds
             name: string;
             game: string;
         }[];
+    }
+
+    /**
+     * Raw API response for match information
+     */
+    export interface MatchApiResponse {
+        message: string;
+        data: {
+            mid: string;    // matchId
+            cts: string;    // createdTimestamp
+            uts: string;    // updatedTimestamp
+            ts: BracketTeamData[]; // teams
+            mn: number;     // matchNumber
+            ace: number;    // aceEnabled
+            rnd: number;    // roundIndex
+            meta: Record<string, unknown>; // metadata
+            bid: string;    // bracketId
+            game: string;   // game
+            gs: {
+                gid: string; // gameId
+                ts: any[];   // teams
+                xvx: number; // format
+            }[];
+        };
     }
 
     /**
@@ -676,43 +789,43 @@ namespace ApiResponse {
      */
     export interface Round {
         ace: number;       // aceEnabled
-        gc: number;        // gameCount
-        ts: {
+        gameCount: number;        // gameCount
+        teams: {
             tid: string;   // teamId
-            p?: number;    // position
         }[];
-        scs: {
+        scores: {
             mid: string;   // matchId
-            scs: Record<string, TeamScore>; // scores
-            ri: string;    // roundIndex
+            scores: Record<string, TeamScore>; // scores
+            ridx: string;    // roundIndex
             ts: {
                 p: number; // position
                 tid: string; // teamId
             }[];
         }[];
-        fmt: string;       // format
-        rn: string;        // roundName
+        format: string;       // format
+        roundName: string;        // roundName
         rid: string;       // roundId
         bid: string;       // bracketId
-        mts: {
-            mid: string;   // matchId
-            cts: string;   // createdTimestamp
-            uts: string;   // updatedTimestamp
+        matches: {
+            mid: string;    // matchId
+            cts: string;    // createdTimestamp
+            uts: string;    // updatedTimestamp
             ts: BracketTeamData[]; // teams
-            mn: number;    // matchNumber
-            ace: number;   // aceEnabled
-            rid: string | number; // roundId
+            mn: number;     // matchNumber
+            ace: number;    // aceEnabled
+            rnd: number;    // roundIndex
             meta: Record<string, unknown>; // metadata
-            bid: string;   // bracketId
-            g: string;     // game
+            bid: string;    // bracketId
+            game: string;   // game
             gs: {
                 gid: string; // gameId
                 ts: any[];   // teams
-                fmt: number; // format
+                xvx: number; // format
             }[];
         }[];
         tf: number[];      // teamFormats
         c: boolean;        // complete
+        xvxList?: number[];  // List of team sizes for each game (e.g., [3,3,3,3,3] for 3v3)
     }
 
     /**

@@ -1,7 +1,18 @@
 // filepath: c:\Users\Tyler.TYLERS-PC\source\repos\RL_Overlay\console-apps\displayTournaments.ts
 
-import { PlayCEAClient, Tournament, Season } from './PlayCEAClient.js';
+import { PlayCEAClient, Tournament, Season, Match } from './PlayCEAClient.js';
 import * as readline from 'readline';
+
+/**
+ * Interface for match items in the allMatches array
+ */
+interface MatchItem {
+    index: number;
+    matchId: string;
+    roundIndex: number;
+    matchIndex: number;
+    match: Match;
+}
 
 /**
  * Creates a readline interface for user input/output
@@ -88,7 +99,7 @@ async function examineMatchingTournaments(
                         console.log(`\nFetching details for bracket: ${selectedBracket.name}`);
                         
                         try {
-                            // Get the bracket details using the new getBracket method
+                            // Get the bracket details using the getBracket method
                             const bracketData = await client.getBracket(selectedBracket.bracketId);
                             
                             console.log(`\n==== ${bracketData.name} Bracket Details ====`);
@@ -105,6 +116,9 @@ async function examineMatchingTournaments(
                                 console.log(`${idx + 1}. ${team.displayName} (${team.organization}) - Rank: ${team.rank || 'N/A'}`);
                             });
                             
+                            // Create an array to store all match IDs for easy selection
+                            const allMatches: MatchItem[] = [];
+                            
                             // Display rounds
                             console.log(`\nRounds (${bracketData.rounds.length}):`);
                             bracketData.rounds.forEach((round, roundIdx) => {
@@ -113,17 +127,74 @@ async function examineMatchingTournaments(
                                 // Display matches in each round
                                 console.log(`Matches (${round.matches.length}):`);
                                 round.matches.forEach((match, matchIdx) => {
+                                    // Add match to allMatches array with additional reference info
+                                    allMatches.push({
+                                        index: allMatches.length + 1,
+                                        matchId: match.matchId,
+                                        roundIndex: roundIdx + 1,
+                                        matchIndex: matchIdx + 1,
+                                        match: match
+                                    });
+                                    
                                     if (match.teams.length >= 2) {
                                         const team1 = match.teams[0];
                                         const team2 = match.teams[1];
                                         console.log(
-                                            `  ${matchIdx + 1}. ${team1.displayName} ${team1.score || 0} vs ${team2.score || 0} ${team2.displayName}`
+                                            `  ${allMatches.length}. ${team1.displayName} ${team1.score || 0} vs ${team2.score || 0} ${team2.displayName} (Match ID: ${match.matchId})`
                                         );
                                     } else {
-                                        console.log(`  ${matchIdx + 1}. Match #${match.matchNumber} (Teams not set)`);
+                                        console.log(`  ${allMatches.length}. Match #${match.matchNumber} (Teams not set) (Match ID: ${match.matchId})`);
                                     }
                                 });
                             });
+                            
+                            // Prompt user to select a match to view details
+                            if (allMatches.length > 0) {
+                                const matchResponse = await askQuestion(
+                                    rl,
+                                    `\nEnter the number of the match to view details (1-${allMatches.length}) or 0 to exit: `
+                                );
+                                
+                                const matchSelection = parseInt(matchResponse);
+                                
+                                if (matchSelection > 0 && matchSelection <= allMatches.length) {
+                                    const selectedMatch = allMatches[matchSelection - 1];
+                                    console.log(`\nFetching details for match: ${selectedMatch.matchId} (Round ${selectedMatch.roundIndex}, Match ${selectedMatch.matchIndex})`);
+                                    
+                                    try {
+                                        // Get the match details using the getMatch method
+                                        const matchData = await client.getMatch(selectedMatch.matchId);
+                                        
+                                        // Display detailed match information
+                                        console.log(`\n==== Match Details ====`);
+                                        console.log(`Match ID: ${matchData.matchId}`);
+                                        console.log(`Round ID: ${matchData.roundId}`);
+                                        console.log(`Bracket ID: ${matchData.bracketId}`);
+                                        console.log(`Match Number: ${matchData.matchNumber}`);
+                                        console.log(`Created: ${new Date(matchData.createdTimestamp).toLocaleString()}`);
+                                        console.log(`Last Updated: ${new Date(matchData.updatedTimestamp).toLocaleString()}`);
+                                        
+                                        console.log(`\nTeams:`);
+                                        matchData.teams.forEach((team, idx) => {
+                                            console.log(`  ${idx + 1}. ${team.displayName} (${team.organization})`);
+                                            console.log(`     Score: ${team.score || 0}`);
+                                        });
+                                        
+                                        console.log(`\nGames (${matchData.games.length}):`);
+                                        matchData.games.forEach((game, idx) => {
+                                            console.log(`  Game ${idx + 1} - ID: ${game.gameId}`);
+                                            console.log(`     Format: ${game.format}v${game.format}`);
+                                        });
+                                        
+                                    } catch (error) {
+                                        console.error(`Error fetching match data: ${error}`);
+                                    }
+                                } else {
+                                    console.log('No match selected or invalid selection.');
+                                }
+                            } else {
+                                console.log('\nNo matches available in this bracket.');
+                            }
                             
                         } catch (error) {
                             console.error(`Error fetching bracket data: ${error}`);

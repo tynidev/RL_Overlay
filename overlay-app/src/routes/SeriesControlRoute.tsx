@@ -6,15 +6,25 @@ import '../css/SeriesControl.css';
 import { Callback } from '../util/utils';
 import { PlayCEAClient, Tournament, Bracket, Team } from 'playcea-api';
 
+// Cache interface for storing API responses
+interface ApiCache {
+  tournaments: { [key: string]: Tournament[] };
+  brackets: { [key: string]: Bracket };
+  teams: { [key: string]: Team };
+  matches: { [key: string]: any }; // Using any here for simplicity
+}
+
 // Define interfaces for modal state management
 interface ModalState {
   isOpen: boolean;
-  step: 'tournament' | 'bracket' | 'match';
+  step: 'tournament' | 'bracket' | 'round' | 'match'; // Added 'round' step
   tournaments: Tournament[];
   selectedTournament: Tournament | null;
   brackets: { bracketId: string, name: string }[];
   selectedBracket: { bracketId: string, name: string } | null;
   bracketData: Bracket | null;
+  rounds: { roundName: string, matches: any[] }[]; // Add rounds array
+  selectedRound: string | null; // Add selected round
   matches: { matchId: string, teamNames: string[], roundName: string }[];
   loading: boolean;
   error: string | null;
@@ -44,6 +54,13 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   private _isMounted: boolean = false;
   // Create an instance of the PlayCEA client
   private ceaClient = new PlayCEAClient();
+  // Create API cache
+  private apiCache: ApiCache = {
+    tournaments: {},
+    brackets: {},
+    teams: {},
+    matches: {}
+  };
   
   constructor(props: SeriesControlRouteProps) {
     super(props);
@@ -65,6 +82,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         brackets: [],
         selectedBracket: null,
         bracketData: null,
+        rounds: [], // Initialize rounds
+        selectedRound: null, // Initialize selected round
         matches: [],
         loading: false,
         error: null
@@ -82,8 +101,41 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     
     // Set initial dimensions
     this.handleResize();
+
+    // Pre-load tournaments in the background
+    this.preloadTournaments();
   }
   
+  // Pre-load tournaments to cache them for later use
+  preloadTournaments = async () => {
+    try {
+      console.log('Preloading tournaments at startup...');
+      // Get the current year
+      const currentYear = new Date().getFullYear().toString();
+      
+      // Search for current Rocket League tournaments using cached method
+      const tournaments = await this.cachedSearchTournaments(
+        /Rocket/i, 
+        { year: currentYear },
+        "Rocket League"
+      );
+
+      // Filter to only include current and live tournaments
+      const liveCurrentTournaments = tournaments.filter(t => t.isLive && t.isCurrent);
+      
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          tournaments: liveCurrentTournaments
+        }
+      });
+      console.log(`Cached ${liveCurrentTournaments.length} tournaments for later use`);
+    } catch (error) {
+      console.error('Error preloading tournaments:', error);
+      // Don't update state if preloading fails, we'll try again when modal opens
+    }
+  };
+
   componentDidUpdate(prevProps: SeriesControlRouteProps) {
     console.log('SeriesControlRoute componentDidUpdate called');
     
@@ -341,62 +393,74 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         <div className="team-header">
           <h2>{team.name}</h2>
         </div>
-        <div className="team-form-group">
-          <label>TEAM NAME:</label>
-          <input
-            type="text"
-            value={team.name}
-            onChange={(e) => this.updateTeam(teamIndex, 'name', e.target.value)}
-            className="team-input"
-          />
-        </div>
-        <div className="team-form-group">
-          <label>MATCHES WON:</label>
-          <div className="matches-control">
-            <input
-              type="number"
-              min="0"
-              max={maxAllowedWins}
-              value={team.matches_won}
-              onChange={(e) => this.updateTeam(teamIndex, 'matches_won', parseInt(e.target.value) || 0)}
-              className="team-input"
-            />
-            <div className="match-buttons">
-              <button 
-                onClick={() => this.updateTeam(teamIndex, 'matches_won', team.matches_won + 1)}
-                disabled={team.matches_won >= maxAllowedWins}
-                className="match-btn"
-              >
-                +1
-              </button>
-              <button 
-                onClick={() => this.updateTeam(teamIndex, 'matches_won', Math.max(0, team.matches_won - 1))}
-                disabled={team.matches_won <= 0}
-                className="match-btn"
-              >
-                -1
-              </button>
+        
+        <div className="team-content">
+          {/* Left side - Logo */}
+          <div className="team-logo-section">
+            {team.logo ? (
+              <img 
+                src={team.logo} 
+                alt={`${team.name} logo`} 
+                className="team-logo" 
+              />
+            ) : (
+              <div className="team-logo-placeholder">NO LOGO</div>
+            )}
+          </div>
+          
+          {/* Right side - Team details */}
+          <div className="team-details-section">
+            <div className="team-form-group">
+              <label>TEAM NAME:</label>
+              <input
+                type="text"
+                value={team.name}
+                onChange={(e) => this.updateTeam(teamIndex, 'name', e.target.value)}
+                className="team-input"
+              />
+            </div>
+            
+            <div className="team-form-group">
+              <label>MATCHES WON:</label>
+              <div className="matches-control">
+                <input
+                  type="number"
+                  min="0"
+                  max={maxAllowedWins}
+                  value={team.matches_won}
+                  onChange={(e) => this.updateTeam(teamIndex, 'matches_won', parseInt(e.target.value) || 0)}
+                  className="team-input"
+                />
+                <div className="match-buttons">
+                  <button 
+                    onClick={() => this.updateTeam(teamIndex, 'matches_won', team.matches_won + 1)}
+                    disabled={team.matches_won >= maxAllowedWins}
+                    className="match-btn"
+                  >
+                    +1
+                  </button>
+                  <button 
+                    onClick={() => this.updateTeam(teamIndex, 'matches_won', Math.max(0, team.matches_won - 1))}
+                    disabled={team.matches_won <= 0}
+                    className="match-btn"
+                  >
+                    -1
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="team-form-group">
+              <label>LOGO URL:</label>
+              <input
+                type="text"
+                placeholder="Logo URL"
+                value={team.logo || ""}
+                onChange={(e) => this.updateTeam(teamIndex, 'logo', e.target.value)}
+                className="logo-input"
+              />
             </div>
           </div>
-        </div>
-        <div className="team-logo-container">
-          <label>LOGO URL:</label>
-          <input
-            type="text"
-            placeholder="Logo URL"
-            value={team.logo || ""}
-            onChange={(e) => this.updateTeam(teamIndex, 'logo', e.target.value)}
-            className="logo-input"
-          />
-          {team.logo ? (
-            <img 
-              src={team.logo} 
-              alt={`${team.name} logo`} 
-              className="team-logo" 
-            />
-          ) : (
-            <div className="team-logo-placeholder">NO LOGO</div>
-          )}
         </div>
       </div>
     );
@@ -404,22 +468,30 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
 
   // New methods for CEA match modal functionality
   openCEAModal = async () => {
-    // Set modal state to loading while we fetch tournaments
+    // Set the modal to open state
     this.safeSetState({
       modal: {
         ...this.state.modal,
         isOpen: true,
-        loading: true,
+        // Don't set loading to true if we already have cached tournaments
+        loading: this.state.modal.tournaments.length === 0,
         error: null
       }
     });
 
+    // If we already have tournaments cached, we don't need to fetch them again
+    if (this.state.modal.tournaments.length > 0) {
+      console.log(`Using ${this.state.modal.tournaments.length} cached tournaments`);
+      return;
+    }
+
     try {
+      console.log('No cached tournaments found. Fetching tournaments...');
       // Get the current year
       const currentYear = new Date().getFullYear().toString();
       
-      // Search for current Rocket League tournaments
-      const tournaments = await this.ceaClient.searchTournaments(
+      // Search for current Rocket League tournaments using cached method
+      const tournaments = await this.cachedSearchTournaments(
         /Rocket/i, 
         { year: currentYear },
         "Rocket League"
@@ -473,45 +545,36 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
 
     try {
       // Load the bracket data to get rounds and matches
-      const bracketData = await this.ceaClient.getBracket(bracket.bracketId);
+      const bracketData = await this.cachedGetBracket(bracket.bracketId);
       
-      // Prepare matches data for display - flatten rounds and matches
-      const matchesList: { matchId: string, teamNames: string[], roundName: string }[] = [];
+      // Extract unique rounds and organize them
+      const roundsMap: { [key: string]: any[] } = {};
       
-      // Process each round in the bracket to extract matches with team names
+      // Process each round in the bracket
       for (const round of bracketData.rounds) {
         if (round.matches && round.matches.length > 0) {
-          for (const match of round.matches) {
-            // Only include matches with 2 teams (standard match)
-            if (match.teams && match.teams.length === 2) {
-              // Fetch team names synchronously
-              const teamNames = [];
-              for (const team of match.teams) {
-                try {
-                  const teamData = await this.ceaClient.getTeam(team.teamId);
-                  teamNames.push(teamData.displayName || 'Unknown Team');
-                } catch (e) {
-                  console.error(`Failed to fetch team ${team.teamId}:`, e);
-                  teamNames.push('Team Data Error');
-                }
-              }
-              
-              matchesList.push({
-                matchId: match.matchId,
-                teamNames: teamNames,
-                roundName: round.roundName
-              });
-            }
+          // Initialize round in map if it doesn't exist
+          if (!roundsMap[round.roundName]) {
+            roundsMap[round.roundName] = [];
           }
+          
+          // Add matches to this round
+          roundsMap[round.roundName].push(...round.matches);
         }
       }
+      
+      // Convert map to array for state
+      const roundsArray = Object.keys(roundsMap).map(roundName => ({
+        roundName,
+        matches: roundsMap[roundName]
+      }));
 
       this.safeSetState({
         modal: {
           ...this.state.modal,
           bracketData: bracketData,
-          matches: matchesList,
-          step: 'match',
+          rounds: roundsArray,
+          step: 'round', // Move to round selection step instead of directly to match
           loading: false
         }
       });
@@ -522,6 +585,71 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
           ...this.state.modal,
           loading: false,
           error: 'Failed to load bracket data. Please try again.'
+        }
+      });
+    }
+  };
+
+  // Handle round selection and load matches
+  selectRound = async (roundName: string) => {
+    this.safeSetState({
+      modal: {
+        ...this.state.modal,
+        selectedRound: roundName,
+        loading: true,
+        error: null
+      }
+    });
+
+    try {
+      const matchesForRound: { matchId: string, teamNames: string[], roundName: string }[] = [];
+      
+      // Find the selected round in our rounds array
+      const selectedRound = this.state.modal.rounds.find(r => r.roundName === roundName);
+      
+      if (!selectedRound) {
+        throw new Error('Selected round not found');
+      }
+      
+      // Process matches for this round
+      for (const match of selectedRound.matches) {
+        // Only include matches with 2 teams (standard match)
+        if (match.teams && match.teams.length === 2) {
+          // Fetch team names synchronously
+          const teamNames = [];
+          for (const team of match.teams) {
+            try {
+              const teamData = await this.cachedGetTeam(team.teamId);
+              teamNames.push(teamData.displayName || 'Unknown Team');
+            } catch (e) {
+              console.error(`Failed to fetch team ${team.teamId}:`, e);
+              teamNames.push('Team Data Error');
+            }
+          }
+          
+          matchesForRound.push({
+            matchId: match.matchId,
+            teamNames: teamNames,
+            roundName: roundName
+          });
+        }
+      }
+
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          matches: matchesForRound,
+          step: 'match',
+          loading: false
+        }
+      });
+    } catch (error) {
+      console.error('Error processing round data:', error);
+      this.safeSetState({
+        modal: {
+          ...this.state.modal,
+          loading: false,
+          error: 'Failed to load matches for this round. Please try again.'
         }
       });
     }
@@ -538,21 +666,40 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     });
 
     try {
-      // Get the match data to find team IDs
-      const matchData = await this.ceaClient.getMatch(matchId);
+      // Get the match data to find team IDs using cached method
+      const matchData = await this.cachedGetMatch(matchId);
       
       if (matchData.teams.length !== 2) {
         throw new Error('Expected 2 teams in the match');
       }
 
-      // Get detailed team info for both teams
-      const team1Data = await this.ceaClient.getTeam(matchData.teams[0].teamId);
-      const team2Data = await this.ceaClient.getTeam(matchData.teams[1].teamId);
+      // Get detailed team info for both teams using cached methods
+      const team1Data = await this.cachedGetTeam(matchData.teams[0].teamId);
+      const team2Data = await this.cachedGetTeam(matchData.teams[1].teamId);
 
-      // Update the series with team names, logos and round name
+      // Determine series length from number of games in the match
+      // CEA matches have a 'games' array that indicates the total number of games in the match
+      let seriesLength = this.state.series.length; // Default to current length
+      
+      if (matchData.games && Array.isArray(matchData.games)) {
+        // Set the series length to the number of games in the match
+        // Ensure it's an odd number for Best-of-X format (e.g., Bo3, Bo5, Bo7)
+        seriesLength = matchData.games.length;
+        if (seriesLength % 2 === 0) {
+          // If even, make it odd by adding 1
+          seriesLength += 1;
+        }
+        // Limit to reasonable range (1-9)
+        seriesLength = Math.max(1, Math.min(9, seriesLength));
+        
+        console.log(`Setting series length to ${seriesLength} based on ${matchData.games.length} games in the match`);
+      }
+
+      // Update the series with team names, logos, round name, and series length
       const updatedSeries = {
         ...this.state.series,
         series_txt: roundName, // Set series text to round name
+        length: seriesLength, // Set series length based on match games
         teams: [
           {
             ...this.state.series.teams[0],
@@ -601,6 +748,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         selectedTournament: null,
         selectedBracket: null,
         bracketData: null,
+        selectedRound: null, // Reset selected round
         error: null
       }
     });
@@ -610,7 +758,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   renderModal = () => {
     if (!this.state.modal.isOpen) return null;
 
-    const { step, tournaments, brackets, matches, loading, error } = this.state.modal;
+    const { step, tournaments, brackets, rounds, matches, loading, error } = this.state.modal;
 
     const modalStyle = {
       position: 'fixed',
@@ -667,6 +815,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
       switch (step) {
         case 'tournament': return 'Select Tournament';
         case 'bracket': return 'Select Bracket';
+        case 'round': return 'Select Round';
         case 'match': return 'Select Match';
         default: return 'CEA Match Selector';
       }
@@ -742,11 +891,46 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                 </div>
               )}
 
+              {step === 'round' && (
+                <div>
+                  <p>Select a round:</p>
+                  {rounds.length === 0 ? (
+                    <p>No rounds found in this bracket.</p>
+                  ) : (
+                    <div>
+                      {rounds.map((round, index) => (
+                        <div 
+                          key={round.roundName}
+                          style={listItemStyle}
+                          onClick={() => this.selectRound(round.roundName)}
+                        >
+                          {round.roundName}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => this.safeSetState({ 
+                      modal: { 
+                        ...this.state.modal, 
+                        step: 'bracket',
+                        selectedBracket: null,
+                        bracketData: null,
+                        rounds: []
+                      } 
+                    })}
+                    style={{ ...buttonStyle, backgroundColor: '#95a5a6' }}
+                  >
+                    Back
+                  </button>
+                </div>
+              )}
+
               {step === 'match' && (
                 <div>
                   <p>Select a match:</p>
                   {matches.length === 0 ? (
-                    <p>No matches found in this bracket.</p>
+                    <p>No matches found in this round.</p>
                   ) : (
                     <div>
                       {matches.map((match) => (
@@ -765,8 +949,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
                     onClick={() => this.safeSetState({ 
                       modal: { 
                         ...this.state.modal, 
-                        step: 'bracket',
-                        bracketData: null,
+                        step: 'round',
+                        selectedRound: null,
                         matches: [] 
                       } 
                     })}
@@ -781,6 +965,87 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         </div>
       </div>
     );
+  };
+
+  // Cache-enabled API methods
+  cachedSearchTournaments = async (
+    tournamentName?: RegExp, 
+    seasonInfo?: Partial<any>, 
+    gameName?: string
+  ): Promise<Tournament[]> => {
+    // Create a cache key based on the parameters
+    const yearStr = seasonInfo?.year || '';
+    const leagueStr = seasonInfo?.league || '';
+    const seasonStr = seasonInfo?.season || '';
+    const gameStr = gameName || '';
+    const regexStr = tournamentName ? tournamentName.toString() : '';
+    const cacheKey = `search:${regexStr}:${yearStr}:${leagueStr}:${seasonStr}:${gameStr}`;
+    
+    // Check if we have cached results for this query
+    if (this.apiCache.tournaments[cacheKey]) {
+      console.log(`Using cached tournaments for key: ${cacheKey}`);
+      return this.apiCache.tournaments[cacheKey];
+    }
+    
+    // If not in cache, make the API call
+    console.log(`Fetching tournaments for key: ${cacheKey}`);
+    const tournaments = await this.ceaClient.searchTournaments(tournamentName, seasonInfo, gameName);
+    
+    // Cache the results
+    this.apiCache.tournaments[cacheKey] = tournaments;
+    
+    return tournaments;
+  };
+  
+  cachedGetBracket = async (bracketId: string): Promise<Bracket> => {
+    // Check if we have cached results
+    if (this.apiCache.brackets[bracketId]) {
+      console.log(`Using cached bracket data for ID: ${bracketId}`);
+      return this.apiCache.brackets[bracketId];
+    }
+    
+    // If not in cache, make the API call
+    console.log(`Fetching bracket data for ID: ${bracketId}`);
+    const bracketData = await this.ceaClient.getBracket(bracketId);
+    
+    // Cache the results
+    this.apiCache.brackets[bracketId] = bracketData;
+    
+    return bracketData;
+  };
+  
+  cachedGetMatch = async (matchId: string): Promise<any> => {
+    // Check if we have cached results
+    if (this.apiCache.matches[matchId]) {
+      console.log(`Using cached match data for ID: ${matchId}`);
+      return this.apiCache.matches[matchId];
+    }
+    
+    // If not in cache, make the API call
+    console.log(`Fetching match data for ID: ${matchId}`);
+    const matchData = await this.ceaClient.getMatch(matchId);
+    
+    // Cache the results
+    this.apiCache.matches[matchId] = matchData;
+    
+    return matchData;
+  };
+  
+  cachedGetTeam = async (teamId: string): Promise<Team> => {
+    // Check if we have cached results
+    if (this.apiCache.teams[teamId]) {
+      console.log(`Using cached team data for ID: ${teamId}`);
+      return this.apiCache.teams[teamId];
+    }
+    
+    // If not in cache, make the API call
+    console.log(`Fetching team data for ID: ${teamId}`);
+    const teamData = await this.ceaClient.getTeam(teamId);
+    
+    // Cache the results
+    this.apiCache.teams[teamId] = teamData;
+    
+    return teamData;
   };
 
   render() {

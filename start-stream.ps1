@@ -4,14 +4,15 @@
 
 .DESCRIPTION
     This script prepares the environment for streaming Rocket League by:
-    - Ensuring BakkesMod is running
-    - Configuring Rocket League display settings (resolution and window mode)
-    - Launching Rocket League (from Epic Games or Steam)
-    - Starting required applications in Windows Terminal tabs:
+    - Ensuring BakkesMod is running.
+    - Configuring Rocket League display settings (resolution and window mode).
+    - Launching Rocket League (from Epic Games or Steam, based on user choice).
+    - Starting required background applications in Windows Terminal tabs:
       * SOS WebSocket Relay
       * Overlay Web Server
-      * Series Control application
-    - Launching OBS if not already running
+    - Waiting for the Overlay Web Server to become available.
+    - Opening the Control Room URL (http://localhost:3000/ctrl) in the default browser.
+    - Launching OBS Studio if it's not already running.
 
 .NOTES
     Requires ./install.ps1 to be run first to install/build necessary applications.

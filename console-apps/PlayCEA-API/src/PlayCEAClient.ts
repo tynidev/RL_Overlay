@@ -24,17 +24,44 @@
 /**
  * Represents a team participating in a tournament
  */
-export interface Team {
-    isActive: boolean;
+export interface TeamId {
     teamId: string;
 }
 
 /**
- * Represents a bracket stage in a tournament
+ * Represents a team member with their details
  */
-export interface Bracket {
-    bracketId: string;
-    name: string;
+export interface TeamMember {
+    uid: string;
+    displayName: string;
+    displayDiscordName: string;
+    iconUrl: string;
+    isCaptain: boolean;
+}
+
+/**
+ * Represents a detailed team with complete information
+ */
+export interface Team {
+    teamId: string;
+    displayName: string;
+    organization: string;
+    game: string;
+    iconUrl: string;
+    backgroundUrl: string;
+    metadata: Record<string, unknown>;
+    createdTimestamp: string;
+    updatedTimestamp: string;
+    members: TeamMember[];
+    captains: TeamMember[];
+    tournaments: {
+        tournamentId: string;
+    }[];
+    joinCodes?: string[];
+}
+
+export interface TournamentTeam extends TeamId {
+    isActive: boolean;
 }
 
 /**
@@ -58,48 +85,20 @@ export interface GameInfo {
 }
 
 /**
- * Contains information about sub-brackets (regular season and playoffs)
- */
-export interface SubBracketInfo {
-    regular: string;
-    playoff: string;
-}
-
-/**
  * Comprehensive tournament information
  */
 export interface Tournament {
-    teams: Team[];
-    tournamentId: string;
-    bracketStages: Bracket[];
-    metadata: Record<string, unknown>;
-    subBracket: SubBracketInfo;
-    seasonInfo: Season;
-    game: GameInfo;
-    isLive: boolean;
+    id: string;
     name: string;
+    game: GameInfo;
     isCurrent: boolean;
-    message?: string;
-}
-
-/**
- * Response containing a list of tournaments
- */
-export interface TournamentsResponse {
-    message: string;
-    tournaments: Tournament[];
-}
-
-/**
- * Represents a team in a tournament bracket with extended information
- */
-export interface BracketTeam extends Team {
-    rank?: number;
-    displayName: string;
-    organization: string;
-    iconUrl: string;
-    score?: number;
-    position?: number;
+    isLive: boolean;
+    seasonInfo: Season;
+    teams: TournamentTeam[];
+    brackets: {
+        bracketId: string;
+        name: string;
+    }[];
 }
 
 /**
@@ -118,7 +117,7 @@ export interface Match {
     matchId: string;
     createdTimestamp: string;
     updatedTimestamp: string;
-    teams: BracketTeam[];
+    teams: MatchTeam[];
     matchNumber: number;
     aceEnabled: number;
     roundId: string | number;
@@ -126,14 +125,6 @@ export interface Match {
     bracketId: string;
     game: string;
     games: GameMatch[];
-}
-
-/**
- * Represents a team in a round with minimal information
- */
-export interface RoundTeam {
-    teamId: string;
-    position?: number;
 }
 
 /**
@@ -147,6 +138,43 @@ export interface TeamScore {
     tiebreak: number;
     base: number;
     oppDiff: Record<string, unknown>;
+}
+
+/**
+ * Complete match information with all details
+ */
+export interface Match {
+    matchId: string;
+    createdTimestamp: string;
+    updatedTimestamp: string;
+    teams: MatchTeam[];
+    matchNumber: number;
+    aceEnabled: number;
+    roundId: string | number;
+    metadata: Record<string, unknown>;
+    bracketId: string;
+    game: string;
+    games: MatchGame[];
+    roundIndex?: number;
+    complete?: boolean;
+}
+
+/**
+ * Represents a team in a tournament bracket with extended information
+ */
+export interface MatchTeam extends TeamId {
+    rank?: number;
+    score?: number;
+    position?: number;
+}
+
+/**
+ * Represents a match game with details about teams and game format
+ */
+export interface MatchGame {
+    gameId: string;
+    teams: any[];
+    format: number;  // Typically represents team size (e.g., 3v3)
 }
 
 /**
@@ -181,47 +209,36 @@ export interface BracketRound {
 }
 
 /**
- * Represents a match game with details about teams and game format
+ * Represents a team in a round with minimal information
  */
-export interface MatchGame {
-    gameId: string;
-    teams: any[];
-    format: number;  // Typically represents team size (e.g., 3v3)
-}
-
-/**
- * Complete match information with all details
- */
-export interface MatchResponse {
-    message: string;
-    matchId: string;
-    createdTimestamp: string;
-    updatedTimestamp: string;
-    teams: BracketTeam[];
-    matchNumber: number;
-    aceEnabled: number;
-    roundId: string | number;
-    metadata: Record<string, unknown>;
-    bracketId: string;
-    game: string;
-    games: MatchGame[];
-    roundIndex?: number;
+export interface RoundTeam extends TeamId {
+    position?: number;
 }
 
 /**
  * Bracket information response containing all details about a specific bracket
  */
-export interface BracketResponse {
-    message: string;
-    bracketId: string;
-    createdTimestamp: string;
-    updatedTimestamp?: string;
-    teams: BracketTeam[];
-    tournamentId: string;
-    metadata: Record<string, unknown>;
-    rounds: BracketRound[];
+export interface Bracket {
+    Id: string;
     name: string;
     game: string;
+    tournamentId: string;
+    teams: BracketTeam[];
+    rounds: BracketRound[];
+    createdTimestamp: string;
+    updatedTimestamp?: string;
+}
+
+/**
+ * Represents a team in a tournament bracket with extended information
+ */
+export interface BracketTeam extends TeamId {
+    rank?: number;
+    displayName: string;
+    organization: string;
+    iconUrl: string;
+    score?: number;
+    position?: number;
 }
 
 // ================================================
@@ -291,7 +308,7 @@ class PlayCEAClient {
      * @returns A promise that resolves to a TournamentsResponse containing transformed Tournament objects
      * @throws Will throw an error if the fetch fails or the response is not ok
      */
-    async getTournaments(): Promise<TournamentsResponse> {
+    async getTournaments(): Promise<Tournament[]> {
         try {
             // Use the retryFetch method instead of direct fetch
             const response = await this.retryFetch(`${this.apiUrl}tournaments`);
@@ -308,13 +325,7 @@ class PlayCEAClient {
                 throw new Error('Invalid API response format: Expected an object with a "data" array.');
             }
 
-            // Transform API response to client-friendly format
-            const transformedResponse: TournamentsResponse = {
-                message: apiResponse.message,
-                tournaments: apiResponse.data.map(tournament => this.mapApiTournamentToTournament(tournament))
-            };
-
-            return transformedResponse;
+            return apiResponse.data.map(tournament => this.mapApiTournamentToTournament(tournament));
 
         } catch (error) {
             console.error('Error fetching tournaments:', error);
@@ -339,7 +350,7 @@ class PlayCEAClient {
             const apiResponse = await this.getTournaments();
             
             // Filter tournaments that are live and match all provided criteria
-            const matchingTournaments = apiResponse.tournaments.filter(tournament => {
+            const matchingTournaments = apiResponse.filter(tournament => {
                 // Only include live tournaments
                 if (!tournament.isLive) return false;
                 
@@ -374,7 +385,7 @@ class PlayCEAClient {
      * @returns A promise that resolves to a BracketResponse containing transformed bracket data
      * @throws Will throw an error if the fetch fails or the response is not ok
      */
-    async getBracket(bracketId: string): Promise<BracketResponse> {
+    async getBracket(bracketId: string): Promise<Bracket> {
         try {
             // Use the retryFetch method to get bracket data using the bracketId
             const response = await this.retryFetch(`${this.apiUrl}brackets/${bracketId}`);
@@ -399,14 +410,32 @@ class PlayCEAClient {
             }
 
             // Transform API response to client-friendly format
-            const transformedResponse: BracketResponse = {
-                message: apiResponse.message,
-                bracketId: bracketId,
+            const transformedResponse: Bracket = {
+                Id: bracketId,
                 createdTimestamp: bracketData.cts,
                 updatedTimestamp: bracketData.uts,
                 tournamentId: bracketData.tmid,
-                metadata: bracketData.meta || {},
-                teams: bracketData.ts ? bracketData.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)) : [],
+                teams: bracketData.ts 
+                    ? bracketData.ts
+                        .map(team => this.mapApiBracketTeamToBracketTeam(team))
+                        .sort((a, b) => {
+                            // If both have ranks, sort by rank (ascending)
+                            if (a.rank !== undefined && b.rank !== undefined) {
+                                if (a.rank === b.rank) {
+                                    // Sort alphabetically by display name when ranks are equal
+                                    return a.displayName.localeCompare(b.displayName);
+                                } else {
+                                    return a.rank - b.rank;
+                                }
+                            }
+                            // If only a has rank, put a first
+                            if (a.rank !== undefined) return -1;
+                            // If only b has rank, put b first
+                            if (b.rank !== undefined) return 1;
+                            // If neither has rank, maintain original order
+                            return 0;
+                        })
+                    : [],
                 rounds: bracketData.rounds ? bracketData.rounds.map(r => this.mapApiRoundToBracketRound(r)) : [],
                 name: bracketData.name,
                 game: bracketData.game
@@ -427,7 +456,7 @@ class PlayCEAClient {
      * @returns A promise that resolves to a MatchResponse containing transformed match data
      * @throws Will throw an error if the fetch fails or the response is not ok
      */
-    async getMatch(matchId: string): Promise<MatchResponse> {
+    async getMatch(matchId: string): Promise<Match> {
         try {
             // Use the retryFetch method to get match data using the matchId
             const response = await this.retryFetch(`${this.apiUrl}matches/${matchId}`);
@@ -451,12 +480,11 @@ class PlayCEAClient {
             }
 
             // Transform API response to client-friendly format
-            const transformedResponse: MatchResponse = {
-                message: apiResponse.message,
+            const transformedResponse: Match = {
                 matchId: matchId,
                 createdTimestamp: matchData.cts,
                 updatedTimestamp: matchData.uts,
-                teams: matchData.ts.map(team => this.mapApiBracketTeamToBracketTeam(team)),
+                teams: matchData.ts.map(team => this.mapApiMatchTeamToMatchTeam(team)),
                 matchNumber: matchData.mn,
                 aceEnabled: matchData.ace,
                 roundId: matchData.rnd,
@@ -468,13 +496,72 @@ class PlayCEAClient {
                     gameId: game.gid,
                     teams: game.ts || [],
                     format: game.xvx
-                }))
+                })),
+                complete: matchData.complete,
             };
 
             return transformedResponse;
 
         } catch (error) {
             console.error(`Error fetching match with ID ${matchId}:`, error);
+            // Re-throw the error so the caller can handle it
+            throw error;
+        }
+    }
+
+    /**
+     * Fetches team information for a specific team ID
+     * @param teamId - The ID of the team to retrieve
+     * @returns A promise that resolves to a DetailedTeam containing transformed team data
+     * @throws Will throw an error if the fetch fails or the response is not ok
+     */
+    async getTeam(teamId: string): Promise<Team> {
+        try {
+            // Use the retryFetch method to get team data using the teamId
+            const response = await this.retryFetch(`${this.apiUrl}teams/${teamId}`);
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+            }
+
+            // Parse the JSON response as the raw API response type
+            const apiResponse: ApiResponse.TeamApiResponse = await response.json();
+
+            // Validate the response format
+            if (!apiResponse || typeof apiResponse !== 'object' || !Array.isArray(apiResponse.data)) {
+                throw new Error('Invalid API response format: Expected an object with a "data" array.');
+            }
+
+            // The API returns an array but we're expecting a single team
+            const teamData = apiResponse.data[0];
+            
+            if (!teamData) {
+                throw new Error(`No team found with ID: ${teamId}`);
+            }
+
+            // Transform API response to client-friendly format
+            const transformedResponse: Team = {
+                teamId: teamData.tid,
+                displayName: teamData.dn,
+                organization: teamData.org,
+                game: teamData.game,
+                iconUrl: teamData.ico,
+                backgroundUrl: teamData.bg,
+                metadata: teamData.meta || {},
+                createdTimestamp: teamData.cts,
+                updatedTimestamp: teamData.uts,
+                members: teamData.mbr.map(member => this.mapApiTeamMemberToTeamMember(member)),
+                captains: teamData.capt.map(captain => this.mapApiTeamMemberToTeamMember(captain)),
+                tournaments: teamData.tms.map(tournament => ({
+                    tournamentId: tournament.tmid
+                })),
+                joinCodes: teamData.jc
+            };
+
+            return transformedResponse;
+
+        } catch (error) {
+            console.error(`Error fetching team with ID ${teamId}:`, error);
             // Re-throw the error so the caller can handle it
             throw error;
         }
@@ -573,16 +660,11 @@ class PlayCEAClient {
                 isActive: team.a,
                 teamId: team.tid
             })),
-            tournamentId: apiTournament.tmid,
-            bracketStages: apiTournament.bs.map(stage => ({
+            id: apiTournament.tmid,
+            brackets: apiTournament.bs.map(stage => ({
                 bracketId: stage.bid,
                 name: stage.name
             })),
-            metadata: apiTournament.meta,
-            subBracket: {
-                regular: apiTournament.sbkt.reg,
-                playoff: apiTournament.sbkt.po
-            },
             seasonInfo: {
                 league: apiTournament.sn.l,
                 year: apiTournament.sn.y,
@@ -598,7 +680,6 @@ class PlayCEAClient {
             isLive: apiTournament.live,
             name: apiTournament.name,
             isCurrent: apiTournament.current,
-            message: apiTournament.msg
         };
     }
 
@@ -607,9 +688,8 @@ class PlayCEAClient {
      * @param apiBracketTeam - Team data from the bracket API response
      * @returns A transformed BracketTeam object with clear field names
      */
-    private mapApiBracketTeamToBracketTeam(apiBracketTeam: ApiResponse.BracketTeamData): BracketTeam {
+    private mapApiBracketTeamToBracketTeam(apiBracketTeam: ApiResponse.BracketTeam): BracketTeam {
         return {
-            isActive: apiBracketTeam.a,
             teamId: apiBracketTeam.tid,
             rank: apiBracketTeam.r,
             displayName: apiBracketTeam.dn,
@@ -617,6 +697,19 @@ class PlayCEAClient {
             iconUrl: apiBracketTeam.ico,
             score: apiBracketTeam.s,
             position: apiBracketTeam.p
+        };
+    }
+
+    /**
+     * Maps API response bracket team data to client-friendly BracketTeam objects
+     * @param apiMatchTeam - Team data from the match API response
+     * @returns A transformed MatchTeam object with clear field names
+     */
+    private mapApiMatchTeamToMatchTeam(apiMatchTeam: ApiResponse.MatchTeam): MatchTeam {
+        return {
+            teamId: apiMatchTeam.tid,
+            score: apiMatchTeam.s,
+            position: apiMatchTeam.p
         };
     }
 
@@ -668,6 +761,21 @@ class PlayCEAClient {
             xvxList: apiRound.xvxList
         };
     }
+
+    /**
+     * Maps API response team member data to client-friendly TeamMember objects
+     * @param apiTeamMember - Team member data from the API response
+     * @returns A transformed TeamMember object with clear field names
+     */
+    private mapApiTeamMemberToTeamMember(apiTeamMember: ApiResponse.TeamMember): TeamMember {
+        return {
+            uid: apiTeamMember.uid,
+            displayName: apiTeamMember.dn,
+            displayDiscordName: apiTeamMember.ddn,
+            iconUrl: apiTeamMember.ico,
+            isCaptain: apiTeamMember.captain
+        };
+    }
 }
 
 // Export the client and types for use in other modules
@@ -681,41 +789,85 @@ export { PlayCEAClient };
  * Priavte Namespace containing raw API response types with abbreviated field names
  */
 namespace ApiResponse {
-    export interface TeamIdentifier {
-        a: boolean;        // active
-        tid: string;       // teamId
+    /**
+     * Raw API response for general messages
+     */
+    export interface ApiResponse {
+        message: string;
     }
 
-    export interface BracketStage {
-        bid: string;       // bracketId
-        name: string;
+    export interface TournamentsApiResponse extends ApiResponse {
+        data: Tournament[];
     }
 
-    export interface SeasonName {
-        l: string;         // league (e.g., "CORPORATE", "COLLEGIATE")
-        y: string;         // year (e.g., "2022")
-        s: string;         // season (e.g., "FALL", "SPRING")
+    /**
+     * Raw API response for bracket information
+     */
+    export interface BracketApiResponse extends ApiResponse {
+        data: Bracket[];
     }
 
-    export interface GameInfo {
-        id: string;        // e.g., "rl", "lol", "chess"
-        name: string;      // e.g., "Rocket League", "League of Legends"
-        ico: string;       // icon URL
+    /**
+     * Raw API response for match information
+     */
+    export interface MatchesApiResponse extends ApiResponse {
+        data: Match; // match data
+    }
+
+    /**
+     * Raw API response for team information
+     */
+    export interface TeamApiResponse extends ApiResponse {
+        data: TeamData[];
+    }
+
+    /**
+     * Raw team data response
+     */
+    export interface TeamData {
+        cts: string;       // creation timestamp
+        org: string;       // organization name
+        goo: string;       // game organization ID
         bg: string;        // background image URL
-        rb: string;        // rulebook URL
-    }
-
-    export interface SubBracket {
-        reg: string;       // regular
-        po: string;        // playoff
-    }
-
-    export interface Tournament {
-        ts: TeamIdentifier[];  // teams
-        tmid: string;          // tournamentId
-        bs: BracketStage[];    // bracketStages
         meta: Record<string, unknown>; // metadata
-        sbkt: SubBracket;      // subBracket
+        ms: any[];         // possibly members or matches
+        dn: string;        // display name
+        tid: string;       // team ID
+        game: string;      // game code (e.g., "rl" for Rocket League)
+        uts: string;       // updated timestamp
+        ico: string;       // icon/logo URL
+        jc: string[];      // join codes
+        tms: { tmid: string }[]; // tournaments
+        mbr: TeamMember[]; // members
+        capt: TeamMember[]; // captains
+    }
+
+    /**
+     * Raw team member data
+     */
+    export interface TeamMember {
+        ico: string;       // icon/avatar URL
+        dn: string;        // display name
+        ddn: string;       // discord display name
+        uid: string;       // user ID
+        captain: boolean;  // is captain flag
+    }
+
+    /**
+     * Raw API response for tournament information
+     */
+    export interface Tournament {
+        ts: LeagueTeam[];  // teams
+        tmid: string;          // tournamentId
+        bs: {
+            bid: string;       // bracketId
+            name: string;
+        }[];    // bracketStages
+        meta: Record<string, unknown>; // metadata
+        sbkt: {
+            reg: string;       // regular
+            po: string;        // playoff
+        };      // subBracket ???
         sn: SeasonName;        // seasonName
         game: GameInfo;
         live: boolean;
@@ -723,67 +875,50 @@ namespace ApiResponse {
         current: boolean;
         msg?: string;          // message (optional)
     }
-
-    export interface TournamentsApiResponse {
-        message: string;
-        data: Tournament[];
+    export interface Team {
+        tid: string;       // teamId
     }
+    export interface LeagueTeam extends Team {
+        a: boolean;        // active
+    }
+    export interface SeasonName {
+        l: string;         // league (e.g., "CORPORATE", "COLLEGIATE")
+        y: string;         // year (e.g., "2022")
+        s: string;         // season (e.g., "FALL", "SPRING")
+    }
+    export interface GameInfo {
+        name: string;      // e.g., "Rocket League", "League of Legends"
+        id: string;        // e.g., "rl", "lol", "chess"
+        ico: string;       // icon URL
+        bg: string;        // background image URL
+        rb: string;        // rulebook URL
+    }
+
+    /**
+     * Raw response for bracket data
+     */
+    export interface Bracket {
+        cts: string;   // creation timestamp
+        ts: BracketTeam[]; // teams
+        tmid: string;  // tournamentId
+        uts?: string;  // updated timestamp (optional)
+        meta: Record<string, unknown>; // metadata
+        rounds: Round[];  // rounds
+        name: string;
+        game: string;
+        bid: string;   // bracketId
+    };
 
     /**
      * Raw response for bracket team data
      */
-    export interface BracketTeamData {
-        a: boolean;        // active
-        tid: string;       // teamId
-        r?: number;        // rank
+    export interface BracketTeam extends LeagueTeam {
         ico: string;       // icon URL
         dn: string;        // display name
         org: string;       // organization
         s?: number;        // score
         p?: number;        // position
-    }
-
-    /**
-     * Raw API response for bracket information
-     */
-    export interface BracketApiResponse {
-        message: string;
-        data: {
-            cts: string;   // creation timestamp
-            uts?: string;  // updated timestamp (optional)
-            ts: BracketTeamData[]; // teams
-            tmid: string;  // tournamentId
-            meta: Record<string, unknown>; // metadata
-            rounds: Round[];  // rounds
-            name: string;
-            game: string;
-        }[];
-    }
-
-    export interface MatchApiResponse {
-        mid: string;    // matchId
-        cts: string;    // createdTimestamp
-        uts: string;    // updatedTimestamp
-        ts: BracketTeamData[]; // teams
-        mn: number;     // matchNumber
-        ace: number;    // aceEnabled
-        rnd: number;    // roundIndex
-        meta: Record<string, unknown>; // metadata
-        bid: string;    // bracketId
-        game: string;   // game
-        gs: {
-            gid: string; // gameId
-            ts: any[];   // teams
-            xvx: number; // format
-        }[];
-    };
-
-    /**
-     * Raw API response for match information
-     */
-    export interface MatchesApiResponse {
-        message: string;
-        data: MatchApiResponse; // match data
+        r?: number;        // rank
     }
 
     /**
@@ -792,12 +927,18 @@ namespace ApiResponse {
     export interface Round {
         ace: number;       // aceEnabled
         gameCount: number;        // gameCount
-        teams: {
-            tid: string;   // teamId
-        }[];
+        teams: Team[];
         scores: {
             mid: string;   // matchId
-            scores: Record<string, TeamScore>; // scores
+            scores: Record<string, {
+                win: number;
+                loss: number;
+                tie: number;
+                game: number;
+                tiebreak: number;
+                base: number;
+                oppDiff: Record<string, unknown>;
+            }>; // scores
             ridx: string;    // roundIndex
             ts: {
                 p: number; // position
@@ -808,22 +949,51 @@ namespace ApiResponse {
         roundName: string;        // roundName
         rid: string;       // roundId
         bid: string;       // bracketId
-        matches: MatchApiResponse[];
+        matches: Match[];
         tf: number[];      // teamFormats
         c: boolean;        // complete
         xvxList?: number[];  // List of team sizes for each game (e.g., [3,3,3,3,3] for 3v3)
     }
 
     /**
-     * Raw response for team score data
+     * Raw response for bracket match data
      */
-    export interface TeamScore {
-        win: number;
-        loss: number;
-        tie: number;
-        game: number;
-        tiebreak: number;
-        base: number;
-        oppDiff: Record<string, unknown>;
+    export interface BracketMatch {
+        cts: string;    // createdTimestamp
+        ts: BracketTeam[]; // teams
+        uts: string;    // updatedTimestamp
+        mn: number;     // matchNumber
+        ace: number;    // aceEnabled
+        mid: string;    // matchId
+        rnd: number;    // roundIndex
+        meta: Record<string, unknown>; // metadata
+        bid: string;    // bracketId
+        game: string;   // game
+        gs: MatchGame[];
+    };
+
+    /**
+     * Raw response for match data
+     */
+    export interface Match extends BracketMatch {
+        complete: boolean; // complete
+        ll: boolean; // live
+    };
+
+    export interface MatchGame {
+        gid: string; // gameId
+        ts: GameTeam[];   // teams
+        xvx: number; // format
+    }
+
+    export interface GameTeam extends Team {
+        rs: number;        // roundScore
+        uids: string[]; // userIds
+    }
+
+    export interface MatchTeam extends Team {
+        s?: number;        // score
+        p?: number;        // position
+        rank?: number;    // rank
     }
 }

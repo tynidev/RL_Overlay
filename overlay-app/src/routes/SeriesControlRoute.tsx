@@ -4,6 +4,7 @@ import { Series, SeriesTeam } from '../types/series';
 import { WsSubscribers } from '../wsSubscribers';
 import '../css/SeriesControl.css';
 import { Callback } from '../util/utils';
+import { PlayCEAClient } from 'playcea-api';
 
 interface SeriesControlRouteProps {
   match: Match;
@@ -297,34 +298,29 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     }
 
     try {
-      const response = await fetch(`https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/matches/${matchId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch match data: ${response.statusText}`);
-      }
-
-      const matchData = await response.json();
+      // Create a new PlayCEA client instance
+      const client = new PlayCEAClient();
+      
+      // Fetch match data using the client
+      const matchData = await client.getMatch(matchId);
       console.log('Fetched match data:', matchData);
 
-      // Extract team IDs from the response
-      const teamIds = matchData.data.ts.map((team: { tid: string }) => team.tid);
+      // Extract team IDs from the match data
+      const teamIds = matchData.teams.map(team => team.teamId);
       console.log('Extracted team IDs:', teamIds);
 
-      // Fetch additional information for each team
-      const teamDataPromises = teamIds.map((teamId: string) =>
-        fetch(`https://1ebv8yx4pa.execute-api.us-east-1.amazonaws.com/prod/teams/${teamId}`).then((res) => res.json())
-      );
-
+      // Fetch additional information for each team using the client
+      const teamDataPromises = teamIds.map(teamId => client.getTeam(teamId));
       const teamsData = await Promise.all(teamDataPromises);
       console.log('Fetched team data:', teamsData);
 
       // Update series state with fetched team data
-      const updatedTeams = teamsData.map((teamResponse: any, index: number) => {
-        const teamData = teamResponse.data[0]; // Extract the first team object
+      const updatedTeams = teamsData.map((teamData, index) => {
         return {
           team: index, // Assign team index (0 or 1)
-          name: teamData.dn || `Team ${index + 1}`, // Use `dn` as display name
+          name: teamData.displayName || `Team ${index + 1}`, // Use displayName property
           matches_won: 0, // Default to 0 matches won
-          logo: teamData.ico || '' // Use `ico` as team logo
+          logo: teamData.iconUrl || '' // Use iconUrl property
         };
       });
 
@@ -333,7 +329,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
           ...this.state.series,
           teams: updatedTeams as [SeriesTeam, SeriesTeam]
         },
-        hasUnsavedChanges: false // Reset unsaved changes flag
+        hasUnsavedChanges: true // Mark changes as unsaved so user can apply them
       });
     } catch (error) {
       console.error('Error fetching match or team data:', error);

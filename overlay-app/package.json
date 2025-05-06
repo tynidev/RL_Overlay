@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "playcea-api": "file:../PlayCEA-API",
     "react": "^19.1.0",
     "react-color": "^2.19.3",
     "react-dom": "^19.1.0",
@@ -17,6 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:all": "cd ../PlayCEA-API && npm run build && cd ../overlay-app && npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

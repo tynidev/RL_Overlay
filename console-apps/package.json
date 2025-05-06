@@ -7,8 +7,7 @@
   "scripts": {
     "series": "node series.js --file=../series.json",
     "record": "node record.js",
-    "replay": "node replay.js",
-    "build": "tsc"
+    "replay": "node replay.js"
   },
   "author": "",
   "license": "MIT",

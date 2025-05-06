@@ -66,49 +66,74 @@ async function examineMatchingTournaments(
             
             if (selection > 0 && selection <= matchingTournaments.length) {
                 const selectedTournament = matchingTournaments[selection - 1];
-                console.log(`\nFetching brackets for: ${selectedTournament.name}...`);
+                console.log(`\nYou selected: ${selectedTournament.name} (${selectedTournament.game.name})`);
                 
-                // Get brackets for the selected tournament
-                const bracketsResponse = await client.getBrackets(selectedTournament.tournamentId);
-                
-                console.log(`\nFound ${bracketsResponse.brackets.length} brackets for ${selectedTournament.name}:`);
-                
-                // Display each bracket
-                bracketsResponse.brackets.forEach((bracket, i) => {
-                    console.log(`\nBracket ${i + 1}: ${bracket.name}`);
-                    console.log('=' + '='.repeat(bracket.name.length + 11));
+                // Display available bracket stages
+                console.log("\nAvailable bracket stages:");
+                if (selectedTournament.bracketStages.length > 0) {
+                    selectedTournament.bracketStages.forEach((bracket, idx) => {
+                        console.log(`${idx + 1}. ${bracket.name} (ID: ${bracket.bracketId})`);
+                    });
                     
-                    if (bracket.matches.length === 0) {
-                        console.log('No matches found in this bracket.');
-                    } else {
-                        // Group matches by round
-                        const matchesByRound: { [round: number]: typeof bracket.matches } = {};
+                    // Prompt user to select a bracket
+                    const bracketResponse = await askQuestion(
+                        rl, 
+                        `\nEnter the number of the bracket to view details (1-${selectedTournament.bracketStages.length}) or 0 to exit: `
+                    );
+                    
+                    const bracketSelection = parseInt(bracketResponse);
+                    
+                    if (bracketSelection > 0 && bracketSelection <= selectedTournament.bracketStages.length) {
+                        const selectedBracket = selectedTournament.bracketStages[bracketSelection - 1];
+                        console.log(`\nFetching details for bracket: ${selectedBracket.name}`);
                         
-                        bracket.matches.forEach(match => {
-                            if (!matchesByRound[match.round]) {
-                                matchesByRound[match.round] = [];
+                        try {
+                            // Get the bracket details using the new getBracket method
+                            const bracketData = await client.getBracket(selectedBracket.bracketId);
+                            
+                            console.log(`\n==== ${bracketData.name} Bracket Details ====`);
+                            console.log(`Bracket ID: ${bracketData.bracketId}`);
+                            console.log(`Tournament ID: ${bracketData.tournamentId}`);
+                            console.log(`Created: ${new Date(bracketData.createdTimestamp).toLocaleString()}`);
+                            if (bracketData.updatedTimestamp) {
+                                console.log(`Last Updated: ${new Date(bracketData.updatedTimestamp).toLocaleString()}`);
                             }
-                            matchesByRound[match.round].push(match);
-                        });
-                        
-                        // Display matches by round
-                        Object.keys(matchesByRound)
-                            .map(Number)
-                            .sort((a, b) => a - b)
-                            .forEach(round => {
-                                console.log(`\nRound ${round}:`);
-                                matchesByRound[round].forEach(match => {
-                                    const player1 = match.player1Name || 'TBD';
-                                    const player2 = match.player2Name || 'TBD';
-                                    const score = match.completed ? 
-                                        `${match.player1Score} - ${match.player2Score}` : 
-                                        'Not played';
-                                    
-                                    console.log(`  ${player1} vs ${player2} (${score})`);
+                            
+                            // Display teams in the bracket
+                            console.log(`\nTeams (${bracketData.teams.length}):`);
+                            bracketData.teams.forEach((team, idx) => {
+                                console.log(`${idx + 1}. ${team.displayName} (${team.organization}) - Rank: ${team.rank || 'N/A'}`);
+                            });
+                            
+                            // Display rounds
+                            console.log(`\nRounds (${bracketData.rounds.length}):`);
+                            bracketData.rounds.forEach((round, roundIdx) => {
+                                console.log(`\nRound ${roundIdx + 1}: ${round.roundName} - Format: ${round.format} (${round.complete ? 'Complete' : 'In Progress'})`);
+                                
+                                // Display matches in each round
+                                console.log(`Matches (${round.matches.length}):`);
+                                round.matches.forEach((match, matchIdx) => {
+                                    if (match.teams.length >= 2) {
+                                        const team1 = match.teams[0];
+                                        const team2 = match.teams[1];
+                                        console.log(
+                                            `  ${matchIdx + 1}. ${team1.displayName} ${team1.score || 0} vs ${team2.score || 0} ${team2.displayName}`
+                                        );
+                                    } else {
+                                        console.log(`  ${matchIdx + 1}. Match #${match.matchNumber} (Teams not set)`);
+                                    }
                                 });
                             });
+                            
+                        } catch (error) {
+                            console.error(`Error fetching bracket data: ${error}`);
+                        }
+                    } else {
+                        console.log('No bracket selected or invalid selection.');
                     }
-                });
+                } else {
+                    console.log('No bracket stages available for this tournament.');
+                }
             } else {
                 console.log('No tournament selected or invalid selection.');
             }

@@ -133,11 +133,27 @@
   margin: 0px;
 }
 
+/* New layout with flexbox for the team content */
+.team-content {
+  display: flex;
+  gap: 20px;
+}
+
+.team-logo-section {
+  flex: 0 0 auto;
+}
+
+.team-details-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .team-logo-container {
-  /* display: flex; */
+  display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .team-logo {

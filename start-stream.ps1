@@ -4,14 +4,15 @@
 
 .DESCRIPTION
     This script prepares the environment for streaming Rocket League by:
-    - Ensuring BakkesMod is running
-    - Configuring Rocket League display settings (resolution and window mode)
-    - Launching Rocket League (from Epic Games or Steam)
-    - Starting required applications in Windows Terminal tabs:
+    - Ensuring BakkesMod is running.
+    - Configuring Rocket League display settings (resolution and window mode).
+    - Launching Rocket League (from Epic Games or Steam, based on user choice).
+    - Starting required background applications in Windows Terminal tabs:
       * SOS WebSocket Relay
       * Overlay Web Server
-      * Series Control application
-    - Launching OBS if not already running
+    - Waiting for the Overlay Web Server to become available.
+    - Opening the Control Room URL (http://localhost:3000/ctrl) in the default browser.
+    - Launching OBS Studio if it's not already running.
 
 .NOTES
     Requires ./install.ps1 to be run first to install/build necessary applications.
@@ -59,6 +60,18 @@ $BROWSER_OPEN_DELAY = 5           # Delay before opening the control room URL in
 # Functions
 #----------------------------------------------------------------------------
 
+# Display a formatted header for script sections
+function Show-Header {
+    param (
+        [string]$title
+    )
+    
+    Write-Host ""
+    Write-Host "====================================================" -ForegroundColor Cyan
+    Write-Host "    $title" -ForegroundColor Cyan
+    Write-Host "====================================================" -ForegroundColor Cyan
+}
+
 # Define function to modify Rocket League display settings
 function Set-RocketLeagueDisplaySettings {
     param(
@@ -68,12 +81,12 @@ function Set-RocketLeagueDisplaySettings {
     )
     
     if (-not (Test-Path $RL_CONFIG_PATH)) {
-        Write-Host "Warning: Rocket League settings file not found at $RL_CONFIG_PATH. Settings cannot be changed."
+        Write-Host "Warning: Rocket League settings file not found at $RL_CONFIG_PATH. Settings cannot be changed." -ForegroundColor Red
         return $false
     }
     
     try {
-        Write-Host "Setting Rocket League display mode to $Width x $Height in $WindowMode mode..."
+        Write-Host "Setting Rocket League display mode to $Width x $Height in $WindowMode mode..." -ForegroundColor Yellow
         
         # Update ResX and ResY in the INI file
         $content = Get-Content $RL_CONFIG_PATH
@@ -99,11 +112,11 @@ function Set-RocketLeagueDisplaySettings {
         # Save changes back to the file
         $content | Set-Content $RL_CONFIG_PATH
         
-        Write-Host "Rocket League display settings updated successfully!"
+        Write-Host "Rocket League display settings updated successfully!" -ForegroundColor Green
         return $true
     }
     catch {
-        Write-Host "Error updating Rocket League settings: $_"
+        Write-Host "Error updating Rocket League settings: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -124,25 +137,29 @@ function Convert-ToBase64EncodedCommand {
 # Main Script
 #----------------------------------------------------------------------------
 
+Show-Header -title "Ensuring BakkesMod is running"
+
 # Check if BakkesMod is running and start it if not
 $bakkesModProcess = Get-Process -Name BakkesMod -ErrorAction SilentlyContinue
 if (-not $bakkesModProcess) {
-    Write-Host "BakkesMod is not running. Starting BakkesMod..."
+    Write-Host "BakkesMod is not running. Starting BakkesMod..." -ForegroundColor Yellow
     Start-Process $BAKKESMOD_PATH
     # Add a small delay to allow BakkesMod to initialize
     Start-Sleep -Seconds $BAKKESMOD_STARTUP_DELAY
 } else {
-    Write-Host "BakkesMod is already running."
+    Write-Host "BakkesMod is already running." -ForegroundColor Green
 }
+
+Show-Header -title "Ensuring Rocket League is running"
 
 # Check if Rocket League is running and start it if not
 $rocketLeagueProcess = Get-Process -Name RocketLeague -ErrorAction SilentlyContinue
 if (-not $rocketLeagueProcess) {
-    Write-Host "Rocket League is not running."
+    Write-Host "Rocket League is not running." -ForegroundColor Yellow
     
     # Set Rocket League display settings before launching
     if(-not (Set-RocketLeagueDisplaySettings -Width $RL_DISPLAY_WIDTH -Height $RL_DISPLAY_HEIGHT -WindowMode $RL_WINDOW_MODE)) {
-        Write-Host "Failed to set Rocket League display settings. Exiting script."
+        Write-Host "Failed to set Rocket League display settings. Exiting script." -ForegroundColor Red
     }
     
     # Ask if the user wants to use the Epic Games or Steam version of Rocket League
@@ -152,67 +169,74 @@ if (-not $rocketLeagueProcess) {
     Write-Host "Enter selection: " -ForegroundColor Cyan -NoNewline
     $launchOption = Read-Host
     if ($launchOption -eq "1") {
-        Write-Host "Starting Rocket League from Epic Games..."
+        Write-Host "Starting Rocket League from Epic Games..." -ForegroundColor Yellow
         Start-Process $RL_EPIC_URL
         Start-Sleep -Seconds $ROCKET_LEAGUE_STARTUP_DELAY
     } elseif ($launchOption -eq "2") {
-        Write-Host "Starting Rocket League from Steam..."
+        Write-Host "Starting Rocket League from Steam..." -ForegroundColor Yellow
         Start-Process $RL_STEAM_URL
         Start-Sleep -Seconds $ROCKET_LEAGUE_STARTUP_DELAY
     } else {
-        Write-Host "Invalid option. Skipping Rocket League launch."
+        Write-Host "Invalid option. Skipping Rocket League launch." -ForegroundColor Red
     }
 } else {
-    Write-Host "Rocket League is already running."
+    Write-Host "Rocket League is already running." -ForegroundColor Green
 }
+
+Show-Header -title "Starting SOS Relay and Overlay Server"
 
 # Launch Windows Terminal with required tabs
 $root = Get-Location # Get the current working directory to use as the base path for applications
-Write-Host "Starting SOS Relay and Overlay Server in Windows Terminal..."
+Write-Host "Starting SOS Relay and Overlay Server in Windows Terminal..." -ForegroundColor Yellow
 Start-Process wt -ArgumentList @(
     # Start the SOS WebSocket Relay in the first tab
     "-d", "`"$(Join-Path $root "sos-ws-relay")`"", "--title", "`"SOS WS Relay`"", "powershell", "-NoExit", "-Command", "`"npm run relay;`"",
     # Start the Overlay Server (serve) in the second tab
     "new-tab", "-d", "`"$(Join-Path $root "overlay-app")`"", "--title", "`"Overlay Web Server`"", "powershell", "-NoExit", "-Command", "`"serve -s build`""
 )
-Write-Host "Started background applications in Windows Terminal tabs."
+Write-Host "Started background applications in Windows Terminal tabs." -ForegroundColor Green
+
+Write-Host "Waiting for Overlay Web Server to start..." -ForegroundColor Yellow
 
 # Wait for the Overlay Web Server to potentially start, checking every second
-Write-Host "Waiting up to $BROWSER_OPEN_DELAY seconds for the Overlay Web Server..."
+Write-Host "Waiting up to $BROWSER_OPEN_DELAY seconds for the Overlay Web Server..." -ForegroundColor Yellow
 $serverStarted = $false
 for ($i = 0; $i -lt $BROWSER_OPEN_DELAY; $i++) {
     $serverListening = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
     if ($serverListening) {
-        Write-Host "Overlay Web Server detected listening on port 3000."
+        Write-Host "Overlay Web Server detected listening on port 3000." -ForegroundColor Green
         $serverStarted = $true
         break # Exit the loop as soon as the server is found
     }
-    Write-Host "Server not yet detected, waiting 1 second..."
+    Write-Host "Server not yet detected, waiting 1 second..." -ForegroundColor Yellow
     Start-Sleep -Seconds 1
 }
 
 # Open the browser if the server started
 if ($serverStarted) {
-    Write-Host "Opening Control Room URL in browser: http://localhost:3000/ctrl"
+    Show-Header -title "Starting Series Control in Browser"
+    Write-Host "Opening Control Room URL in browser: http://localhost:3000/ctrl" -ForegroundColor Yellow
     # Note: Checking if this specific URL is already open in a tab is complex and unreliable.
     # We will open it; the browser will likely handle duplicates (new tab or focus existing).
     Start-Process "http://localhost:3000/ctrl"
 } else {
-    Write-Host "Warning: Overlay Web Server did not start listening on port 3000 within the $BROWSER_OPEN_DELAY second timeout."
-    Write-Host "Skipping opening the Control Room URL in the browser."
+    Write-Host "Warning: Overlay Web Server did not start listening on port 3000 within the $BROWSER_OPEN_DELAY second timeout." -ForegroundColor Red
+    Write-Host "Skipping opening the Control Room URL in the browser." -ForegroundColor Red
 }
+
+Show-Header -title "Ensuring OBS Studio is running"
 
 # Check if OBS is running and start it if not
 $obsProcess = Get-Process -Name obs64 -ErrorAction SilentlyContinue
 if (-not $obsProcess) {
-    Write-Host "OBS is not running. Starting OBS..."
+    Write-Host "OBS is not running. Starting OBS..." -ForegroundColor Yellow
     if (Test-Path $OBS_PATH) {
         Start-Process $OBS_PATH -WorkingDirectory $OBS_WORKING_DIR
         # Add a small delay to allow OBS to initialize
         Start-Sleep -Seconds $OBS_STARTUP_DELAY
     } else {
-        Write-Host "OBS executable not found at $OBS_PATH. Please check the installation path."
+        Write-Host "OBS executable not found at $OBS_PATH. Please check the installation path." -ForegroundColor Red
     }
 } else {
-    Write-Host "OBS is already running."
+    Write-Host "OBS is already running." -ForegroundColor Green
 }

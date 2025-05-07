@@ -140,7 +140,7 @@ To run these utilities:
 
 ## Extras
 ### ButtonMash.dll
-The file `<project root>\bakkes-plugins\ButtonMash.dll` is a BakkesMod plugin that automatically joins matches as specator. Install following the same steps as the SOS plugin and then enable in game in the BakkesMod settings UI accesible via F2.
+The file `<project root>\bakkes-plugins\ButtonMash.dll` is a BakkesMod plugin that automatically joins matches as specator. This can be installed by providing `-ButtonMash` switch to `install.ps1` script.
 
 ### RCONN connection to Rocket League
 The Overlay App can be configured to connect to Rocket League through a remote connection or RCONN plugin in BakkesMod and execute commands to automatically hide the UI elements when a match starts.

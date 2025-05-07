@@ -58,49 +58,49 @@ $script:colors = @{
 }
 
 #region Main Script Execution Logic
+$MainFunction = {
+    # Welcome message
+    Write-Host ""
+    Write-Host "====================================================" -ForegroundColor $colors.Info
+    Write-Host "    Rocket League Overlay Installation" -ForegroundColor $colors.Info
+    Write-Host "====================================================" -ForegroundColor $colors.Info
+    Write-Host ""
+    Write-Host "This script will install and configure the following components:"
+    Write-Host "1. BakkesMod SOS plugin for game data capture" -ForegroundColor $colors.Info
+    if ($ButtonMash) {
+        Write-Host "2. ButtonMash plugin for auto-spectating" -ForegroundColor $colors.Info
+    }
+    Write-Host "3. Node.js (if not already installed)" -ForegroundColor $colors.Info
+    Write-Host "4. WebSocket relay server" -ForegroundColor $colors.Info
+    Write-Host "5. PlayCEA API library" -ForegroundColor $colors.Info
+    Write-Host "6. Series console application" -ForegroundColor $colors.Info
+    Write-Host "7. Overlay web application" -ForegroundColor $colors.Info
+    Write-Host ""
+    Write-StepInfo -Message "Starting RL Overlay Installation" -Type "Info"
 
-# Welcome message
-Write-Host ""
-Write-Host "====================================================" -ForegroundColor $colors.Info
-Write-Host "    Rocket League Overlay Installation" -ForegroundColor $colors.Info
-Write-Host "====================================================" -ForegroundColor $colors.Info
-Write-Host ""
-Write-Host "This script will install and configure the following components:"
-Write-Host "1. BakkesMod SOS plugin for game data capture" -ForegroundColor $colors.Info
-if ($ButtonMash) {
-    Write-Host "2. ButtonMash plugin for auto-spectating" -ForegroundColor $colors.Info
+    # Step 1: Check for Node.js
+    Install-NodeJs
+
+    # Step 2: Install BakkesMod plugins
+    Install-BakkesModPlugins -InstallButtonMash $ButtonMash
+
+    # Step 3: Set up WebSocket relay
+    Install-WebSocketRelay
+
+    # Step 4: Install PlayCEA API
+    Install-CeaLibrary
+
+    # Step 5: Set up Series console application
+    Install-SeriesApp
+
+    # Step 6: Set up Overlay web application
+    Install-OverlayApp
+
+    # Display installation summary
+    Show-InstallationSummary -ButtonMashInstalled $ButtonMash
+
+    #endregion Main Script Execution Logic
 }
-Write-Host "3. Node.js (if not already installed)" -ForegroundColor $colors.Info
-Write-Host "4. WebSocket relay server" -ForegroundColor $colors.Info
-Write-Host "5. PlayCEA API library" -ForegroundColor $colors.Info
-Write-Host "6. Series console application" -ForegroundColor $colors.Info
-Write-Host "7. Overlay web application" -ForegroundColor $colors.Info
-Write-Host ""
-Write-StepInfo -Message "Starting RL Overlay Installation" -Type "Info"
-
-# Step 1: Check for Node.js
-Install-NodeJs
-
-# Step 2: Install BakkesMod plugins
-Install-BakkesModPlugins -InstallButtonMash $ButtonMash
-
-# Step 3: Set up WebSocket relay
-Install-WebSocketRelay
-
-# Step 4: Install PlayCEA API
-Install-CeaLibrary
-
-# Step 5: Set up Series console application
-Install-SeriesApp
-
-# Step 6: Set up Overlay web application
-Install-OverlayApp
-
-# Display installation summary
-Show-InstallationSummary -ButtonMashInstalled $ButtonMash
-
-#endregion Main Script Execution Logic
-
 #region Installation Functions
 
 function Install-NodeJs {
@@ -247,7 +247,7 @@ function Install-CeaLibrary {
     #>
     Show-Header "Installing PlayCEA API Library"
     
-    Install-NpmDependencies -ProjectPath "$root/PlayCEA-API" -ProjectName "PlayCEA API" -BuildCommand "build"
+    Install-NpmDependencies -ProjectPath "$root/playcea-api" -ProjectName "PlayCEA API" -BuildCommand "build"
     
     Write-StepInfo -Message "PlayCEA API library installation complete." -Type "Success"
 }
@@ -286,10 +286,15 @@ function Install-SeriesApp {
                                  -Description $shortcut.Desc
         if (!$result) {
             $shortcutsCreated = $false
+            Write-StepInfo -Message "Failed to create shortcut for $($shortcut.Desc): $_" -Type "Error"
         }
     }
     
-    Write-StepInfo -Message "Series console application installation complete." -Type "Success"
+    if($shortcutsCreated) {
+        Write-StepInfo -Message "Series console application installation complete." -Type "Success"
+    } else {
+        Write-StepInfo -Message "Some console application shortcuts could not be created." -Type "Warning"
+    }
 }
 
 function Install-OverlayApp {
@@ -466,7 +471,7 @@ function Install-NpmDependencies {
                 npm run $BuildCommand
                 Write-StepInfo -Message "Build completed successfully." -Type "Success"
             } catch {
-                Write-StepInfo -Message "Failed to build $ProjectName: $_" -Type "Error"
+                Write-StepInfo -Message "Failed to build $ProjectName : $_" -Type "Error"
                 Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
             }
         }
@@ -555,5 +560,7 @@ function Test-CommandExists {
 }
 
 #endregion Helper Functions
+
+& $MainFunction 
 
 exit 0

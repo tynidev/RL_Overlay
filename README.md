@@ -98,7 +98,7 @@ To run ws-relay complete step 3 in terminal.
 
 ### 4. Build PlayCEA-API
 In terminal:
-1. `cd <project root>\PlayCEA-API`
+1. `cd <project root>\playcea-api`
 2. `npm install`
 3. `npm run build`
 

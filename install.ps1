@@ -1,270 +1,539 @@
-# This script installs the necessary components for the RL_Overlay project.
-# It installs the BakkesMod SOS plugin, checks/installs Node.js, and sets up the WebSocket relay, overlay web app, and console applications.
+<#
+.SYNOPSIS
+    Installs and sets up the Rocket League Overlay broadcasting environment.
 
-$root = get-location
+.DESCRIPTION
+    This script installs and configures all necessary components for the RL_Overlay project by:
+    - Installing and configuring the BakkesMod SOS plugin for game data capture
+    - Optionally installing the ButtonMash plugin for auto-spectating
+    - Checking for and installing Node.js if not already present
+    - Setting up the WebSocket relay server for transmitting game data
+    - Building the PlayCEA API library for tournament integration
+    - Installing and configuring the series console application
+    - Building and setting up the overlay web application
+    - Creating desktop shortcuts for all key components
+
+.PARAMETER ButtonMash
+    When specified, installs the ButtonMash BakkesMod plugin that automatically joins matches as spectator.
+    
+.EXAMPLE
+    .\install.ps1
+    
+    Performs standard installation with only the required SOS plugin.
+
+.EXAMPLE
+    .\install.ps1 -ButtonMash
+    
+    Performs installation including the optional ButtonMash plugin for automatic spectating.
+
+.NOTES
+    Prerequisites:
+    - BakkesMod should be installed before running this script
+    - Internet connection required for package downloads
+    - Administrative privileges may be needed for certain operations
+    
+    After installation, run start-stream.ps1 to launch the streaming environment.
+    
+    Default installation paths used:
+    - BakkesMod plugins: %appdata%\bakkesmod\bakkesmod\plugins
+    - BakkesMod settings: %appdata%\bakkesmod\bakkesmod\plugins\settings
+    - BakkesMod config: %appdata%\bakkesmod\bakkesmod\cfg\plugins.cfg
+
+.LINK
+    GitHub Repository: https://github.com/tynidev/RL_Overlay
+    Documentation: https://github.com/tynidev/RL_Overlay/blob/main/README.md
+#>
+
+param(
+    [switch]$ButtonMash = $false
+)
+
+# Global variables
+$script:root = Get-Location
+$script:colors = @{
+    Info = "Cyan"
+    Success = "Green"
+    Warning = "Yellow"
+    Error = "Red"
+}
+
+#region Helper Functions
 
 function Show-Header {
+    <#
+    .SYNOPSIS
+        Displays a standardized header for installation steps.
+    .PARAMETER Title
+        The title text to display in the header.
+    #>
     param (
-        [string]$title
+        [Parameter(Mandatory = $true)]
+        [string]$Title
     )
     
     Write-Host ""
-    Write-Host "====================================================" -ForegroundColor Cyan
-    Write-Host "    $title" -ForegroundColor Cyan
-    Write-Host "====================================================" -ForegroundColor Cyan
+    Write-Host "====================================================" -ForegroundColor $colors.Info
+    Write-Host "    $Title" -ForegroundColor $colors.Info
+    Write-Host "====================================================" -ForegroundColor $colors.Info
 }
 
-function install-sos-plugin {
-    Show-Header "Installing BakkesMod SOS Plugin"
+function Write-StepInfo {
+    <#
+    .SYNOPSIS
+        Writes formatted step information with consistent color coding.
+    .PARAMETER Message
+        The message to display.
+    .PARAMETER Type
+        The type of message (Info, Success, Warning, Error).
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("Info", "Success", "Warning", "Error")]
+        [string]$Type
+    )
     
-    $bakkesDir = "$env:APPDATA/bakkesmod/bakkesmod";
-    Write-Host "Checking if BakkesMod is installed..." -ForegroundColor Yellow
-    if(!(Test-Path -Path $bakkesDir)){
-        Write-Host "BakkesMod is not installed." -ForegroundColor Red
-        write-warning "BakkesMod is not installed. Please install BakkesMod from https://bakkesplugins.com/ and then re-run this script."
-        write-host "Press any key to exit..."
+    Write-Host $Message -ForegroundColor $colors[$Type]
+}
+
+function Install-NpmDependencies {
+    <#
+    .SYNOPSIS
+        Installs NPM dependencies for a project.
+    .PARAMETER ProjectPath
+        The path to the project.
+    .PARAMETER ProjectName
+        The name of the project for logging purposes.
+    .PARAMETER BuildCommand
+        An optional build command to run after installing dependencies.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ProjectPath,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$ProjectName,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$BuildCommand
+    )
+    
+    Write-StepInfo -Message "Navigating to $ProjectPath..." -Type "Info"
+    Push-Location $ProjectPath
+    
+    Write-StepInfo -Message "Installing NPM dependencies for $ProjectName..." -Type "Info"
+    try {
+        npm install
+        Write-StepInfo -Message "Dependencies installed successfully." -Type "Success"
+        
+        if ($BuildCommand) {
+            Write-StepInfo -Message "Building the $ProjectName..." -Type "Info"
+            try {
+                npm run $BuildCommand
+                Write-StepInfo -Message "Build completed successfully." -Type "Success"
+            } catch {
+                Write-StepInfo -Message "Failed to build $ProjectName`: $_" -Type "Error"
+                Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
+            }
+        }
+    } catch {
+        Write-StepInfo -Message "Failed to install $ProjectName dependencies: $_" -Type "Error"
+        Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
+    }
+    
+    Pop-Location
+}
+
+function Create-Shortcut {
+    <#
+    .SYNOPSIS
+        Creates a Windows shortcut (.lnk) file.
+    .PARAMETER ShortcutPath
+        The path where the shortcut will be created.
+    .PARAMETER TargetPath
+        The target path for the shortcut.
+    .PARAMETER Arguments
+        Optional command line arguments.
+    .PARAMETER WorkingDirectory
+        Optional working directory.
+    .PARAMETER Description
+        Optional description of the shortcut.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ShortcutPath,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$TargetPath,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$Arguments = "",
+        
+        [Parameter(Mandatory = $false)]
+        [string]$WorkingDirectory = "",
+        
+        [Parameter(Mandatory = $false)]
+        [string]$Description = ""
+    )
+    
+    $shortcutName = Split-Path -Path $ShortcutPath -Leaf
+    Write-StepInfo -Message "Creating '$shortcutName' shortcut..." -Type "Info"
+    
+    try {
+        $WshShell = New-Object -ComObject WScript.Shell
+        $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
+        $Shortcut.TargetPath = $TargetPath
+        
+        if ($Arguments) {
+            $Shortcut.Arguments = $Arguments
+        }
+        
+        if ($WorkingDirectory) {
+            $Shortcut.WorkingDirectory = $WorkingDirectory
+        }
+        
+        if ($Description) {
+            $Shortcut.Description = $Description
+        }
+        
+        $Shortcut.Save()
+        Write-StepInfo -Message "'$shortcutName' shortcut created successfully." -Type "Success"
+        return $true
+    } catch {
+        Write-StepInfo -Message "Failed to create '$shortcutName' shortcut: $_" -Type "Error"
+        return $false
+    }
+}
+
+function Test-CommandExists {
+    <#
+    .SYNOPSIS
+        Tests if a command exists in the current environment.
+    .PARAMETER Command
+        The command to test.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Command
+    )
+    
+    return [bool](Get-Command $Command -ErrorAction SilentlyContinue)
+}
+
+#endregion
+
+#region Installation Functions
+
+function Install-BakkesModPlugins {
+    <#
+    .SYNOPSIS
+        Installs BakkesMod plugins for Rocket League.
+    .PARAMETER InstallButtonMash
+        Whether to install the ButtonMash plugin.
+    #>
+    param(
+        [bool]$InstallButtonMash = $false
+    )
+    
+    if ($InstallButtonMash) {
+        Show-Header "Installing BakkesMod Plugins (SOS & ButtonMash)"
+    } else {
+        Show-Header "Installing BakkesMod SOS Plugin"
+    }
+    
+    $bakkesDir = "$env:APPDATA/bakkesmod/bakkesmod"
+    $pluginsDir = "$bakkesDir/plugins"
+    $settingsDir = "$bakkesDir/plugins/settings"
+    $pluginsConfigPath = "$bakkesDir/cfg/plugins.cfg"
+    
+    Write-StepInfo -Message "Checking if BakkesMod is installed..." -Type "Info"
+    if (!(Test-Path -Path $bakkesDir)) {
+        Write-StepInfo -Message "BakkesMod is not installed." -Type "Error"
+        Write-Warning "BakkesMod is not installed. Please install BakkesMod from https://bakkesplugins.com/ and then re-run this script."
+        Write-Host "Press any key to exit..."
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         exit 1
     }
-    Write-Host "BakkesMod installation found at: $bakkesDir" -ForegroundColor Green
+    Write-StepInfo -Message "BakkesMod installation found at: $bakkesDir" -Type "Success"
 
-    # copy plugin and just overwrite if existing
-    Write-Host "Copying SOS plugin files to BakkesMod directory..." -ForegroundColor Yellow
-    try {
-        copy-item ./bakkes-plugins/SOS.dll -Destination "$bakkesDir/plugins" -Force
-        Write-Host "SOS.dll copied successfully." -ForegroundColor Green
-        
-        copy-item ./bakkes-plugins/sos.set -Destination "$bakkesDir/plugins/settings" -Force
-        Write-Host "sos.set settings file copied successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to copy plugin files: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the SOS plugin may not work correctly." -ForegroundColor Red
-    }
-
-    # add load plugin to bakkes config if not already added
-    Write-Host "Checking BakkesMod plugins.cfg file..." -ForegroundColor Yellow
-    try {
-        $pluginsConfigPath = "$bakkesDir/cfg/plugins.cfg"
-        
-        if(!(get-content $pluginsConfigPath | select-string "plugin load sos")) { 
-            Write-Host "Adding SOS plugin to BakkesMod autoload configuration..." -ForegroundColor Yellow
-            add-content -Path $pluginsConfigPath -value "`nplugin load sos"
-            Write-Host "SOS plugin added to autoload configuration." -ForegroundColor Green
-        } else {
-            Write-Host "SOS plugin already in autoload configuration." -ForegroundColor Green
+    # Install plugins
+    $plugins = @(
+        @{
+            Name = "SOS"
+            DllPath = "./bakkes-plugins/SOS.dll"
+            SettingsPath = "./bakkes-plugins/sos.set"
+            ConfigEntry = "plugin load sos"
+            Required = $true
+        },
+        @{
+            Name = "ButtonMash"
+            DllPath = "./bakkes-plugins/ButtonMash.dll"
+            ConfigEntry = "plugin load buttonmash"
+            Required = $false
         }
-    } catch {
-        Write-Host "Failed to update BakkesMod configuration: $_" -ForegroundColor Red
-        Write-Host "You may need to manually add 'plugin load sos' to your BakkesMod config." -ForegroundColor Red
+    )
+    
+    foreach ($plugin in $plugins) {
+        # Skip ButtonMash if not requested
+        if (!$plugin.Required -and !$InstallButtonMash) {
+            continue
+        }
+        
+        # Install plugin DLL
+        Write-StepInfo -Message "Installing $($plugin.Name) plugin..." -Type "Info"
+        try {
+            Copy-Item $plugin.DllPath -Destination $pluginsDir -Force
+            Write-StepInfo -Message "$($plugin.Name).dll copied successfully." -Type "Success"
+            
+            # Copy settings file if it exists
+            if ($plugin.SettingsPath) {
+                Copy-Item $plugin.SettingsPath -Destination $settingsDir -Force
+                Write-StepInfo -Message "$(Split-Path $plugin.SettingsPath -Leaf) settings file copied successfully." -Type "Success"
+            }
+            
+            # Add plugin to autoload config
+            try {
+                if (!(Get-Content $pluginsConfigPath | Select-String $plugin.ConfigEntry)) {
+                    Write-StepInfo -Message "Adding $($plugin.Name) plugin to BakkesMod autoload configuration..." -Type "Info"
+                    Add-Content -Path $pluginsConfigPath -Value "`n$($plugin.ConfigEntry)"
+                    Write-StepInfo -Message "$($plugin.Name) plugin added to autoload configuration." -Type "Success"
+                } else {
+                    Write-StepInfo -Message "$($plugin.Name) plugin already in autoload configuration." -Type "Success"
+                }
+            } catch {
+                Write-StepInfo -Message "Failed to update BakkesMod configuration for $($plugin.Name): $_" -Type "Error"
+                Write-StepInfo -Message "You may need to manually add '$($plugin.ConfigEntry)' to your BakkesMod config." -Type "Warning"
+            }
+        } catch {
+            Write-StepInfo -Message "Failed to copy $($plugin.Name) plugin files: $_" -Type "Error"
+            Write-StepInfo -Message "Installation will continue, but the $($plugin.Name) plugin may not work correctly." -Type "Warning"
+        }
     }
     
-    Write-Host "BakkesMod SOS plugin installation complete." -ForegroundColor Green
+    if ($InstallButtonMash) {
+        Write-StepInfo -Message "BakkesMod plugins (SOS & ButtonMash) installation complete." -Type "Success"
+    } else {
+        Write-StepInfo -Message "BakkesMod SOS plugin installation complete." -Type "Success"
+    }
 }
 
-function install-node-js {
+function Install-NodeJs {
+    <#
+    .SYNOPSIS
+        Checks for and installs Node.js if not already present.
+    #>
     Show-Header "Checking/Installing Node.js"
     
-    Write-Host "Checking if Node.js is installed..." -ForegroundColor Yellow
-    $nodeExists = Get-Command "node" -errorAction SilentlyContinue;
+    Write-StepInfo -Message "Checking if Node.js is installed..." -Type "Info"
+    $nodeExists = Test-CommandExists "node"
     
-    if (!$nodeExists){
-        Write-Host "Node.js not found. Installing Node.js using Winget..." -ForegroundColor Yellow
+    if (!$nodeExists) {
+        Write-StepInfo -Message "Node.js not found. Installing Node.js using Winget..." -Type "Info"
         try {
             winget install OpenJS.NodeJS
-            Write-Host "Node.js installation initiated. You'll need to restart PowerShell after installation completes." -ForegroundColor Green
-            Write-Host "Please restart PowerShell to update the PATH environment variable and ensure Node.js is recognized, then re-run this script." -ForegroundColor Yellow
+            Write-StepInfo -Message "Node.js installation initiated. You'll need to restart PowerShell after installation completes." -Type "Success"
+            Write-StepInfo -Message "Please restart PowerShell to update the PATH environment variable and ensure Node.js is recognized, then re-run this script." -Type "Warning"
             exit 0
         } catch {
-            Write-Host "Failed to install Node.js: $_" -ForegroundColor Red
-            Write-Host "Please install Node.js manually from https://nodejs.org/ and then re-run this script." -ForegroundColor Red
+            Write-StepInfo -Message "Failed to install Node.js: $_" -Type "Error"
+            Write-StepInfo -Message "Please install Node.js manually from https://nodejs.org/ and then re-run this script." -Type "Warning"
             exit 1
         }
     } else {
         $nodeVersion = & node --version
-        Write-Host "Node.js is already installed (Version: $nodeVersion)." -ForegroundColor Green
+        Write-StepInfo -Message "Node.js is already installed (Version: $nodeVersion)." -Type "Success"
     }
 }
 
-function Install-WsRelay {
+function Install-WebSocketRelay {
+    <#
+    .SYNOPSIS
+        Sets up the WebSocket relay server for transmitting game data.
+    #>
     Show-Header "Installing WebSocket Relay Server"
     
-    Write-Host "Navigating to $root/sos-ws-relay..." -ForegroundColor Yellow
-    Set-Location $root/sos-ws-relay
+    Install-NpmDependencies -ProjectPath "$root/sos-ws-relay" -ProjectName "WebSocket relay"
     
-    Write-Host "Installing NPM dependencies for WebSocket relay..." -ForegroundColor Yellow
-    try {
-        npm install
-        Write-Host "Dependencies installed successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to install WebSocket relay dependencies: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the WebSocket relay may not work correctly." -ForegroundColor Red
-    }
+    Create-Shortcut -ShortcutPath "$root/SOS-WS-Relay.lnk" -TargetPath "npm" `
+                   -Arguments "run relay" -WorkingDirectory "$root/sos-ws-relay" `
+                   -Description "Starts the SOS WebSocket Relay Server"
     
-    Set-Location $root
-    
-    Write-Host "Creating shortcut for WebSocket relay server..." -ForegroundColor Yellow
-    try {
-        $WshShell = New-Object -comObject WScript.Shell
-        $Shortcut = $WshShell.CreateShortcut("$root/SOS-WS-Relay.lnk")
-        $Shortcut.TargetPath = "npm"
-        $Shortcut.Arguments = "run relay"
-        $Shortcut.WorkingDirectory = "$root/sos-ws-relay"
-        $Shortcut.Save()
-        Write-Host "WebSocket relay shortcut created successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to create WebSocket relay shortcut: $_" -ForegroundColor Red
-    }
-    
-    Write-Host "WebSocket relay installation complete." -ForegroundColor Green
+    Write-StepInfo -Message "WebSocket relay installation complete." -Type "Success"
 }
 
-function install-overlay-app {
+function Install-OverlayApp {
+    <#
+    .SYNOPSIS
+        Builds and sets up the overlay web application.
+    #>
     Show-Header "Installing Overlay Web Application"
     
-    Write-Host "Navigating to $root/overlay-app..." -ForegroundColor Yellow
-    Set-Location $root/overlay-app
+    Install-NpmDependencies -ProjectPath "$root/overlay-app" -ProjectName "overlay application" -BuildCommand "build"
     
-    Write-Host "Installing NPM dependencies for overlay-app..." -ForegroundColor Yellow
-    try {
-        npm install
-        Write-Host "Dependencies installed successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to install dependencies: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the overlay app may not work correctly." -ForegroundColor Red
-    }
-    
-    Write-Host "Building the overlay application..." -ForegroundColor Yellow
-    try {
-        npm run build
-        Write-Host "Build completed successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to build overlay app: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the overlay may not work correctly." -ForegroundColor Red
-    }
-    
-    Write-Host "Installing 'serve' globally for hosting the overlay..." -ForegroundColor Yellow
+    Write-StepInfo -Message "Installing 'serve' globally for hosting the overlay..." -Type "Info"
     try {
         npm install -g serve
-        Write-Host "'serve' installed successfully." -ForegroundColor Green
+        Write-StepInfo -Message "'serve' installed successfully." -Type "Success"
     } catch {
-        Write-Host "Failed to install 'serve': $_" -ForegroundColor Red
-        Write-Host "You may need to manually install it using 'npm install -g serve'." -ForegroundColor Red
+        Write-StepInfo -Message "Failed to install 'serve': $_" -Type "Error"
+        Write-StepInfo -Message "You may need to manually install it using 'npm install -g serve'." -Type "Warning"
     }
     
-    Set-Location $root
+    # Create shortcuts for overlay services
+    $overlayShortcuts = @(
+        @{
+            Path = "$root/Overlay-Server.lnk"
+            Target = "serve"
+            Args = "-s build"
+            WorkDir = "$root/overlay-app"
+            Desc = "Starts the Overlay web server"
+        },
+        @{
+            Path = "$root/Mini-Map.lnk"
+            Target = "http://localhost:3000/minimap"
+            Desc = "Opens the Mini-Map overlay in default browser"
+        },
+        @{
+            Path = "$root/Game-Stats.lnk"
+            Target = "http://localhost:3000/stats"
+            Desc = "Opens the Game Stats overlay in default browser"
+        },
+        @{
+            Path = "$root/Overlay.lnk"
+            Target = "http://localhost:3000"
+            Desc = "Opens the main Overlay in default browser"
+        }
+    )
     
-    Write-Host "Creating shortcuts for overlay services..." -ForegroundColor Yellow
-    try {
-        $WshShell = New-Object -comObject WScript.Shell
-        
-        Write-Host "Creating Overlay-Server shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Overlay-Server.lnk")
-        $Shortcut.TargetPath = "serve"
-        $Shortcut.Arguments = "-s build"
-        $Shortcut.WorkingDirectory = "$root/overlay-app"
-        $Shortcut.Save()
-        
-        Write-Host "Creating Mini-Map shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Mini-Map.lnk")
-        $Shortcut.TargetPath = "http://localhost:3000/minimap"
-        $Shortcut.Save()
-        
-        Write-Host "Creating Game-Stats shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Game-Stats.lnk")
-        $Shortcut.TargetPath = "http://localhost:3000/stats"
-        $Shortcut.Save()
-        
-        Write-Host "Creating main Overlay shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Overlay.lnk")
-        $Shortcut.TargetPath = "http://localhost:3000"
-        $Shortcut.Save()
-        
-        Write-Host "All shortcuts created successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to create shortcuts: $_" -ForegroundColor Red
+    $shortcutsCreated = $true
+    foreach ($shortcut in $overlayShortcuts) {
+        $result = Create-Shortcut -ShortcutPath $shortcut.Path -TargetPath $shortcut.Target `
+                                 -Arguments $shortcut.Args -WorkingDirectory $shortcut.WorkDir `
+                                 -Description $shortcut.Desc
+        if (!$result) {
+            $shortcutsCreated = $false
+        }
     }
     
-    Write-Host "Overlay app installation complete." -ForegroundColor Green
+    if ($shortcutsCreated) {
+        Write-StepInfo -Message "All overlay shortcuts created successfully." -Type "Success"
+    }
+    
+    Write-StepInfo -Message "Overlay app installation complete." -Type "Success"
 }
 
-function install-series-app {
+function Install-SeriesApp {
+    <#
+    .SYNOPSIS
+        Installs and configures the series console application.
+    #>
     Show-Header "Installing Series Console Application"
     
-    Write-Host "Navigating to $root/console-apps..." -ForegroundColor Yellow
-    Set-Location $root/console-apps
+    Install-NpmDependencies -ProjectPath "$root/console-apps" -ProjectName "console applications"
     
-    Write-Host "Installing NPM dependencies for console applications..." -ForegroundColor Yellow
-    try {
-        npm install
-        Write-Host "Dependencies installed successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to install console apps dependencies: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the console applications may not work correctly." -ForegroundColor Red
+    # Create shortcuts for console applications
+    $consoleShortcuts = @(
+        @{
+            Path = "$root/Series.lnk"
+            Target = "npm"
+            Args = "run series"
+            WorkDir = "$root/console-apps"
+            Desc = "Runs the Series management console"
+        },
+        @{
+            Path = "$root/Test-Game.lnk"
+            Target = "npm"
+            Args = "run replay"
+            WorkDir = "$root/console-apps"
+            Desc = "Runs the Test Game replay tool"
+        }
+    )
+    
+    $shortcutsCreated = $true
+    foreach ($shortcut in $consoleShortcuts) {
+        $result = Create-Shortcut -ShortcutPath $shortcut.Path -TargetPath $shortcut.Target `
+                                 -Arguments $shortcut.Args -WorkingDirectory $shortcut.WorkDir `
+                                 -Description $shortcut.Desc
+        if (!$result) {
+            $shortcutsCreated = $false
+        }
     }
     
-    Set-Location $root
-    
-    Write-Host "Creating shortcuts for console applications..." -ForegroundColor Yellow
-    try {
-        $WshShell = New-Object -comObject WScript.Shell
-        
-        Write-Host "Creating Series shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Series.lnk")
-        $Shortcut.TargetPath = "npm"
-        $Shortcut.Arguments = "run series"
-        $Shortcut.WorkingDirectory = "$root/console-apps"
-        $Shortcut.Save()
-        Write-Host "Series shortcut created successfully." -ForegroundColor Green
-        
-        Write-Host "Creating Test-Game shortcut..." -ForegroundColor Yellow
-        $Shortcut = $WshShell.CreateShortcut("$root/Test-Game.lnk")
-        $Shortcut.TargetPath = "npm"
-        $Shortcut.Arguments = "run replay"
-        $Shortcut.WorkingDirectory = "$root/console-apps"
-        $Shortcut.Save()
-        Write-Host "Test-Game shortcut created successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to create console application shortcuts: $_" -ForegroundColor Red
-    }
-    
-    Write-Host "Series console application installation complete." -ForegroundColor Green
+    Write-StepInfo -Message "Series console application installation complete." -Type "Success"
 }
 
-function install-cea-lib {
+function Install-CeaLibrary {
+    <#
+    .SYNOPSIS
+        Builds the PlayCEA API library for tournament integration.
+    #>
     Show-Header "Installing PlayCEA API Library"
     
-    Write-Host "Navigating to $root/PlayCEA-API..." -ForegroundColor Yellow
-    Set-Location $root/PlayCEA-API
+    Install-NpmDependencies -ProjectPath "$root/PlayCEA-API" -ProjectName "PlayCEA API" -BuildCommand "build"
     
-    Write-Host "Installing NPM dependencies for PlayCEA API..." -ForegroundColor Yellow
-    try {
-        npm install
-        Write-Host "Dependencies installed successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to install PlayCEA API dependencies: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but the PlayCEA API may not work correctly." -ForegroundColor Red
-    }
-    
-    Write-Host "Building PlayCEA API library..." -ForegroundColor Yellow
-    try {
-        npm run build
-        Write-Host "PlayCEA API built successfully." -ForegroundColor Green
-    } catch {
-        Write-Host "Failed to build PlayCEA API: $_" -ForegroundColor Red
-        Write-Host "Installation will continue, but functionality depending on the PlayCEA API may not work correctly." -ForegroundColor Red
-    }
-    
-    Set-Location $root
-    
-    Write-Host "PlayCEA API library installation complete." -ForegroundColor Green
+    Write-StepInfo -Message "PlayCEA API library installation complete." -Type "Success"
 }
 
-Write-Host "Starting RL Overlay Installation" -ForegroundColor Yellow
-install-node-js
-install-sos-plugin
-Install-WsRelay
-install-cea-lib
-install-series-app
-install-overlay-app
-Write-Host "RL Overlay Installation Complete" -ForegroundColor Green
+function Show-InstallationSummary {
+    <#
+    .SYNOPSIS
+        Displays a summary of the installation process.
+    .PARAMETER ButtonMashInstalled
+        Whether the ButtonMash plugin was installed.
+    #>
+    param (
+        [bool]$ButtonMashInstalled = $false
+    )
+    
+    Write-Host ""
+    Write-Host "====================================================" -ForegroundColor $colors.Success
+    Write-Host "    RL Overlay Installation Complete" -ForegroundColor $colors.Success
+    Write-Host "====================================================" -ForegroundColor $colors.Success
+
+    if ($ButtonMashInstalled) {
+        Write-StepInfo -Message "- Installed SOS plugin for BakkesMod" -Type "Success"
+        Write-StepInfo -Message "- Installed ButtonMash plugin for BakkesMod" -Type "Success"
+    } else {
+        Write-StepInfo -Message "- Installed SOS plugin for BakkesMod" -Type "Success"
+        Write-StepInfo -Message "- ButtonMash plugin NOT installed (use -ButtonMash switch to install)" -Type "Warning"
+    }
+
+    Write-StepInfo -Message "- Set up WebSocket relay" -Type "Success"
+    Write-StepInfo -Message "- Built PlayCEA API library" -Type "Success"
+    Write-StepInfo -Message "- Set up Series console application" -Type "Success"
+    Write-StepInfo -Message "- Built and set up Overlay web application" -Type "Success"
+    Write-Host ""
+    Write-Host "To use the overlay with ButtonMash in the future, run:" -ForegroundColor $colors.Info
+    Write-Host "    .\install.ps1 -ButtonMash" -ForegroundColor $colors.Info
+    Write-Host ""
+}
+
+#endregion
+
+# Main script execution
+Write-StepInfo -Message "Starting RL Overlay Installation" -Type "Info"
+
+# Step 1: Check for Node.js
+Install-NodeJs
+
+# Step 2: Install BakkesMod plugins
+Install-BakkesModPlugins -InstallButtonMash $ButtonMash
+
+# Step 3: Set up WebSocket relay
+Install-WebSocketRelay
+
+# Step 4: Install PlayCEA API
+Install-CeaLibrary
+
+# Step 5: Set up Series console application
+Install-SeriesApp
+
+# Step 6: Set up Overlay web application
+Install-OverlayApp
+
+# Display installation summary
+Show-InstallationSummary -ButtonMashInstalled $ButtonMash
+
 exit 0

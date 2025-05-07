@@ -51,7 +51,7 @@ export class Match {
         team: 1,
         name: 'Orange',
         matches_won: 0,
-        color_primary: '255, 120, 30', // Default orange RGB values
+        color_primary: '255, 125, 20', // Default orange RGB values
         color_secondary: '',
       },
     ],

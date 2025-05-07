@@ -17,7 +17,8 @@ import {
 import { Match } from '../match';
 import { StatFeed } from '../types/statfeedEvent';
 
-export const Stream: FC<{ match: Match }> = (props) => {
+// Changed to const component for default export
+const Stream: FC<{ match: Match }> = (props) => {
   const [gameState, setGameState] = useState(props.match.gameState.state);
   const [scoreboardState, setScoreboardState] = useState(
     getScoreboardState(props.match)
@@ -164,3 +165,8 @@ export const Stream: FC<{ match: Match }> = (props) => {
       );
   }
 };
+
+// Add default export for lazy loading
+export default Stream;
+// Keep named export for backward compatibility
+export { Stream };

@@ -8,7 +8,8 @@ interface GameStatsProps {
   width: number;
 }
 
-export class GameStats extends React.Component<GameStatsProps, PostGameProps> {
+// Changed class name for default export
+class GameStatsComponent extends React.Component<GameStatsProps, PostGameProps> {
   match: Match;
   unsubscribers: Callback[] = [];
 
@@ -56,4 +57,9 @@ export class GameStats extends React.Component<GameStatsProps, PostGameProps> {
       </div>
     );
   }
-};
+}
+
+// Add default export for lazy loading
+export default GameStatsComponent;
+// Keep named export for backward compatibility
+export { GameStatsComponent as GameStats };

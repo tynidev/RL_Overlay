@@ -57,174 +57,79 @@ $script:colors = @{
     Error = "Red"
 }
 
-#region Helper Functions
+#region Main Script Execution Logic
 
-function Show-Header {
-    <#
-    .SYNOPSIS
-        Displays a standardized header for installation steps.
-    .PARAMETER Title
-        The title text to display in the header.
-    #>
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Title
-    )
-    
-    Write-Host ""
-    Write-Host "====================================================" -ForegroundColor $colors.Info
-    Write-Host "    $Title" -ForegroundColor $colors.Info
-    Write-Host "====================================================" -ForegroundColor $colors.Info
+# Welcome message
+Write-Host ""
+Write-Host "====================================================" -ForegroundColor $colors.Info
+Write-Host "    Rocket League Overlay Installation" -ForegroundColor $colors.Info
+Write-Host "====================================================" -ForegroundColor $colors.Info
+Write-Host ""
+Write-Host "This script will install and configure the following components:"
+Write-Host "1. BakkesMod SOS plugin for game data capture" -ForegroundColor $colors.Info
+if ($ButtonMash) {
+    Write-Host "2. ButtonMash plugin for auto-spectating" -ForegroundColor $colors.Info
 }
+Write-Host "3. Node.js (if not already installed)" -ForegroundColor $colors.Info
+Write-Host "4. WebSocket relay server" -ForegroundColor $colors.Info
+Write-Host "5. PlayCEA API library" -ForegroundColor $colors.Info
+Write-Host "6. Series console application" -ForegroundColor $colors.Info
+Write-Host "7. Overlay web application" -ForegroundColor $colors.Info
+Write-Host ""
+Write-StepInfo -Message "Starting RL Overlay Installation" -Type "Info"
 
-function Write-StepInfo {
-    <#
-    .SYNOPSIS
-        Writes formatted step information with consistent color coding.
-    .PARAMETER Message
-        The message to display.
-    .PARAMETER Type
-        The type of message (Info, Success, Warning, Error).
-    #>
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Message,
-        
-        [Parameter(Mandatory = $true)]
-        [ValidateSet("Info", "Success", "Warning", "Error")]
-        [string]$Type
-    )
-    
-    Write-Host $Message -ForegroundColor $colors[$Type]
-}
+# Step 1: Check for Node.js
+Install-NodeJs
 
-function Install-NpmDependencies {
-    <#
-    .SYNOPSIS
-        Installs NPM dependencies for a project.
-    .PARAMETER ProjectPath
-        The path to the project.
-    .PARAMETER ProjectName
-        The name of the project for logging purposes.
-    .PARAMETER BuildCommand
-        An optional build command to run after installing dependencies.
-    #>
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$ProjectPath,
-        
-        [Parameter(Mandatory = $true)]
-        [string]$ProjectName,
-        
-        [Parameter(Mandatory = $false)]
-        [string]$BuildCommand
-    )
-    
-    Write-StepInfo -Message "Navigating to $ProjectPath..." -Type "Info"
-    Push-Location $ProjectPath
-    
-    Write-StepInfo -Message "Installing NPM dependencies for $ProjectName..." -Type "Info"
-    try {
-        npm install
-        Write-StepInfo -Message "Dependencies installed successfully." -Type "Success"
-        
-        if ($BuildCommand) {
-            Write-StepInfo -Message "Building the $ProjectName..." -Type "Info"
-            try {
-                npm run $BuildCommand
-                Write-StepInfo -Message "Build completed successfully." -Type "Success"
-            } catch {
-                Write-StepInfo -Message "Failed to build $ProjectName`: $_" -Type "Error"
-                Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
-            }
-        }
-    } catch {
-        Write-StepInfo -Message "Failed to install $ProjectName dependencies: $_" -Type "Error"
-        Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
-    }
-    
-    Pop-Location
-}
+# Step 2: Install BakkesMod plugins
+Install-BakkesModPlugins -InstallButtonMash $ButtonMash
 
-function Create-Shortcut {
-    <#
-    .SYNOPSIS
-        Creates a Windows shortcut (.lnk) file.
-    .PARAMETER ShortcutPath
-        The path where the shortcut will be created.
-    .PARAMETER TargetPath
-        The target path for the shortcut.
-    .PARAMETER Arguments
-        Optional command line arguments.
-    .PARAMETER WorkingDirectory
-        Optional working directory.
-    .PARAMETER Description
-        Optional description of the shortcut.
-    #>
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$ShortcutPath,
-        
-        [Parameter(Mandatory = $true)]
-        [string]$TargetPath,
-        
-        [Parameter(Mandatory = $false)]
-        [string]$Arguments = "",
-        
-        [Parameter(Mandatory = $false)]
-        [string]$WorkingDirectory = "",
-        
-        [Parameter(Mandatory = $false)]
-        [string]$Description = ""
-    )
-    
-    $shortcutName = Split-Path -Path $ShortcutPath -Leaf
-    Write-StepInfo -Message "Creating '$shortcutName' shortcut..." -Type "Info"
-    
-    try {
-        $WshShell = New-Object -ComObject WScript.Shell
-        $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
-        $Shortcut.TargetPath = $TargetPath
-        
-        if ($Arguments) {
-            $Shortcut.Arguments = $Arguments
-        }
-        
-        if ($WorkingDirectory) {
-            $Shortcut.WorkingDirectory = $WorkingDirectory
-        }
-        
-        if ($Description) {
-            $Shortcut.Description = $Description
-        }
-        
-        $Shortcut.Save()
-        Write-StepInfo -Message "'$shortcutName' shortcut created successfully." -Type "Success"
-        return $true
-    } catch {
-        Write-StepInfo -Message "Failed to create '$shortcutName' shortcut: $_" -Type "Error"
-        return $false
-    }
-}
+# Step 3: Set up WebSocket relay
+Install-WebSocketRelay
 
-function Test-CommandExists {
-    <#
-    .SYNOPSIS
-        Tests if a command exists in the current environment.
-    .PARAMETER Command
-        The command to test.
-    #>
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Command
-    )
-    
-    return [bool](Get-Command $Command -ErrorAction SilentlyContinue)
-}
+# Step 4: Install PlayCEA API
+Install-CeaLibrary
 
-#endregion
+# Step 5: Set up Series console application
+Install-SeriesApp
+
+# Step 6: Set up Overlay web application
+Install-OverlayApp
+
+# Display installation summary
+Show-InstallationSummary -ButtonMashInstalled $ButtonMash
+
+#endregion Main Script Execution Logic
 
 #region Installation Functions
+
+function Install-NodeJs {
+    <#
+    .SYNOPSIS
+        Checks for and installs Node.js if not already present.
+    #>
+    Show-Header "Checking/Installing Node.js"
+    
+    Write-StepInfo -Message "Checking if Node.js is installed..." -Type "Info"
+    $nodeExists = Test-CommandExists "node"
+    
+    if (!$nodeExists) {
+        Write-StepInfo -Message "Node.js not found. Installing Node.js using Winget..." -Type "Info"
+        try {
+            winget install OpenJS.NodeJS
+            Write-StepInfo -Message "Node.js installation initiated. You'll need to restart PowerShell after installation completes." -Type "Success"
+            Write-StepInfo -Message "Please restart PowerShell to update the PATH environment variable and ensure Node.js is recognized, then re-run this script." -Type "Warning"
+            exit 0
+        } catch {
+            Write-StepInfo -Message "Failed to install Node.js: $_" -Type "Error"
+            Write-StepInfo -Message "Please install Node.js manually from https://nodejs.org/ and then re-run this script." -Type "Warning"
+            exit 1
+        }
+    } else {
+        $nodeVersion = & node --version
+        Write-StepInfo -Message "Node.js is already installed (Version: $nodeVersion)." -Type "Success"
+    }
+}
 
 function Install-BakkesModPlugins {
     <#
@@ -319,34 +224,6 @@ function Install-BakkesModPlugins {
     }
 }
 
-function Install-NodeJs {
-    <#
-    .SYNOPSIS
-        Checks for and installs Node.js if not already present.
-    #>
-    Show-Header "Checking/Installing Node.js"
-    
-    Write-StepInfo -Message "Checking if Node.js is installed..." -Type "Info"
-    $nodeExists = Test-CommandExists "node"
-    
-    if (!$nodeExists) {
-        Write-StepInfo -Message "Node.js not found. Installing Node.js using Winget..." -Type "Info"
-        try {
-            winget install OpenJS.NodeJS
-            Write-StepInfo -Message "Node.js installation initiated. You'll need to restart PowerShell after installation completes." -Type "Success"
-            Write-StepInfo -Message "Please restart PowerShell to update the PATH environment variable and ensure Node.js is recognized, then re-run this script." -Type "Warning"
-            exit 0
-        } catch {
-            Write-StepInfo -Message "Failed to install Node.js: $_" -Type "Error"
-            Write-StepInfo -Message "Please install Node.js manually from https://nodejs.org/ and then re-run this script." -Type "Warning"
-            exit 1
-        }
-    } else {
-        $nodeVersion = & node --version
-        Write-StepInfo -Message "Node.js is already installed (Version: $nodeVersion)." -Type "Success"
-    }
-}
-
 function Install-WebSocketRelay {
     <#
     .SYNOPSIS
@@ -361,6 +238,58 @@ function Install-WebSocketRelay {
                    -Description "Starts the SOS WebSocket Relay Server"
     
     Write-StepInfo -Message "WebSocket relay installation complete." -Type "Success"
+}
+
+function Install-CeaLibrary {
+    <#
+    .SYNOPSIS
+        Builds the PlayCEA API library for tournament integration.
+    #>
+    Show-Header "Installing PlayCEA API Library"
+    
+    Install-NpmDependencies -ProjectPath "$root/PlayCEA-API" -ProjectName "PlayCEA API" -BuildCommand "build"
+    
+    Write-StepInfo -Message "PlayCEA API library installation complete." -Type "Success"
+}
+
+function Install-SeriesApp {
+    <#
+    .SYNOPSIS
+        Installs and configures the series console application.
+    #>
+    Show-Header "Installing Series Console Application"
+    
+    Install-NpmDependencies -ProjectPath "$root/console-apps" -ProjectName "console applications"
+    
+    # Create shortcuts for console applications
+    $consoleShortcuts = @(
+        @{
+            Path = "$root/Series.lnk"
+            Target = "npm"
+            Args = "run series"
+            WorkDir = "$root/console-apps"
+            Desc = "Runs the Series management console"
+        },
+        @{
+            Path = "$root/Test-Game.lnk"
+            Target = "npm"
+            Args = "run replay"
+            WorkDir = "$root/console-apps"
+            Desc = "Runs the Test Game replay tool"
+        }
+    )
+    
+    $shortcutsCreated = $true
+    foreach ($shortcut in $consoleShortcuts) {
+        $result = Create-Shortcut -ShortcutPath $shortcut.Path -TargetPath $shortcut.Target `
+                                 -Arguments $shortcut.Args -WorkingDirectory $shortcut.WorkDir `
+                                 -Description $shortcut.Desc
+        if (!$result) {
+            $shortcutsCreated = $false
+        }
+    }
+    
+    Write-StepInfo -Message "Series console application installation complete." -Type "Success"
 }
 
 function Install-OverlayApp {
@@ -424,58 +353,6 @@ function Install-OverlayApp {
     Write-StepInfo -Message "Overlay app installation complete." -Type "Success"
 }
 
-function Install-SeriesApp {
-    <#
-    .SYNOPSIS
-        Installs and configures the series console application.
-    #>
-    Show-Header "Installing Series Console Application"
-    
-    Install-NpmDependencies -ProjectPath "$root/console-apps" -ProjectName "console applications"
-    
-    # Create shortcuts for console applications
-    $consoleShortcuts = @(
-        @{
-            Path = "$root/Series.lnk"
-            Target = "npm"
-            Args = "run series"
-            WorkDir = "$root/console-apps"
-            Desc = "Runs the Series management console"
-        },
-        @{
-            Path = "$root/Test-Game.lnk"
-            Target = "npm"
-            Args = "run replay"
-            WorkDir = "$root/console-apps"
-            Desc = "Runs the Test Game replay tool"
-        }
-    )
-    
-    $shortcutsCreated = $true
-    foreach ($shortcut in $consoleShortcuts) {
-        $result = Create-Shortcut -ShortcutPath $shortcut.Path -TargetPath $shortcut.Target `
-                                 -Arguments $shortcut.Args -WorkingDirectory $shortcut.WorkDir `
-                                 -Description $shortcut.Desc
-        if (!$result) {
-            $shortcutsCreated = $false
-        }
-    }
-    
-    Write-StepInfo -Message "Series console application installation complete." -Type "Success"
-}
-
-function Install-CeaLibrary {
-    <#
-    .SYNOPSIS
-        Builds the PlayCEA API library for tournament integration.
-    #>
-    Show-Header "Installing PlayCEA API Library"
-    
-    Install-NpmDependencies -ProjectPath "$root/PlayCEA-API" -ProjectName "PlayCEA API" -BuildCommand "build"
-    
-    Write-StepInfo -Message "PlayCEA API library installation complete." -Type "Success"
-}
-
 function Show-InstallationSummary {
     <#
     .SYNOPSIS
@@ -510,30 +387,173 @@ function Show-InstallationSummary {
     Write-Host ""
 }
 
-#endregion
+#endregion Installation Functions
 
-# Main script execution
-Write-StepInfo -Message "Starting RL Overlay Installation" -Type "Info"
+#region Helper Functions
 
-# Step 1: Check for Node.js
-Install-NodeJs
+function Show-Header {
+    <#
+    .SYNOPSIS
+        Displays a standardized header for installation steps.
+    .PARAMETER Title
+        The title text to display in the header.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Title
+    )
+    
+    Write-Host ""
+    Write-Host "====================================================" -ForegroundColor $colors.Info
+    Write-Host "    $Title" -ForegroundColor $colors.Info
+    Write-Host "====================================================" -ForegroundColor $colors.Info
+}
 
-# Step 2: Install BakkesMod plugins
-Install-BakkesModPlugins -InstallButtonMash $ButtonMash
+function Write-StepInfo {
+    <#
+    .SYNOPSIS
+        Writes formatted step information with consistent color coding.
+    .PARAMETER Message
+        The message to display.
+    .PARAMETER Type
+        The type of message (Info, Success, Warning, Error).
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("Info", "Success", "Warning", "Error")]
+        [string]$Type
+    )
+    
+    Write-Host $Message -ForegroundColor $colors[$Type]
+}
 
-# Step 3: Set up WebSocket relay
-Install-WebSocketRelay
+function Install-NpmDependencies {
+    <#
+    .SYNOPSIS
+        Installs NPM dependencies for a project.
+    .PARAMETER ProjectPath
+        The path to the project.
+    .PARAMETER ProjectName
+        The name of the project for logging purposes.
+    .PARAMETER BuildCommand
+        An optional build command to run after installing dependencies.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ProjectPath,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$ProjectName,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$BuildCommand
+    )
+    
+    Write-StepInfo -Message "Navigating to $ProjectPath..." -Type "Info"
+    Push-Location $ProjectPath
+    
+    Write-StepInfo -Message "Installing NPM dependencies for $ProjectName..." -Type "Info"
+    try {
+        npm install
+        Write-StepInfo -Message "Dependencies installed successfully." -Type "Success"
+        
+        if ($BuildCommand) {
+            Write-StepInfo -Message "Building the $ProjectName..." -Type "Info"
+            try {
+                npm run $BuildCommand
+                Write-StepInfo -Message "Build completed successfully." -Type "Success"
+            } catch {
+                Write-StepInfo -Message "Failed to build $ProjectName: $_" -Type "Error"
+                Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
+            }
+        }
+    } catch {
+        Write-StepInfo -Message "Failed to install $ProjectName dependencies: $_" -Type "Error"
+        Write-StepInfo -Message "Installation will continue, but $ProjectName may not work correctly." -Type "Warning"
+    }
+    
+    Pop-Location
+}
 
-# Step 4: Install PlayCEA API
-Install-CeaLibrary
+function Create-Shortcut {
+    <#
+    .SYNOPSIS
+        Creates a Windows shortcut (.lnk) file.
+    .PARAMETER ShortcutPath
+        The path where the shortcut will be created.
+    .PARAMETER TargetPath
+        The target path for the shortcut.
+    .PARAMETER Arguments
+        Optional command line arguments.
+    .PARAMETER WorkingDirectory
+        Optional working directory.
+    .PARAMETER Description
+        Optional description of the shortcut.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ShortcutPath,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$TargetPath,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$Arguments = "",
+        
+        [Parameter(Mandatory = $false)]
+        [string]$WorkingDirectory = "",
+        
+        [Parameter(Mandatory = $false)]
+        [string]$Description = ""
+    )
+    
+    $shortcutName = Split-Path -Path $ShortcutPath -Leaf
+    Write-StepInfo -Message "Creating '$shortcutName' shortcut..." -Type "Info"
+    
+    try {
+        $WshShell = New-Object -ComObject WScript.Shell
+        $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
+        $Shortcut.TargetPath = $TargetPath
+        
+        if ($Arguments) {
+            $Shortcut.Arguments = $Arguments
+        }
+        
+        if ($WorkingDirectory) {
+            $Shortcut.WorkingDirectory = $WorkingDirectory
+        }
+        
+        if ($Description) {
+            $Shortcut.Description = $Description
+        }
+        
+        $Shortcut.Save()
+        Write-StepInfo -Message "'$shortcutName' shortcut created successfully." -Type "Success"
+        return $true
+    } catch {
+        Write-StepInfo -Message "Failed to create '$shortcutName' shortcut: $_" -Type "Error"
+        return $false
+    }
+}
 
-# Step 5: Set up Series console application
-Install-SeriesApp
+function Test-CommandExists {
+    <#
+    .SYNOPSIS
+        Tests if a command exists in the current environment.
+    .PARAMETER Command
+        The command to test.
+    #>
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Command
+    )
+    
+    return [bool](Get-Command $Command -ErrorAction SilentlyContinue)
+}
 
-# Step 6: Set up Overlay web application
-Install-OverlayApp
-
-# Display installation summary
-Show-InstallationSummary -ButtonMashInstalled $ButtonMash
+#endregion Helper Functions
 
 exit 0

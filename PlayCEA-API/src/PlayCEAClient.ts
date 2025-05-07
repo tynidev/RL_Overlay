@@ -661,10 +661,12 @@ class PlayCEAClient {
                 teamId: team.tid
             })),
             id: apiTournament.tmid,
-            brackets: apiTournament.bs.map(stage => ({
-                bracketId: stage.bid,
-                name: stage.name
-            })),
+            brackets: apiTournament.bs
+                .filter(stage => stage.bid === apiTournament.sbkt.reg || stage.bid === apiTournament.sbkt.po)
+                .map(stage => ({
+                    bracketId: stage.bid,
+                    name: stage.name
+                })),
             seasonInfo: {
                 league: apiTournament.sn.l,
                 year: apiTournament.sn.y,

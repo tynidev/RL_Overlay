@@ -17,7 +17,8 @@ interface MiniMapProps {
   right: Player[];
 }
 
-export class MiniMapRoute extends React.Component<MiniMapRouteProps, MiniMapProps> {
+// Changed class name for default export
+class MiniMapRouteComponent extends React.Component<MiniMapRouteProps, MiniMapProps> {
   match: Match;
   unsubscribers: Callback[] = [];
 
@@ -47,3 +48,8 @@ export class MiniMapRoute extends React.Component<MiniMapRouteProps, MiniMapProp
     );
   }
 }
+
+// Add default export for lazy loading
+export default MiniMapRouteComponent;
+// Keep named export for backward compatibility
+export { MiniMapRouteComponent as MiniMapRoute };

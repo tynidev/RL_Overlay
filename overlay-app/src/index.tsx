@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './css/root.css';
@@ -6,12 +6,33 @@ import { reportWebVitals } from './reportWebVitals';
 
 import { WsSubscribers } from './wsSubscribers';
 import { Match } from './match';
-
-import { Stream } from './routes/Stream';
-import { GameStats } from './routes/GameStats';
-import { MiniMapRoute } from './routes/MiniMapRoute';
 import { RCONN } from './RCONN';
-import { SeriesControlRoute } from './routes/SeriesControlRoute';
+import TeamColorManager from './components/TeamColorManager';
+
+// Lazy load route components
+const Stream = lazy(() => import('./routes/Stream'));
+const GameStats = lazy(() => import('./routes/GameStats'));
+const MiniMapRoute = lazy(() => import('./routes/MiniMapRoute'));
+const SeriesControlRoute = lazy(() => import('./routes/SeriesControlRoute'));
+
+// Loading component for Suspense
+const LoadingFallback = () => (
+  <div style={{ 
+    position: 'fixed', 
+    top: 0, 
+    left: 0, 
+    width: '100%', 
+    height: '100%', 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: 'rgba(var(--base-color), 0.9)',
+    color: 'white',
+    fontSize: '2rem'
+  }}>
+    Loading...
+  </div>
+);
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
@@ -61,25 +82,42 @@ const match = new Match(
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Stream match={match} />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Stream match={match} />
+      </Suspense>
+    ),
   },
   {
     path: '/stats',
-    element: <GameStats match={match} width={width} />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <GameStats match={match} width={width} />
+      </Suspense>
+    ),
   },
   {
     path: '/minimap',
-    element: <MiniMapRoute match={match} height={height} width={width} />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <MiniMapRoute match={match} height={height} width={width} />
+      </Suspense>
+    ),
   },
   {
     path: '/ctrl',
-    element: <SeriesControlRoute height={height} width={width} match={match} />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <SeriesControlRoute height={height} width={width} match={match} />
+      </Suspense>
+    ),
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
+    <TeamColorManager match={match} />
     <RouterProvider router={router} />
   </React.StrictMode>
 );

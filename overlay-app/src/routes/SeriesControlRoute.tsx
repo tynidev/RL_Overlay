@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Match } from '../match';
 import { Series, SeriesTeam } from '../types/series';
 import { WsSubscribers } from '../wsSubscribers';
@@ -45,9 +45,125 @@ interface SeriesControlRouteState {
   hasUnsavedChanges: boolean; // Add state to track unsaved changes
   matchId: string; // Add matchId to state
   modal: ModalState; // Add modal state
+  cachedScaleFactor: number | null; // Add cached scale factor
+  lastDimensions: { width: number; height: number } | null; // Track last dimensions for cache invalidation
 }
 
-export class SeriesControlRoute extends React.Component<SeriesControlRouteProps, SeriesControlRouteState> {
+// Team card props interface
+interface TeamCardProps {
+  team: SeriesTeam;
+  teamIndex: 0 | 1;
+  teamColor: string;
+  maxAllowedWins: number;
+  onUpdateTeam: (teamIndex: 0 | 1, field: keyof SeriesTeam, value: any) => void;
+  defaultRgbColor: string;
+}
+
+// Memoized TeamCard component
+const TeamCard = memo(({ team, teamIndex, teamColor, maxAllowedWins, onUpdateTeam, defaultRgbColor }: TeamCardProps) => {
+  return (
+    <div className="team-card" style={{ backgroundColor: `rgb(${team.color_primary || defaultRgbColor})` }} >
+      <div className="team-header">
+        <h2>{team.name}</h2>
+      </div>
+      
+      <div className="team-content">
+        {/* Left side - Logo */}
+        <div className="team-logo-section">
+          {team.logo ? (
+            <img 
+              src={team.logo} 
+              alt={`${team.name} logo`} 
+              className="team-logo" 
+              aria-label={`Logo for ${team.name}`}
+            />
+          ) : (
+            <div className="team-logo-placeholder" aria-label="No logo available">NO LOGO</div>
+          )}
+          
+          {/* Team color input moved below logo */}
+          <div className="team-color-input" style={{ marginTop: '30px', width: '100%' }}>
+          <label htmlFor={`team-color-${teamIndex}`}>TEAM COLOR:</label>
+            <input
+              id={`team-color-${teamIndex}`}
+              type="text"
+              value={team.color_primary || defaultRgbColor}
+              onChange={(e) => onUpdateTeam(teamIndex, 'color_primary', e.target.value)}
+              className="team-input"
+              aria-label={`Team color for ${team.name}`}
+              placeholder="R, G, B"
+            />
+          </div>
+        </div>
+        
+        {/* Right side - Team details */}
+        <div className="team-details-section">
+          <div className="team-form-group">
+            <label htmlFor={`team-name-${teamIndex}`}>TEAM NAME:</label>
+            <input
+              id={`team-name-${teamIndex}`}
+              type="text"
+              value={team.name}
+              onChange={(e) => onUpdateTeam(teamIndex, 'name', e.target.value)}
+              className="team-input"
+              aria-label={`Team name for ${teamIndex === 0 ? 'blue' : 'orange'} team`}
+            />
+          </div>
+          
+          <div className="team-form-group">
+            <label htmlFor={`team-wins-${teamIndex}`}>MATCHES WON:</label>
+            <div className="matches-control">
+              <input
+                id={`team-wins-${teamIndex}`}
+                type="number"
+                min={0}
+                max={maxAllowedWins}
+                value={team.matches_won}
+                onChange={(e) => onUpdateTeam(teamIndex, 'matches_won', parseInt(e.target.value) || 0)}
+                className="team-input"
+                aria-label={`Match wins for ${team.name}`}
+              />
+              <div className="match-buttons">
+                <button 
+                  onClick={() => onUpdateTeam(teamIndex, 'matches_won', team.matches_won + 1)}
+                  disabled={team.matches_won >= maxAllowedWins}
+                  className="match-btn"
+                  aria-label={`Increase ${team.name} wins by 1`}
+                >
+                  +1
+                </button>
+                <button 
+                  onClick={() => onUpdateTeam(teamIndex, 'matches_won', Math.max(0, team.matches_won - 1))}
+                  disabled={team.matches_won <= 0}
+                  className="match-btn"
+                  aria-label={`Decrease ${team.name} wins by 1`}
+                >
+                  -1
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="team-form-group">
+            <label htmlFor={`team-logo-${teamIndex}`}>LOGO URL:</label>
+            <input
+              id={`team-logo-${teamIndex}`}
+              type="text"
+              placeholder="Logo URL"
+              value={team.logo || ""}
+              onChange={(e) => onUpdateTeam(teamIndex, 'logo', e.target.value)}
+              className="logo-input"
+              aria-label={`Logo URL for ${team.name}`}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Changed class name for default export
+class SeriesControlRouteComponent extends React.Component<SeriesControlRouteProps, SeriesControlRouteState> {
   // Track unsubscribe functions for event listeners
   private unsubscribers: Callback[] = [];
   // Track if component is mounted to prevent setState after unmount
@@ -61,6 +177,9 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     teams: {},
     matches: {}
   };
+  
+  // Add a debounce timer for resize events
+  private resizeDebounceTimer: number | null = null;
   
   constructor(props: SeriesControlRouteProps) {
     super(props);
@@ -87,7 +206,9 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
         matches: [],
         loading: false,
         error: null
-      }
+      },
+      cachedScaleFactor: null, // Initialize cached scale factor
+      lastDimensions: null // Initialize last dimensions
     };
   }
 
@@ -96,8 +217,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     this._isMounted = true;
     this.subscribeToMatchEvents(this.props.match);
     
-    // Handle window resize
-    window.addEventListener('resize', this.handleResize);
+    // Handle window resize with debounce
+    window.addEventListener('resize', this.debouncedHandleResize);
     
     // Set initial dimensions
     this.handleResize();
@@ -135,6 +256,19 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
       // Don't update state if preloading fails, we'll try again when modal opens
     }
   };
+
+  // Implement debounced resize handler to prevent excessive calculations
+  debouncedHandleResize = () => {
+    if (this.resizeDebounceTimer !== null) {
+      window.clearTimeout(this.resizeDebounceTimer);
+    }
+    
+    // Set a 150ms debounce to avoid multiple rapid calculations
+    this.resizeDebounceTimer = window.setTimeout(() => {
+      this.handleResize();
+      this.resizeDebounceTimer = null;
+    }, 150);
+  }
 
   componentDidUpdate(prevProps: SeriesControlRouteProps) {
     console.log('SeriesControlRoute componentDidUpdate called');
@@ -187,7 +321,7 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     this._isMounted = false;
     // Clean up event listeners
     this.unsubscribeFromMatchEvents();
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.debouncedHandleResize);
   }
   
   // Helper method to subscribe to match events
@@ -237,15 +371,33 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   
   // Calculate scale factor based on screen size
   getScaleFactor = () => {
+    const { dimensions, cachedScaleFactor, lastDimensions } = this.state;
+
+    // Check if we have a cached scale factor and if dimensions haven't changed
+    if (cachedScaleFactor !== null && lastDimensions && 
+        lastDimensions.width === dimensions.width && 
+        lastDimensions.height === dimensions.height) {
+      return cachedScaleFactor;
+    }
+
     // Base design size
     const baseWidth = 1200;
     const baseHeight = 800;
 
-    const widthRatio = this.state.dimensions.width / baseWidth;
-    const heightRatio = this.state.dimensions.height / baseHeight;
+    const widthRatio = dimensions.width / baseWidth;
+    const heightRatio = dimensions.height / baseHeight;
 
     // Use the smaller ratio to ensure content fits on screen
-    return Math.min(widthRatio, heightRatio, 1.5); // Cap at 1.5x to prevent excessive scaling
+    let scaleFactor = Math.min(widthRatio, heightRatio, 1.5); // Cap at 1.5x to prevent excessive scaling
+    scaleFactor = scaleFactor * 0.95; // Reduce scale factor by 10% for better fit
+
+    // Cache the calculated scale factor and dimensions
+    this.setState({
+      cachedScaleFactor: scaleFactor,
+      lastDimensions: { ...dimensions }
+    });
+
+    return scaleFactor;
   }
 
   // Ensure series length is always odd (1, 3, 5, 7, 9)
@@ -375,9 +527,12 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
   renderTeamCard = (teamIndex: 0 | 1) => {
     console.log(`Rendering team card for team ${teamIndex}`);
     const team = this.state.series.teams[teamIndex];
-    const teamColor = teamIndex === 0 ? "rgba(7, 121, 211, 0.8)" : "rgba(242, 96, 29, 0.8)";
+    const teamColor = teamIndex === 0 ? "rgba(12,125,255, 1)" : "rgba(255, 120, 30,1)";
     const otherTeamIndex = teamIndex === 0 ? 1 : 0;
     const otherTeamWins = this.state.series.teams[otherTeamIndex].matches_won;
+
+    // Default RGB values from CSS
+    const defaultRgbColor = teamIndex === 0 ? "12,125,255" : "255, 120, 30";
 
     // Maximum wins is half the series length rounded up
     const maxWinsForSingleTeam = Math.ceil(this.state.series.length / 2);
@@ -389,80 +544,14 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     const maxAllowedWins = Math.min(maxWinsForSingleTeam, maxAllowedBasedOnOtherTeam);
 
     return (
-      <div className="team-card" style={{ backgroundColor: teamColor }} >
-        <div className="team-header">
-          <h2>{team.name}</h2>
-        </div>
-        
-        <div className="team-content">
-          {/* Left side - Logo */}
-          <div className="team-logo-section">
-            {team.logo ? (
-              <img 
-                src={team.logo} 
-                alt={`${team.name} logo`} 
-                className="team-logo" 
-              />
-            ) : (
-              <div className="team-logo-placeholder">NO LOGO</div>
-            )}
-          </div>
-          
-          {/* Right side - Team details */}
-          <div className="team-details-section">
-            <div className="team-form-group">
-              <label>TEAM NAME:</label>
-              <input
-                type="text"
-                value={team.name}
-                onChange={(e) => this.updateTeam(teamIndex, 'name', e.target.value)}
-                className="team-input"
-              />
-            </div>
-            
-            <div className="team-form-group">
-              <label>MATCHES WON:</label>
-              <div className="matches-control">
-                <input
-                  type="number"
-                  min="0"
-                  max={maxAllowedWins}
-                  value={team.matches_won}
-                  onChange={(e) => this.updateTeam(teamIndex, 'matches_won', parseInt(e.target.value) || 0)}
-                  className="team-input"
-                />
-                <div className="match-buttons">
-                  <button 
-                    onClick={() => this.updateTeam(teamIndex, 'matches_won', team.matches_won + 1)}
-                    disabled={team.matches_won >= maxAllowedWins}
-                    className="match-btn"
-                  >
-                    +1
-                  </button>
-                  <button 
-                    onClick={() => this.updateTeam(teamIndex, 'matches_won', Math.max(0, team.matches_won - 1))}
-                    disabled={team.matches_won <= 0}
-                    className="match-btn"
-                  >
-                    -1
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="team-form-group">
-              <label>LOGO URL:</label>
-              <input
-                type="text"
-                placeholder="Logo URL"
-                value={team.logo || ""}
-                onChange={(e) => this.updateTeam(teamIndex, 'logo', e.target.value)}
-                className="logo-input"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <TeamCard
+        team={team}
+        teamIndex={teamIndex}
+        teamColor={teamColor}
+        maxAllowedWins={maxAllowedWins}
+        onUpdateTeam={this.updateTeam}
+        defaultRgbColor={defaultRgbColor}
+      />
     );
   }
 
@@ -1153,3 +1242,8 @@ export class SeriesControlRoute extends React.Component<SeriesControlRouteProps,
     );
   }
 }
+
+// Add default export for lazy loading
+export default SeriesControlRouteComponent;
+// Keep named export for backward compatibility
+export { SeriesControlRouteComponent as SeriesControlRoute };

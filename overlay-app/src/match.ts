@@ -44,11 +44,15 @@ export class Match {
         team: 0,
         name: 'Blue',
         matches_won: 0,
+        color_primary: '12,125,255', // Default blue RGB values
+        color_secondary: '',
       },
       {
         team: 1,
         name: 'Orange',
         matches_won: 0,
+        color_primary: '255, 120, 30', // Default orange RGB values
+        color_secondary: '',
       },
     ],
   };
@@ -654,6 +658,8 @@ export class Match {
         this.series.teams[0].matches_won;
       this.series.teams[0].team = p.teams[0].team ?? this.series.teams[0].team;
       this.series.teams[0].logo = p.teams[0].logo ?? this.series.teams[0].logo;
+      this.series.teams[0].color_primary = p.teams[0].color_primary ?? this.series.teams[0].color_primary;
+      this.series.teams[0].color_secondary = p.teams[0].color_secondary ?? this.series.teams[0].color_secondary;
   
       this.series.teams[1].name = p.teams[1].name ?? this.series.teams[1].name;
       this.series.teams[1].matches_won = 
@@ -662,6 +668,17 @@ export class Match {
         this.series.teams[1].matches_won;
       this.series.teams[1].team = p.teams[1].team ?? this.series.teams[1].team;
       this.series.teams[1].logo = p.teams[1].logo ?? this.series.teams[1].logo;
+      this.series.teams[1].color_secondary = p.teams[1].color_secondary ?? this.series.teams[1].color_secondary;
+      this.series.teams[1].color_primary = p.teams[1].color_primary ?? this.series.teams[1].color_primary;
+      
+      // Update CSS variables for team colors if they've been provided
+      if (this.series.teams[0].color_primary) {
+        document.documentElement.style.setProperty('--blue', this.series.teams[0].color_primary);
+      }
+      
+      if (this.series.teams[1].color_primary) {
+        document.documentElement.style.setProperty('--orange', this.series.teams[1].color_primary);
+      }
     }
     
     console.log(`Series updated to:`, this.series);

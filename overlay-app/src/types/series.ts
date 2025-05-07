@@ -3,6 +3,8 @@ export interface SeriesTeam {
   name: string;
   matches_won: number;
   logo?: string;
+  color_primary?: string;  // Add color_primary property
+  color_secondary?: string; // Add color_secondary property
 }
 
 export interface Series {

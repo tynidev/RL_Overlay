@@ -382,7 +382,7 @@ class SeriesControlRouteComponent extends React.Component<SeriesControlRouteProp
 
     // Base design size
     const baseWidth = 1200;
-    const baseHeight = 800;
+    const baseHeight = 650;
 
     const widthRatio = dimensions.width / baseWidth;
     const heightRatio = dimensions.height / baseHeight;
@@ -527,12 +527,12 @@ class SeriesControlRouteComponent extends React.Component<SeriesControlRouteProp
   renderTeamCard = (teamIndex: 0 | 1) => {
     console.log(`Rendering team card for team ${teamIndex}`);
     const team = this.state.series.teams[teamIndex];
-    const teamColor = teamIndex === 0 ? "rgba(12,125,255, 1)" : "rgba(255, 125, 20,1)";
+    const teamColor = teamIndex === 0 ? "rgba(12,125,255, 1)" : "rgba(255, 130, 30,1)";
     const otherTeamIndex = teamIndex === 0 ? 1 : 0;
     const otherTeamWins = this.state.series.teams[otherTeamIndex].matches_won;
 
     // Default RGB values from CSS
-    const defaultRgbColor = teamIndex === 0 ? "12,125,255" : "255, 125, 20";
+    const defaultRgbColor = teamIndex === 0 ? "12,125,255" : "255, 130, 30";
 
     // Maximum wins is half the series length rounded up
     const maxWinsForSingleTeam = Math.ceil(this.state.series.length / 2);
